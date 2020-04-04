@@ -9,5 +9,9 @@
             "email": "elamrani.sv.laza@gmail.com"
         }
     ],
-    "require": {}
+    "autoload": {
+        "psr-4": {
+            "Lazzard\\FtpClient\\": "src/"
+        }
+    }
 }
