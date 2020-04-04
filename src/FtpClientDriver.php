@@ -3,6 +3,8 @@
 
 namespace Lazzard\FtpClient;
 
+use Lazzard\FtpClient\Configuration\FtpConfiguration;
+use Lazzard\FtpClient\Configuration\FtpConfigurationInterface;
 use Lazzard\FtpClient\Exception\FtpClientRuntimeException;
 
 /**
@@ -15,7 +17,24 @@ use Lazzard\FtpClient\Exception\FtpClientRuntimeException;
 abstract class FtpClientDriver
 {
     /** @var resource */
-    private $ftpStream;
+    protected $ftpStream;
+    /** @var \Lazzard\FtpClient\Configuration\FtpConfigurationInterface */
+    private $ftpConfiguration;
+
+    /**
+     * FtpClientDriver constructor.
+     *
+     * @param \Lazzard\FtpClient\Configuration\FtpConfigurationInterface|null $ftpConfiguration
+     */
+    public function __construct(FtpConfigurationInterface $ftpConfiguration = null)
+    {
+        if (is_null($ftpConfiguration)) {
+            $this->ftpConfiguration = new FtpConfiguration();
+        } else {
+            $this->ftpConfiguration = $ftpConfiguration;
+        }
+
+    }
 
     /**
      * Get ftp stream resource.
@@ -33,11 +52,22 @@ abstract class FtpClientDriver
     }
 
     /**
+     * Get FTP stream resource.
      * @param resource $ftpStream
      */
     public function setFtpStream($ftpStream)
     {
         $this->ftpStream = $ftpStream;
+    }
+
+    /**
+     * Get FTP configuration.
+     *
+     * @return \Lazzard\FtpClient\Configuration\FtpConfigurationInterface
+     */
+    public function getFtpConfiguration()
+    {
+        return $this->ftpConfiguration;
     }
 
     /**
@@ -53,8 +83,9 @@ abstract class FtpClientDriver
 
     public function connect($host, $port)
     {
-        if (($ftpStream = @ftp_connect($host, $port)) !== false) {
+        if (($ftpStream = @ftp_connect($host, $port, $this->ftpConfiguration->getTimeout())) !== false) {
             $this->setftpStream($ftpStream);
+            ftp_pasv($this->ftpStream, $this->ftpConfiguration->isPassive());
             return true;
         }
 

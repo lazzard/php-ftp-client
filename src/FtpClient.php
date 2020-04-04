@@ -30,8 +30,8 @@ class FtpClient extends FtpClientDriver {
     {
         $ftpFunction = "ftp_" . $name;
 
-        if (function_exists($ftpFunction) == true) {
-            array_unshift($arguments, $this->getFtpStream());
+        if (function_exists($ftpFunction)) {
+            array_unshift($arguments, parent::getFtpStream());
             return call_user_func_array($ftpFunction, $arguments);
         }
 
