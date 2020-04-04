@@ -1,0 +1,13 @@
+{
+    "name": "lazzard/php-ftp-client",
+    "description": "Standard library for php ftp mechanisms",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "elamrani744",
+            "email": "elamrani.sv.laza@gmail.com"
+        }
+    ],
+    "require": {}
+}
