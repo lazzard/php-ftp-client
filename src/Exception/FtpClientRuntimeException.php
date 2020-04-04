@@ -1,12 +1,13 @@
 <?php
 
-namespace Lazzard\FtpClient\Exceptions;
+namespace Lazzard\FtpClient\Exception;
 
 /**
  * Class FtpClientRuntimeException
  *
  * @since 1.0
- * @package Lazzard\FtpClient\Exceptions
+ * @package Lazzard\FtpClient\Exception
+ * @author EL AMRANI CHAKIR <elamrani.sv.laza@gmail.com>
  */
 class FtpClientRuntimeException extends \RuntimeException implements FtpClientException {
 
@@ -23,6 +24,16 @@ class FtpClientRuntimeException extends \RuntimeException implements FtpClientEx
     public static function unreachableServerContent()
     {
         return new self("Unreachable server content.");
+    }
+
+    public static function closingFtpConnectionFailed()
+    {
+        return new self("Failed to close ftp connection.");
+    }
+
+    public static function invalidFtpResource()
+    {
+        return new self("Invalid Ftp resource.");
     }
 
 }

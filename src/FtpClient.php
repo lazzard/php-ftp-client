@@ -2,8 +2,8 @@
 
 namespace Lazzard\FtpClient;
 
-use Lazzard\FtpClient\Exceptions\FtpClientLogicException;
-use Lazzard\FtpClient\Exceptions\FtpClientRuntimeException;
+use Lazzard\FtpClient\Exception\FtpClientLogicException;
+use Lazzard\FtpClient\Exception\FtpClientRuntimeException;
 
 /**
  * Class FtpClient
@@ -17,22 +17,16 @@ class FtpClient {
     private $ftpStream;
 
     /**
-     * FtpClient constructor.
-     */
-    public function __construct()
-    {
-
-    }
-
-    /**
+     * FtpClient __call.
+     *
      * Handle unsupportable FTP functions by FtpClient.
      *
-     * @param $name
-     * @param $arguments
+     * @param string $name
+     * @param array $arguments
      *
      * @return mixed
      *
-     * @throws \Lazzard\FtpClient\Exceptions\FtpClientLogicException
+     * @throws \Lazzard\FtpClient\Exception\FtpClientLogicException
      */
     public function __call($name, $arguments)
     {
@@ -47,11 +41,18 @@ class FtpClient {
     }
 
     /**
+     * Get ftp stream resource.
+     *
      * @return resource
+     *
+     * @throws \Lazzard\FtpClient\Exception\FtpClientRuntimeException
      */
     public function getFtpStream()
     {
-        return $this->ftpStream;
+        if (is_resource($this->ftpStream))
+            return $this->ftpStream;
+
+        throw FtpClientRuntimeException::invalidFtpResource();
     }
 
     /**
@@ -63,14 +64,14 @@ class FtpClient {
     }
 
     /**
-     * Open FTP connection.
+     * Open an FTP connection.
      *
      * @param string $host Host name
      * @param int    $port
      *
      * @return bool
      *
-     * @throws \Lazzard\FtpClient\Exceptions\FtpClientRuntimeException
+     * @throws \Lazzard\FtpClient\Exception\FtpClientRuntimeException
      */
 
     public function connect($host, $port)
@@ -86,20 +87,34 @@ class FtpClient {
     /**
      * Logging in to an FTP server.
      *
-     * @param $username
-     * @param $password
+     * @param string $username
+     * @param string $password
      *
      * @return bool
      *
-     * @throws \Lazzard\FtpClient\Exceptions\FtpClientRuntimeException
+     * @throws \Lazzard\FtpClient\Exception\FtpClientRuntimeException
      */
     public function login($username, $password)
     {
-        if (!is_null($this->getFtpStream()))
-            return @ftp_login($this->getFtpStream(), $username, $password);
+        if (is_null($this->getFtpStream()) === false) {
+             if (@ftp_login($this->getFtpStream(), $username, $password) == false)
+                 throw FtpClientRuntimeException::ftpServerLoggingFailed();
+        }
 
-        throw FtpClientRuntimeException::ftpServerLoggingFailed();
+        return true;
     }
 
+    /**
+     * Close an FTP connection.
+     *
+     * @return bool
+     */
+    public function close()
+    {
+        if (ftp_close($this->getFtpStream()) === false)
+            throw FtpClientRuntimeException::closingFtpConnectionFailed();
+
+        return true;
+    }
 
 }

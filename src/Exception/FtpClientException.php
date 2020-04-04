@@ -1,13 +1,13 @@
 <?php
 
-
-namespace Lazzard\FtpClient\Exceptions;
+namespace Lazzard\FtpClient\Exception;
 
 /**
  * Interface FtpClientException
  *
  * @since 1.0
- * @package Lazzard\FtpClient\Exceptions
+ * @package Lazzard\FtpClient\Exception
+ * @author EL AMRANI CHAKIR <elamrani.sv.laza@gmail.com>
  */
 interface FtpClientException
 {
