@@ -21,10 +21,15 @@ class FtpConfiguration implements FtpConfigurationInterface
      * FtpConfiguration constructor.
      *
      * @param array|null $conf
+     *
+     * @throws \Lazzard\FtpClient\Configuration\Exception\FtpConfigurationException
      */
     public function __construct($conf = null)
     {
         if (is_null($conf) === false) {
+            Contracts::isInt($conf['timeout'], "Timeout must be an integer.");
+            Contracts::isBool($conf['passive'], "Passive option must be boolean value.");
+
             $this->timeout = $conf['timeout'];
             $this->passive = $conf['passive'];
         }

@@ -25,6 +25,8 @@ abstract class FtpClientDriver
      * FtpClientDriver constructor.
      *
      * @param \Lazzard\FtpClient\Configuration\FtpConfigurationInterface|null $ftpConfiguration
+     *
+     * @throws \Lazzard\FtpClient\Configuration\Exception\FtpConfigurationException
      */
     public function __construct(FtpConfigurationInterface $ftpConfiguration = null)
     {
