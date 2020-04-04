@@ -2,6 +2,9 @@
 
 namespace Lazzard\FtpClient;
 
+use Lazzard\FtpClient\Exceptions\FtpClientLogicException;
+use Lazzard\FtpClient\Exceptions\FtpClientRuntimeException;
+
 /**
  * Class FtpClient
  *
@@ -28,6 +31,8 @@ class FtpClient {
      * @param $arguments
      *
      * @return mixed
+     *
+     * @throws \Lazzard\FtpClient\Exceptions\FtpClientLogicException
      */
     public function __call($name, $arguments)
     {
@@ -38,7 +43,7 @@ class FtpClient {
             return call_user_func_array($ftpFunction, $arguments);
         }
 
-        return null;
+        throw FtpClientLogicException::invalidFtpFunction($ftpFunction);
     }
 
     /**
@@ -64,6 +69,8 @@ class FtpClient {
      * @param int    $port
      *
      * @return bool
+     *
+     * @throws \Lazzard\FtpClient\Exceptions\FtpClientRuntimeException
      */
 
     public function connect($host, $port)
@@ -73,7 +80,7 @@ class FtpClient {
             return true;
         }
 
-        return false;
+        throw FtpClientRuntimeException::ftpServerConnectionFailed();
     }
 
     /**
@@ -83,13 +90,15 @@ class FtpClient {
      * @param $password
      *
      * @return bool
+     *
+     * @throws \Lazzard\FtpClient\Exceptions\FtpClientRuntimeException
      */
     public function login($username, $password)
     {
         if (!is_null($this->getFtpStream()))
             return @ftp_login($this->getFtpStream(), $username, $password);
 
-        return false;
+        throw FtpClientRuntimeException::ftpServerLoggingFailed();
     }
 
 
