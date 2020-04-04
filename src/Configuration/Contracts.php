@@ -16,6 +16,24 @@ use Lazzard\FtpClient\Configuration\Exception\FtpConfigurationException;
 final class Contracts
 {
     /**
+     * @param array $option
+     *
+     * @return bool
+     */
+    public static function validate($option)
+    {
+        switch (key($option))
+        {
+            case "timeout":
+                self::isInt($option['timeout'], "Timeout must be an integer."); break;
+            case "passive":
+                self::isBool($option['passive'], "Passive option must be boolean value."); break;
+        }
+
+        return true;
+    }
+
+    /**
      * @param $value
      * @param $message
      *

@@ -3,6 +3,8 @@
 
 namespace Lazzard\FtpClient\Configuration;
 
+use Lazzard\FtpClient\Configuration\Exception\FtpConfigurationException;
+
 /**
  * Class FtpConfiguration
  *
@@ -16,6 +18,8 @@ class FtpConfiguration implements FtpConfigurationInterface
     private $timeout = 90;
     /** @var bool */
     private $passive = false;
+    /** @var bool */
+    private $autoSeek = true;
 
     /**
      * FtpConfiguration constructor.
@@ -26,12 +30,24 @@ class FtpConfiguration implements FtpConfigurationInterface
      */
     public function __construct($conf = null)
     {
-        if (is_null($conf) === false) {
-            Contracts::isInt($conf['timeout'], "Timeout must be an integer.");
-            Contracts::isBool($conf['passive'], "Passive option must be boolean value.");
-
-            $this->timeout = $conf['timeout'];
-            $this->passive = $conf['passive'];
+        if (is_null($conf) === false)
+        {
+            foreach ($conf as $option => $value)
+            {
+                # Get current object vars as an array in insensitive format
+                $object_vars_lower_case = array_change_key_case(get_object_vars($this), CASE_LOWER);
+                # Check if option is exists
+                if (key_exists(strtolower($option), $object_vars_lower_case))
+                {
+                    # Validate option
+                    Contracts::validate([$option => $value]);
+                    # Call setter
+                    $call_func = "set" . ucfirst($option);
+                    $this->$call_func($value);
+                } else {
+                    throw new FtpConfigurationException("{$option} is invalid FTP configuration option.");
+                }
+            }
         }
     }
 
@@ -44,11 +60,43 @@ class FtpConfiguration implements FtpConfigurationInterface
     }
 
     /**
+     * @param int $timeout
+     */
+    public function setTimeout($timeout)
+    {
+        $this->timeout = $timeout;
+    }
+
+    /**
      * @inheritDoc
      */
     public function isPassive()
     {
         return $this->passive;
+    }
+
+    /**
+     * @param bool $passive
+     */
+    public function setPassive($passive)
+    {
+        $this->passive = $passive;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function isAutoSeek()
+    {
+        return $this->autoSeek;
+    }
+
+    /**
+     * @param bool $autoSeek
+     */
+    public function setAutoSeek($autoSeek)
+    {
+        $this->autoSeek = $autoSeek;
     }
 
 }
