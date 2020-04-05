@@ -9,26 +9,13 @@ namespace Lazzard\FtpClient\Exception;
  * @package Lazzard\FtpClient\Exception
  * @author EL AMRANI CHAKIR <elamrani.sv.laza@gmail.com>
  */
-class FtpClientRuntimeException extends \RuntimeException implements FtpClientException {
+class FtpClientRuntimeException extends \RuntimeException implements FtpClientException
+{
 
-    public static function ftpServerConnectionFailed()
+    public function __construct($message)
     {
-        return new self("Connection failed to FTP server.");
-    }
-
-    public static function ftpServerLoggingFailed()
-    {
-        return new self("Logging failed to FTP server.");
-    }
-
-    public static function unreachableServerContent()
-    {
-        return new self("Unreachable server content.");
-    }
-
-    public static function closingFtpConnectionFailed()
-    {
-        return new self("Failed to close ftp connection.");
+        $_message = "[Ftp Runtime Exception] " . $message;
+        parent::__construct($_message);
     }
 
 }

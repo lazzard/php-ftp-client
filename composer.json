@@ -1,6 +1,6 @@
 {
     "name": "lazzard/php-ftp-client",
-    "description": "Standard library for php ftp mechanisms",
+    "description": "Standard library for php FTP mechanisms",
     "type": "library",
     "license": "MIT",
     "authors": [

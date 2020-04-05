@@ -11,14 +11,9 @@ namespace Lazzard\FtpClient\Exception;
  */
 class FtpClientLogicException extends \LogicException implements FtpClientException {
 
-    public static function invalidFtpFunction($ftpFunction)
+    public function __construct($message)
     {
-        return new \BadFunctionCallException("{$ftpFunction} is invalid FTP function.");
+        $_message = "[Ftp Logic Exception] " . $message;
+        parent::__construct($_message);
     }
-
-    public static function invalidFtpResource()
-    {
-        return new self("Invalid Ftp resource.");
-    }
-
 }

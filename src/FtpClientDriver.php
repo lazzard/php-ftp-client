@@ -4,7 +4,6 @@
 namespace Lazzard\FtpClient;
 
 use Lazzard\FtpClient\Configuration\FtpConfiguration;
-use Lazzard\FtpClient\Exception\FtpClientLogicException;
 use Lazzard\FtpClient\Exception\FtpClientRuntimeException;
 
 /**
@@ -17,52 +16,49 @@ use Lazzard\FtpClient\Exception\FtpClientRuntimeException;
 abstract class FtpClientDriver
 {
     /** @var resource */
-    protected $ftpStream;
+    protected $connection;
     /** @var \Lazzard\FtpClient\Configuration\FtpConfiguration */
     private $ftpConfiguration;
 
     /**
      * FtpClientDriver constructor.
      *
-     * @param \Lazzard\FtpClient\Configuration\FtpConfiguration|null $ftpConfiguration
-     *
-     * @throws \Lazzard\FtpClient\Configuration\Exception\FtpConfigurationOptionException
+     * @param \Lazzard\FtpClient\Configuration\FtpConfiguration|null $FtpConfigurationOptions
      */
-    public function __construct(FtpConfiguration $ftpConfiguration = null)
+    public function __construct(FtpConfiguration $FtpConfigurationOptions = null)
     {
-        if (is_null($ftpConfiguration)) {
+        if (is_null($FtpConfigurationOptions)) {
             $this->ftpConfiguration = new FtpConfiguration();
         } else {
-            $this->ftpConfiguration = $ftpConfiguration;
+            $this->ftpConfiguration = $FtpConfigurationOptions;
         }
     }
 
     /**
-     * Get ftp stream resource.
+     * Get current FTP stream resource.
      *
      * @return resource
      *
      * @throws \Lazzard\FtpClient\Exception\FtpClientRuntimeException
      */
-    public function getFtpStream()
+    public function getConnection()
     {
-        if (is_resource($this->ftpStream))
-            return $this->ftpStream;
+        if (is_resource($this->connection))
+            return $this->connection;
 
-        throw FtpClientLogicException::invalidFtpResource();
+        throw new FtpClientRuntimeException("Invalid ftp resource stream, try to reconnect to the remote server.");
     }
 
     /**
-     * Get FTP stream resource.
-     * @param resource $ftpStream
+     * @param resource $connection
      */
-    public function setFtpStream($ftpStream)
+    public function setConnection($connection)
     {
-        $this->ftpStream = $ftpStream;
+        $this->connection = $connection;
     }
 
     /**
-     * Get FTP configuration.
+     * Get current FTP configuration.
      *
      * @return \Lazzard\FtpClient\Configuration\FtpConfiguration
      */
@@ -84,13 +80,13 @@ abstract class FtpClientDriver
 
     public function connect($host, $port)
     {
-        if (($ftpStream = @ftp_connect($host, $port, $this->ftpConfiguration->getTimeout())) !== false) {
-            $this->setftpStream($ftpStream);
-            ftp_pasv($this->ftpStream, $this->ftpConfiguration->isPassive());
+        if (($connection = @ftp_connect($host, $port, $this->getFtpConfiguration()->getTimeout())) !== false) {
+            $this->setConnection($connection);
+            ftp_pasv($this->getConnection(), $this->getFtpConfiguration()->isPassive());
             return true;
         }
 
-        throw FtpClientRuntimeException::ftpServerConnectionFailed();
+        throw new FtpClientRuntimeException("Connection failed to remote server.");
     }
 
     /**
@@ -105,9 +101,9 @@ abstract class FtpClientDriver
      */
     public function login($username, $password)
     {
-        if (is_null($this->getFtpStream()) === false) {
-            if (@ftp_login($this->getFtpStream(), $username, $password) == false)
-                throw FtpClientRuntimeException::ftpServerLoggingFailed();
+        if (is_null($this->getConnection()) === false) {
+            if (@ftp_login($this->getConnection(), $username, $password) == false)
+                throw new FtpClientRuntimeException("Logging failed to remote server.");
         }
 
         return true;
@@ -120,8 +116,8 @@ abstract class FtpClientDriver
      */
     public function close()
     {
-        if (ftp_close($this->getFtpStream()) === false)
-            throw FtpClientRuntimeException::closingFtpConnectionFailed();
+        if (ftp_close($this->getConnection()) === false)
+            throw new FtpClientRuntimeException("Failed to closing FTP connection.");
 
         return true;
     }

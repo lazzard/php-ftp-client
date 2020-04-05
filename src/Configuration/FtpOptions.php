@@ -64,11 +64,27 @@ abstract class FtpOptions
     }
 
     /**
+     * @param int $timeout
+     */
+    public function setTimeout($timeout)
+    {
+        $this->timeout = $timeout;
+    }
+
+    /**
      * @inheritDoc
      */
     public function isPassive()
     {
         return $this->passive;
+    }
+
+    /**
+     * @param bool $passive
+     */
+    public function setPassive($passive)
+    {
+        $this->passive = $passive;
     }
 
     /**
@@ -79,4 +95,11 @@ abstract class FtpOptions
         return $this->autoSeek;
     }
 
+    /**
+     * @param bool $autoSeek
+     */
+    public function setAutoSeek($autoSeek)
+    {
+        $this->autoSeek = $autoSeek;
+    }
 }
