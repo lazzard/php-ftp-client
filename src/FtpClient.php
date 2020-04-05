@@ -3,6 +3,7 @@
 namespace Lazzard\FtpClient;
 
 use Lazzard\FtpClient\Exception\FtpClientLogicException;
+use Lazzard\FtpClient\Exception\FtpClientRuntimeException;
 
 /**
  * Class FtpClient
@@ -56,14 +57,12 @@ class FtpClient extends FtpClientDriver
      */
     public function getFiles($directory, $ignoreDotes = self::IGNORE_DOTS, $callback = null)
     {
-        $list = ftp_nlist(parent::getConnection(), "$directory");
+        if (($list = ftp_nlist(parent::getConnection(), "$directory")) === false)
+            throw FtpClientRuntimeException::unreachableServerContent();
 
         if ($ignoreDotes === true) {
             $list = array_filter($list, function ($item) {
-                if (in_array($item, ['.', '..']) === false) {
-                    return true;
-                }
-                return false;
+                return !in_array($item, ['.', '..']);
             });
         }
 

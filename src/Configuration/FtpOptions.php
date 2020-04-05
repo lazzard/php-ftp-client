@@ -33,24 +33,23 @@ abstract class FtpOptions
      */
     public function __construct($options = null)
     {
-        if (is_null($options) === false)
-        {
+        if (is_null($options) === false) {
             # Looping over client giving options
             foreach ($options as $option => $value) {
 
                 # Get current object vars as an array in insensitive format
-                $obj_vars_lowercase = array_change_key_case(get_object_vars($this), CASE_LOWER);
+                $objVarsToLower = array_change_key_case(get_object_vars($this), CASE_LOWER);
 
                 # Lower case option
-                $option_lowercase = strtolower($option);
+                $optionToLower = strtolower($option);
 
                 # Check if option is exists
-                if (key_exists($option_lowercase, $obj_vars_lowercase)) {
+                if (key_exists($optionToLower, $objVarsToLower)) {
 
                     # Validate option
-                    if (FtpOptionsContracts::validate([$option_lowercase => $value]) === true) {
+                    if (FtpOptionsContracts::validate([$optionToLower => $value]) === true) {
                         # Call the appropriate setter
-                        $call_func = "set" . ucfirst($option_lowercase);
+                        $call_func = "set" . ucfirst($optionToLower);
                         $this->$call_func($value);
                     }
 

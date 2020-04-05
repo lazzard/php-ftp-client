@@ -36,10 +36,10 @@ abstract class FtpExtension extends FtpOptions
         foreach (self::REQUIRED_EXTENSIONS as $require_ext)
         {
             if (ExtensionChecker::isExists($require_ext) === false)
-                throw ExtensionException::notSupportedPhpExtension($require_ext);
+                throw new ExtensionException("{$require_ext} is unsupported extension.");
 
             if (ExtensionChecker::isLoaded($require_ext) === false)
-                throw ExtensionException::phpExtensionNotLoaded($require_ext);
+                throw new ExtensionException("{$require_ext} extension not loaded.");
         }
 
         parent::__construct($options);

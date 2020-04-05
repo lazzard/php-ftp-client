@@ -11,11 +11,13 @@ namespace Lazzard\FtpClient\Exception;
  */
 class FtpClientRuntimeException extends \RuntimeException implements FtpClientException
 {
-
     public function __construct($message)
     {
-        $_message = "[Ftp Runtime Exception] " . $message;
-        parent::__construct($_message);
+        parent::__construct("[FTP Exception] " . $message);
     }
 
+    public static function unreachableServerContent()
+    {
+        return new self("Unreachable server content, try to increase the FTP timeout.");
+    }
 }

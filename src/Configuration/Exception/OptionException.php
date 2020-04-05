@@ -15,7 +15,6 @@ class OptionException extends \InvalidArgumentException implements FtpClientExce
 {
     public function __construct($message)
     {
-        $_message = "[Ftp Invalid Argument Exception] " . $message;
-        parent::__construct($_message);
+        parent::__construct("[FTP Configuration Exception] " . $message);
     }
 }

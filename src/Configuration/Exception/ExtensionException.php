@@ -15,7 +15,6 @@ class ExtensionException extends \RuntimeException implements FtpClientException
 {
     public function __construct($message)
     {
-        $_message = "[Ftp Runtime Exception] " . $message;
-        parent::__construct($_message);
+        parent::__construct("[FTP Configuration Exception] " . $message);
     }
 }
