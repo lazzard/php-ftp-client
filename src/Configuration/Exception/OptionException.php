@@ -5,17 +5,17 @@ namespace Lazzard\FtpClient\Configuration\Exception;
 use Lazzard\FtpClient\Exception\FtpClientException;
 
 /**
- * Class ExtensionException
+ * Class OptionException
  *
  * @since 1.0
- * @package Lazzard\FtpClient\Exception
+ * @package Lazzard\FtpClient\FtpConfiguration\Exception
  * @author EL AMRANI CHAKIR <elamrani.sv.laza@gmail.com>
  */
-class ExtensionException extends \RuntimeException implements FtpClientException
+class OptionException extends \InvalidArgumentException implements FtpClientException
 {
     public function __construct($message)
     {
-        $_message = "[Ftp Runtime Exception] " . $message;
+        $_message = "[Ftp Invalid Argument Exception] " . $message;
         parent::__construct($_message);
     }
 }

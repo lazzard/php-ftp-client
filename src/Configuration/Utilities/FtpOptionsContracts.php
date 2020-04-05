@@ -2,7 +2,7 @@
 
 namespace Lazzard\FtpClient\Configuration\Utilities;
 
-use Lazzard\FtpClient\Configuration\Exception\FtpOptionException;
+use Lazzard\FtpClient\Configuration\Exception\OptionException;
 
 /**
  * Class OptionsContracts
@@ -20,7 +20,7 @@ final class FtpOptionsContracts
      *
      * @return bool
      *
-     * @throws \Lazzard\FtpClient\Configuration\Exception\FtpOptionException
+     * @throws \Lazzard\FtpClient\Configuration\Exception\OptionException
      */
     public static function validate($option)
     {
@@ -41,12 +41,12 @@ final class FtpOptionsContracts
      *
      * @return bool
      *
-     * @throws \Lazzard\FtpClient\Configuration\Exception\FtpOptionException
+     * @throws \Lazzard\FtpClient\Configuration\Exception\OptionException
      */
     private static function isInt($value)
     {
         if (is_int($value) === false)
-            FtpOptionException::optionValueMustBeAnInteger($value);
+            throw new OptionException("{$value} must be an integer.");
 
         return true;
     }
@@ -56,12 +56,12 @@ final class FtpOptionsContracts
      *
      * @return bool
      *
-     * @throws \Lazzard\FtpClient\Configuration\Exception\FtpOptionException
+     * @throws \Lazzard\FtpClient\Configuration\Exception\OptionException
      */
     private static function isBool($value)
     {
         if (is_bool($value) === false)
-            throw FtpOptionException::optionValueMustBeABoolean($value);
+            throw new OptionException("{$value} must be boolean value.");
 
         return true;
     }

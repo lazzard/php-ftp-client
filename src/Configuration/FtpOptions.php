@@ -3,7 +3,7 @@
 
 namespace Lazzard\FtpClient\Configuration;
 
-use Lazzard\FtpClient\Configuration\Exception\FtpOptionException;
+use Lazzard\FtpClient\Configuration\Exception\OptionException;
 use Lazzard\FtpClient\Configuration\Utilities\FtpOptionsContracts;
 
 /**
@@ -33,23 +33,30 @@ abstract class FtpOptions
      */
     public function __construct($options = null)
     {
-        if (is_null($options) === false) {
-            foreach ($options as $option => $value)
-            {
+        if (is_null($options) === false)
+        {
+            # Looping over client giving options
+            foreach ($options as $option => $value) {
+
                 # Get current object vars as an array in insensitive format
-                $object_vars_lower_case = array_change_key_case(get_object_vars($this), CASE_LOWER);
+                $obj_vars_lowercase = array_change_key_case(get_object_vars($this), CASE_LOWER);
+
+                # Lower case option
+                $option_lowercase = strtolower($option);
+
                 # Check if option is exists
-                $option_lower_case = strtolower($option);
-                if (key_exists($option_lower_case, $object_vars_lower_case)) {
+                if (key_exists($option_lowercase, $obj_vars_lowercase)) {
+
                     # Validate option
-                    if (FtpOptionsContracts::validate([$option_lower_case => $value]) === true) {
-                        # Call setter
-                        $call_func = "set" . ucfirst($option_lower_case);
+                    if (FtpOptionsContracts::validate([$option_lowercase => $value]) === true) {
+                        # Call the appropriate setter
+                        $call_func = "set" . ucfirst($option_lowercase);
                         $this->$call_func($value);
                     }
+
                 } else {
                     # Invalid configuration option
-                    throw FtpOptionException::invalidConfigurationOption($option);
+                    throw new OptionException("{$option} is invalid FTP configuration option.");
                 }
             }
         }

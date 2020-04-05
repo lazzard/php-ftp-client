@@ -23,14 +23,16 @@ abstract class FtpClientDriver
     /**
      * FtpClientDriver constructor.
      *
-     * @param \Lazzard\FtpClient\Configuration\FtpConfiguration|null $FtpConfigurationOptions
+     * @param \Lazzard\FtpClient\Configuration\FtpConfiguration|null $ftpConfiguration
      */
-    public function __construct(FtpConfiguration $FtpConfigurationOptions = null)
+    public function __construct(FtpConfiguration $ftpConfiguration = null)
     {
-        if (is_null($FtpConfigurationOptions)) {
+        if (is_null($ftpConfiguration)) {
+            # FTP default configuration
             $this->ftpConfiguration = new FtpConfiguration();
         } else {
-            $this->ftpConfiguration = $FtpConfigurationOptions;
+            # FTP Client configuration
+            $this->ftpConfiguration = $ftpConfiguration;
         }
     }
 

@@ -3,7 +3,7 @@
 namespace Lazzard\FtpClient\Exception;
 
 /**
- * Interface FtpClientException
+ * Interface FtpClientException encapsulate all FTP exceptions.
  *
  * @since 1.0
  * @package Lazzard\FtpClient\Exception
