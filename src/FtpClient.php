@@ -38,4 +38,9 @@ class FtpClient extends FtpClientDriver {
         throw FtpClientLogicException::invalidFtpFunction($ftpFunction);
     }
 
+    public function getFilesList($directory)
+    {
+
+    }
+
 }

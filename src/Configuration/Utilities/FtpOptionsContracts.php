@@ -1,8 +1,8 @@
 <?php
 
-namespace Lazzard\FtpClient\Configuration;
+namespace Lazzard\FtpClient\Configuration\Utilities;
 
-use Lazzard\FtpClient\Configuration\Exception\FtpConfigurationOptionException;
+use Lazzard\FtpClient\Configuration\Exception\FtpOptionException;
 
 /**
  * Class OptionsContracts
@@ -10,19 +10,19 @@ use Lazzard\FtpClient\Configuration\Exception\FtpConfigurationOptionException;
  * FtpConfiguration options contracts.
  *
  * @since 1.0
- * @package Lazzard\FtpClient\FtpConfiguration
+ * @package Lazzard\FtpClient\Configuration\Utilities
  * @author EL AMRANI CHAKIR <elamrani.sv.laza@gmail.com>
  */
-final class OptionsContracts
+final class FtpOptionsContracts
 {
     /**
      * @param array $option
      *
      * @return bool
      *
-     * @throws \Lazzard\FtpClient\Configuration\Exception\FtpConfigurationOptionException
+     * @throws \Lazzard\FtpClient\Configuration\Exception\FtpOptionException
      */
-    public static function isValidateOption($option)
+    public static function validate($option)
     {
         switch (key($option))
         {
@@ -41,12 +41,12 @@ final class OptionsContracts
      *
      * @return bool
      *
-     * @throws \Lazzard\FtpClient\Configuration\Exception\FtpConfigurationOptionException
+     * @throws \Lazzard\FtpClient\Configuration\Exception\FtpOptionException
      */
-    public static function isInt($value)
+    private static function isInt($value)
     {
         if (is_int($value) === false)
-            FtpConfigurationOptionException::optionValueMustBeAnInteger($value);
+            FtpOptionException::optionValueMustBeAnInteger($value);
 
         return true;
     }
@@ -56,12 +56,12 @@ final class OptionsContracts
      *
      * @return bool
      *
-     * @throws \Lazzard\FtpClient\Configuration\Exception\FtpConfigurationOptionException
+     * @throws \Lazzard\FtpClient\Configuration\Exception\FtpOptionException
      */
-    public static function isBool($value)
+    private static function isBool($value)
     {
         if (is_bool($value) === false)
-            throw FtpConfigurationOptionException::optionValueMustBeABoolean($value);
+            throw FtpOptionException::optionValueMustBeABoolean($value);
 
         return true;
     }
