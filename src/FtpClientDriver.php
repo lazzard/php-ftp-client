@@ -4,7 +4,7 @@
 namespace Lazzard\FtpClient;
 
 use Lazzard\FtpClient\Configuration\FtpConfiguration;
-use Lazzard\FtpClient\Configuration\FtpConfigurationInterface;
+use Lazzard\FtpClient\Exception\FtpClientLogicException;
 use Lazzard\FtpClient\Exception\FtpClientRuntimeException;
 
 /**
@@ -18,24 +18,23 @@ abstract class FtpClientDriver
 {
     /** @var resource */
     protected $ftpStream;
-    /** @var \Lazzard\FtpClient\Configuration\FtpConfigurationInterface */
+    /** @var \Lazzard\FtpClient\Configuration\FtpConfiguration */
     private $ftpConfiguration;
 
     /**
      * FtpClientDriver constructor.
      *
-     * @param \Lazzard\FtpClient\Configuration\FtpConfigurationInterface|null $ftpConfiguration
+     * @param \Lazzard\FtpClient\Configuration\FtpConfiguration|null $ftpConfiguration
      *
-     * @throws \Lazzard\FtpClient\Configuration\Exception\FtpConfigurationException
+     * @throws \Lazzard\FtpClient\Configuration\Exception\FtpConfigurationOptionException
      */
-    public function __construct(FtpConfigurationInterface $ftpConfiguration = null)
+    public function __construct(FtpConfiguration $ftpConfiguration = null)
     {
         if (is_null($ftpConfiguration)) {
             $this->ftpConfiguration = new FtpConfiguration();
         } else {
             $this->ftpConfiguration = $ftpConfiguration;
         }
-
     }
 
     /**
@@ -50,7 +49,7 @@ abstract class FtpClientDriver
         if (is_resource($this->ftpStream))
             return $this->ftpStream;
 
-        throw FtpClientRuntimeException::invalidFtpResource();
+        throw FtpClientLogicException::invalidFtpResource();
     }
 
     /**
@@ -65,7 +64,7 @@ abstract class FtpClientDriver
     /**
      * Get FTP configuration.
      *
-     * @return \Lazzard\FtpClient\Configuration\FtpConfigurationInterface
+     * @return \Lazzard\FtpClient\Configuration\FtpConfiguration
      */
     public function getFtpConfiguration()
     {

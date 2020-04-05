@@ -13,9 +13,12 @@ class FtpClientLogicException extends \LogicException implements FtpClientExcept
 
     public static function invalidFtpFunction($ftpFunction)
     {
-        return new \BadFunctionCallException(
-            sprintf("[%s] is invalid FTP function.", $ftpFunction)
-        );
+        return new \BadFunctionCallException("{$ftpFunction} is invalid FTP function.");
+    }
+
+    public static function invalidFtpResource()
+    {
+        return new self("Invalid Ftp resource.");
     }
 
 }

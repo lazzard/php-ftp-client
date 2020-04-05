@@ -31,9 +31,4 @@ class FtpClientRuntimeException extends \RuntimeException implements FtpClientEx
         return new self("Failed to close ftp connection.");
     }
 
-    public static function invalidFtpResource()
-    {
-        return new self("Invalid Ftp resource.");
-    }
-
 }
