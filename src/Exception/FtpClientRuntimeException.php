@@ -13,7 +13,7 @@ class FtpClientRuntimeException extends \RuntimeException implements FtpClientEx
 {
     public function __construct($message)
     {
-        parent::__construct("[FTP Exception] " . $message);
+        parent::__construct("[FtpClient Exception] " . $message);
     }
 
     public static function unreachableServerContent()

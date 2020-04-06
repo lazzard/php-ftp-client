@@ -7,23 +7,31 @@ use Lazzard\FtpClient\Configuration\FtpConfiguration;
 use Lazzard\FtpClient\Exception\FtpClientRuntimeException;
 
 /**
- * Class FtpClientDriver manage FTP connection.
+ * Class FtpDriver
+ *
+ * Manage FTP connection and setting FTP runtime options.
  *
  * @since 1.0
  * @package Lazzard\FtpClient
  * @author EL AMRANI CHAKIR <elamrani.sv.laza@gmail.com>
  */
-abstract class FtpClientDriver
+abstract class FtpDriver
 {
     /** @var resource */
     protected $connection;
+
+    /** @var \Lazzard\FtpClient\FtpWrapper */
+    protected $ftpWrapper;
+
     /** @var \Lazzard\FtpClient\Configuration\FtpConfiguration */
     private $ftpConfiguration;
 
     /**
-     * FtpClientDriver constructor.
+     * FtpDriver constructor.
      *
      * @param \Lazzard\FtpClient\Configuration\FtpConfiguration|null $ftpConfiguration
+     *
+     * @throws \ReflectionException
      */
     public function __construct(FtpConfiguration $ftpConfiguration = null)
     {
@@ -34,6 +42,8 @@ abstract class FtpClientDriver
             # FTP Client configuration
             $this->ftpConfiguration = $ftpConfiguration;
         }
+        
+        $this->ftpWrapper = new FtpWrapper();
     }
 
     /**
@@ -60,6 +70,22 @@ abstract class FtpClientDriver
     }
 
     /**
+     * @return \Lazzard\FtpClient\FtpWrapper
+     */
+    public function getFtpWrapper()
+    {
+        return $this->ftpWrapper;
+    }
+
+    /**
+     * @param \Lazzard\FtpClient\FtpWrapper $ftpWrapper
+     */
+    public function setFtpWrapper($ftpWrapper)
+    {
+        $this->ftpWrapper = $ftpWrapper;
+    }
+
+    /**
      * Get current FTP configuration.
      *
      * @return \Lazzard\FtpClient\Configuration\FtpConfiguration
@@ -72,19 +98,34 @@ abstract class FtpClientDriver
     /**
      * Open an FTP connection.
      *
-     * @param string $host Host name
-     * @param int    $port
+     * @param string $host    Host name
+     * @param int    $port    Default sets to port 21
+     * @param int    $timeout Default value is 90
      *
      * @return bool
      *
-     * @throws \Lazzard\FtpClient\Exception\FtpClientRuntimeException
      */
-
-    public function connect($host, $port)
+    public function connect($host, $port = 21, $timeout = 90)
     {
-        if (($connection = @ftp_connect($host, $port, $this->getFtpConfiguration()->getTimeout())) !== false) {
+        if (($connection = $this->getFtpWrapper()->connect(
+            $host,
+            $port,
+            $timeout)) !== false)
+        {
             $this->setConnection($connection);
-            ftp_pasv($this->getConnection(), $this->getFtpConfiguration()->isPassive());
+
+            $this->getFtpWrapper()->setOption(
+                $this->getConnection(),
+                FTP_AUTOSEEK,
+                $this->getFtpConfiguration()->isAutoSeek()
+            );
+
+            $this->getFtpWrapper()->setOption(
+                $this->getConnection(),
+                FTP_TIMEOUT_SEC,
+                $this->getFtpConfiguration()->getTimeout()
+            );
+
             return true;
         }
 
@@ -104,8 +145,11 @@ abstract class FtpClientDriver
     public function login($username, $password)
     {
         if (is_null($this->getConnection()) === false) {
-            if (@ftp_login($this->getConnection(), $username, $password) == false)
+            if ($this->getFtpWrapper()->login($this->getConnection(), $username, $password) === true) {
+                $this->getFtpWrapper()->pasv($this->getConnection(), $this->getFtpConfiguration()->isPassive());
+            } else {
                 throw new FtpClientRuntimeException("Logging failed to remote server.");
+            }
         }
 
         return true;
@@ -118,7 +162,7 @@ abstract class FtpClientDriver
      */
     public function close()
     {
-        if (ftp_close($this->getConnection()) === false)
+        if ($this->getFtpWrapper()->close($this->getConnection()) === false)
             throw new FtpClientRuntimeException("Failed to closing FTP connection.");
 
         return true;

@@ -1,0 +1,83 @@
+<?php
+
+namespace Lazzard\FtpClient;
+
+/**
+ * Class FtpWrapper
+ *
+ * Wrapper class for FTP functions & constants.
+ *
+ * @since 1.0
+ * @package Lazzard\FtpClient
+ * @author EL AMRANI CHAKIR <elamrani.sv.laza@gmail.com>
+ */
+class FtpWrapper
+{
+
+    /**
+     * @link https://www.php.net/manual/en/function.ftp-connect.php
+     *
+     * @param string $host
+     * @param int    $port
+     * @param int    $timeout
+     *
+     * @return false|resource
+     */
+    public function connect($host, $port = 21, $timeout = 90)
+    {
+        return ftp_connect($host, $port, $timeout);
+    }
+
+    /**
+     * @link https://www.php.net/manual/en/function.ftp-login.php
+     *
+     * @param resource $ftpStream
+     * @param string   $username
+     * @param string   $password
+     *
+     * @return bool
+     */
+    public function login($ftpStream, $username, $password)
+    {
+        return @ftp_login($ftpStream, $username, $password);
+    }
+
+    /**
+     * @link https://www.php.net/manual/en/function.ftp-close.php
+     *
+     * @param resource $ftpStream
+     *
+     * @return bool
+     */
+    public function close($ftpStream)
+    {
+        return ftp_close($ftpStream);
+    }
+
+    /**
+     * @link https://www.php.net/manual/en/function.ftp-pasv.php
+     *
+     * @param resource $ftpStream
+     * @param bool     $pasv
+     *
+     * @return bool
+     */
+    public function pasv($ftpStream, $pasv)
+    {
+        return ftp_pasv($ftpStream, $pasv);
+    }
+
+    /**
+     * @link https://www.php.net/manual/en/function.ftp-set-option.php
+     *
+     * @param $ftpStream
+     * @param $option
+     * @param $value
+     *
+     * @return bool
+     */
+    public function setOption($ftpStream, $option, $value)
+    {
+        return @ftp_set_option($ftpStream, $option, $value);
+    }
+}

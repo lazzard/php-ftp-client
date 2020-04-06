@@ -12,7 +12,7 @@ use Lazzard\FtpClient\Exception\FtpClientRuntimeException;
  * @package Lazzard\FtpClient
  * @author EL AMRANI CHAKIR <elamrani.sv.laza@gmail.com>
  */
-class FtpClient extends FtpClientDriver
+class FtpClient extends FtpDriver
 {
     /**
      * FtpClient predefined constants.

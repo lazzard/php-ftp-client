@@ -13,6 +13,6 @@ class FtpClientLogicException extends \LogicException implements FtpClientExcept
 {
     public function __construct($message)
     {
-        parent::__construct("[FTP Exception] " . $message);
+        parent::__construct("[FtpClient Exception] " . $message);
     }
 }
