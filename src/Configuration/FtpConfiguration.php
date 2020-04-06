@@ -46,21 +46,20 @@ class FtpConfiguration
 
                         $setter = "set" . ucfirst($optionKey);
                         $this->$setter($optionValue);
-
-                    } else {
-                        $prop = new \ReflectionProperty(self::class, $optionKey);
-                        $type = explode(' ', $prop->getDocComment())[2];
-
-                        throw new ConfigurationException(sprintf(
-                            "%s option accept value of type %s",
-                            $optionKey,
-                            $type
-                        ));
+                        continue;
                     }
 
-                } else {
-                    throw new ConfigurationException("{$optionKey} is invalid FTP configuration option.");
+                    $prop = new \ReflectionProperty(self::class, $optionKey);
+                    $type = explode(' ', $prop->getDocComment())[2];
+
+                    throw new ConfigurationException(sprintf(
+                        "%s option accept value of type %s",
+                        $optionKey,
+                        $type
+                    ));
                 }
+
+                throw new ConfigurationException("{$optionKey} is invalid FTP configuration option.");
             }
         }
     }

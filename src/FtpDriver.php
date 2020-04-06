@@ -36,13 +36,10 @@ abstract class FtpDriver
     public function __construct(FtpConfiguration $ftpConfiguration = null)
     {
         if (is_null($ftpConfiguration)) {
-            # FTP default configuration
             $this->ftpConfiguration = new FtpConfiguration();
-        } else {
-            # FTP Client configuration
-            $this->ftpConfiguration = $ftpConfiguration;
         }
-        
+
+        $this->ftpConfiguration = $ftpConfiguration;
         $this->ftpWrapper = new FtpWrapper();
     }
 
@@ -96,6 +93,14 @@ abstract class FtpDriver
     }
 
     /**
+     * @param \Lazzard\FtpClient\Configuration\FtpConfiguration $ftpConfiguration
+     */
+    public function setFtpConfiguration($ftpConfiguration)
+    {
+        $this->ftpConfiguration = $ftpConfiguration;
+    }
+
+    /**
      * Open an FTP connection.
      *
      * @param string $host    Host name
@@ -116,13 +121,13 @@ abstract class FtpDriver
 
             $this->getFtpWrapper()->setOption(
                 $this->getConnection(),
-                FTP_AUTOSEEK,
+               FtpWrapper::TIMEOUT_SEC,
                 $this->getFtpConfiguration()->isAutoSeek()
             );
 
             $this->getFtpWrapper()->setOption(
                 $this->getConnection(),
-                FTP_TIMEOUT_SEC,
+                FtpWrapper::AUTOSEEK,
                 $this->getFtpConfiguration()->getTimeout()
             );
 
@@ -144,15 +149,12 @@ abstract class FtpDriver
      */
     public function login($username, $password)
     {
-        if (is_null($this->getConnection()) === false) {
-            if ($this->getFtpWrapper()->login($this->getConnection(), $username, $password) === true) {
-                $this->getFtpWrapper()->pasv($this->getConnection(), $this->getFtpConfiguration()->isPassive());
-            } else {
-                throw new FtpClientRuntimeException("Logging failed to remote server.");
-            }
+        if ($this->getFtpWrapper()->login($this->getConnection(), $username, $password) === true) {
+            $this->getFtpWrapper()->pasv($this->getConnection(), $this->getFtpConfiguration()->isPassive());
+            return true;
         }
 
-        return true;
+        throw new FtpClientRuntimeException("Logging failed to remote server.");
     }
 
     /**

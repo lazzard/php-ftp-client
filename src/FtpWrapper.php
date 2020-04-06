@@ -5,7 +5,7 @@ namespace Lazzard\FtpClient;
 /**
  * Class FtpWrapper
  *
- * Wrapper class for FTP functions & constants.
+ * Wrapper class for php FTP functions & constants.
  *
  * @since 1.0
  * @package Lazzard\FtpClient
@@ -13,6 +13,12 @@ namespace Lazzard\FtpClient;
  */
 class FtpWrapper
 {
+    /**
+     * FTP predefined constants alias
+     */
+    const TIMEOUT_SEC    = FTP_TIMEOUT_SEC;
+    const AUTOSEEK       = FTP_AUTOSEEK;
+    const USEPASVADDRESS = FTP_USEPASVADDRESS;
 
     /**
      * @link https://www.php.net/manual/en/function.ftp-connect.php
