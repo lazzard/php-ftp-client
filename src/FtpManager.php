@@ -1,21 +1,21 @@
 <?php
 
-
 namespace Lazzard\FtpClient;
 
 use Lazzard\FtpClient\Configuration\FtpConfiguration;
+use Lazzard\FtpClient\Configuration\FtpConfigurationInterface;
 use Lazzard\FtpClient\Exception\FtpClientRuntimeException;
 
 /**
- * Class FtpDriver
+ * Class FtpManager
  *
- * Manage FTP connection and setting FTP runtime options.
+ * Manage FTP connection and setting FTP client configuration.
  *
  * @since 1.0
  * @package Lazzard\FtpClient
  * @author EL AMRANI CHAKIR <elamrani.sv.laza@gmail.com>
  */
-abstract class FtpDriver
+abstract class FtpManager
 {
     /** @var resource */
     protected $connection;
@@ -24,22 +24,24 @@ abstract class FtpDriver
     protected $ftpWrapper;
 
     /** @var \Lazzard\FtpClient\Configuration\FtpConfiguration */
-    private $ftpConfiguration;
+    protected $ftpConfiguration;
+
+    /** @var string */
+    protected $currentDir;
 
     /**
-     * FtpDriver constructor.
+     * FtpManager constructor.
      *
-     * @param \Lazzard\FtpClient\Configuration\FtpConfiguration|null $ftpConfiguration
-     *
-     * @throws \ReflectionException
+     * @param \Lazzard\FtpClient\Configuration\FtpConfigurationInterface|null $ftpConfiguration
      */
-    public function __construct(FtpConfiguration $ftpConfiguration = null)
+    public function __construct(FtpConfigurationInterface $ftpConfiguration = null)
     {
         if (is_null($ftpConfiguration)) {
             $this->ftpConfiguration = new FtpConfiguration();
+        } else {
+            $this->ftpConfiguration = $ftpConfiguration;
         }
 
-        $this->ftpConfiguration = $ftpConfiguration;
         $this->ftpWrapper = new FtpWrapper();
     }
 
@@ -101,6 +103,59 @@ abstract class FtpDriver
     }
 
     /**
+     * @return string
+     */
+    public function getCurrentDir()
+    {
+        return $this->getFtpWrapper()->pwd($this->getConnection());
+    }
+
+    /**
+     * @param string $currentDir
+     */
+    public function setCurrentDir($currentDir)
+    {
+        $this->getFtpWrapper()->chdir($this->getConnection(), $currentDir);
+        $this->currentDir = '/' . $currentDir;
+    }
+
+    /**
+     * Set client ftp configuration.
+     */
+    private function setClientConfiguration()
+    {
+        $this->getFtpWrapper()->setOption(
+            $this->getConnection(),
+            FtpWrapper::TIMEOUT_SEC,
+            $this->getFtpConfiguration()->getTimeout()
+        );
+
+        $this->getFtpWrapper()->setOption(
+            $this->getConnection(),
+            FtpWrapper::AUTOSEEK,
+            $this->getFtpConfiguration()->isAutoSeek()
+        );
+
+        $this->getFtpWrapper()->setOption(
+            $this->getConnection(),
+            FtpWrapper::USEPASVADDRESS,
+            $this->getFtpConfiguration()->isUsePassiveAddress()
+        );
+
+        $this->getFtpWrapper()->pasv(
+            $this->getConnection(),
+            $this->getFtpConfiguration()->isPassive()
+        );
+
+        $this->getFtpWrapper()->chdir(
+            $this->getConnection(),
+            $this->getFtpConfiguration()->getRoot()
+        );
+
+        $this->setCurrentDir($this->getFtpConfiguration()->getRoot());
+    }
+
+    /**
      * Open an FTP connection.
      *
      * @param string $host    Host name
@@ -118,19 +173,6 @@ abstract class FtpDriver
             $timeout)) !== false)
         {
             $this->setConnection($connection);
-
-            $this->getFtpWrapper()->setOption(
-                $this->getConnection(),
-               FtpWrapper::TIMEOUT_SEC,
-                $this->getFtpConfiguration()->isAutoSeek()
-            );
-
-            $this->getFtpWrapper()->setOption(
-                $this->getConnection(),
-                FtpWrapper::AUTOSEEK,
-                $this->getFtpConfiguration()->getTimeout()
-            );
-
             return true;
         }
 
@@ -149,8 +191,8 @@ abstract class FtpDriver
      */
     public function login($username, $password)
     {
-        if ($this->getFtpWrapper()->login($this->getConnection(), $username, $password) === true) {
-            $this->getFtpWrapper()->pasv($this->getConnection(), $this->getFtpConfiguration()->isPassive());
+        if ($this->getFtpWrapper()->login($this->getConnection(), $username, $password) !== false) {
+            $this->setClientConfiguration();
             return true;
         }
 
@@ -169,5 +211,4 @@ abstract class FtpDriver
 
         return true;
     }
-
 }

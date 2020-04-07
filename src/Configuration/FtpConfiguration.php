@@ -3,64 +3,73 @@
 
 namespace Lazzard\FtpClient\Configuration;
 
-use Lazzard\FtpClient\Configuration\Exception\ConfigurationException;
-use Lazzard\FtpClient\Configuration\Utilities\FtpOptionValidator;
+use Lazzard\FtpClient\Configuration\Exception\FtpConfigurationLogicException;
+use Lazzard\FtpClient\Configuration\Exception\FtpConfigurationRuntimeException;
+use Lazzard\FtpClient\Exception\FtpClientLogicException;
 
 /**
  * Class FtpConfiguration
  *
  * @since 1.0
- * @package Lazzard\FtpClient
+ * @package Lazzard\FtpClient\Configuration
  * @author EL AMRANI CHAKIR <elamrani.sv.laza@gmail.com>
  */
-class FtpConfiguration
+class FtpConfiguration implements FtpConfigurationInterface
 {
     /** @var int */
-    private $timeout = 90;
+    private $timeout;
     /** @var bool */
-    private $passive = false;
+    private $passive;
     /** @var bool */
-    private $autoSeek = true;
+    private $autoSeek;
+    /** @var bool */
+    private $usePassiveAddress;
+    /** @var string */
+    private $root;
 
     /**
-     * FtpOptions constructor.
+     * FtpSettings constructor.
      *
      * @param array|null $options
      *
-     * @throws \Lazzard\FtpClient\Configuration\Exception\ConfigurationException
-     * @throws \ReflectionException
+     * @throws \Lazzard\FtpClient\Configuration\Exception\FtpConfigurationRuntimeException
+     * @throws \Lazzard\FtpClient\Configuration\Exception\FtpConfigurationLogicException
      */
     public function __construct($options = null)
     {
         if (extension_loaded("ftp") === false) {
-            throw new ConfigurationException("FTP extension not loaded.");
+            throw new FtpConfigurationRuntimeException("FTP extension not loaded.");
         }
 
         if (is_null($options) === false) {
 
             foreach ($options as $optionKey => $optionValue) {
 
-                if (key_exists($optionKey, get_object_vars($this))) {
+                if (key_exists($optionKey, FtpSettings::settings)) {
 
-                    if (FtpOptionValidator::validate([$optionKey => $optionValue]) !== false) {
-
+                    if (FtpSettings::settings[$optionKey]['type'] === gettype($optionValue)) {
                         $setter = "set" . ucfirst($optionKey);
                         $this->$setter($optionValue);
                         continue;
                     }
 
-                    $prop = new \ReflectionProperty(self::class, $optionKey);
-                    $type = explode(' ', $prop->getDocComment())[2];
-
-                    throw new ConfigurationException(sprintf(
+                    throw new FtpClientLogicException(sprintf(
                         "%s option accept value of type %s",
                         $optionKey,
-                        $type
+                        FtpSettings::settings[$optionKey]['type']
                     ));
                 }
 
-                throw new ConfigurationException("{$optionKey} is invalid FTP configuration option.");
+                throw new FtpConfigurationLogicException("{$optionKey} is invalid FTP configuration option.");
             }
+        } else {
+
+            foreach (get_object_vars($this) as $optionKey => $optionValue) {
+                $defaultValue = FtpSettings::settings[$optionKey]['value'];
+                $setter = "set" . ucfirst($optionKey);
+                $this->$setter($defaultValue);
+            }
+
         }
     }
 
@@ -73,7 +82,7 @@ class FtpConfiguration
     }
 
     /**
-     * @param int $timeout
+     * @inheritDoc
      */
     public function setTimeout($timeout)
     {
@@ -89,7 +98,7 @@ class FtpConfiguration
     }
 
     /**
-     * @param bool $passive
+     * @inheritDoc
      */
     public function setPassive($passive)
     {
@@ -105,11 +114,44 @@ class FtpConfiguration
     }
 
     /**
-     * @param bool $autoSeek
+     * @inheritDoc
      */
     public function setAutoSeek($autoSeek)
     {
         $this->autoSeek = $autoSeek;
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function isUsePassiveAddress()
+    {
+        return $this->usePassiveAddress;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setUsePassiveAddress($usePassiveAddress)
+    {
+        $this->usePassiveAddress = $usePassiveAddress;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getRoot()
+    {
+        return $this->root;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setRoot($root)
+    {
+        $this->root = $root;
+    }
+
 
 }

@@ -86,4 +86,29 @@ class FtpWrapper
     {
         return @ftp_set_option($ftpStream, $option, $value);
     }
+
+    /**
+     * @link https://www.php.net/manual/en/function.ftp-chdir.php
+     *
+     * @param $ftpStream
+     * @param $directory
+     *
+     * @return bool
+     */
+    public function chdir($ftpStream, $directory)
+    {
+        return @ftp_chdir($ftpStream, $directory);
+    }
+
+    /**
+     * @link https://www.php.net/manual/en/function.ftp-pwd.php
+
+     * @param $ftpStream
+     *
+     * @return string
+     */
+    public function pwd($ftpStream)
+    {
+        return ftp_pwd($ftpStream);
+    }
 }

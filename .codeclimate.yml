@@ -1,0 +1,9 @@
+engines:
+  # ... CONFIG CONTENT ...
+  phpmd:
+    enabled: true
+    # ... CONFIG CONTENT ...
+    checks:
+      CleanCode/StaticAccess:
+        enabled: false
+# ... CONFIG CONTENT ...
