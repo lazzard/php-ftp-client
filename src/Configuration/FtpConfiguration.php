@@ -82,9 +82,9 @@ class FtpConfiguration implements FtpConfigurationInterface
     }
 
     /**
-     * @inheritDoc
+     * @param int $timeout
      */
-    public function setTimeout($timeout)
+    private function setTimeout($timeout)
     {
         $this->timeout = $timeout;
     }
@@ -98,9 +98,9 @@ class FtpConfiguration implements FtpConfigurationInterface
     }
 
     /**
-     * @inheritDoc
+     * @param bool $passive
      */
-    public function setPassive($passive)
+    private function setPassive($passive)
     {
         $this->passive = $passive;
     }
@@ -114,9 +114,9 @@ class FtpConfiguration implements FtpConfigurationInterface
     }
 
     /**
-     * @inheritDoc
+     * @param bool $autoSeek
      */
-    public function setAutoSeek($autoSeek)
+    private function setAutoSeek($autoSeek)
     {
         $this->autoSeek = $autoSeek;
     }
@@ -130,9 +130,9 @@ class FtpConfiguration implements FtpConfigurationInterface
     }
 
     /**
-     * @inheritDoc
+     * @param bool $usePassiveAddress
      */
-    public function setUsePassiveAddress($usePassiveAddress)
+    private function setUsePassiveAddress($usePassiveAddress)
     {
         $this->usePassiveAddress = $usePassiveAddress;
     }
@@ -146,12 +146,11 @@ class FtpConfiguration implements FtpConfigurationInterface
     }
 
     /**
-     * @inheritDoc
+     * @param string $root
      */
-    public function setRoot($root)
+    private function setRoot($root)
     {
         $this->root = $root;
     }
-
 
 }

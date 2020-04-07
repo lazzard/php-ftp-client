@@ -102,7 +102,7 @@ class FtpWrapper
 
     /**
      * @link https://www.php.net/manual/en/function.ftp-pwd.php
-
+     *
      * @param $ftpStream
      *
      * @return string
@@ -110,5 +110,30 @@ class FtpWrapper
     public function pwd($ftpStream)
     {
         return ftp_pwd($ftpStream);
+    }
+
+    /**
+     * @link https://www.php.net/manual/en/function.ftp-nlist.php
+     *
+     * @param $ftpStream
+     * @param $directory
+     *
+     * @return array
+     */
+    public function nlist($ftpStream, $directory)
+    {
+        return ftp_nlist($ftpStream, $directory);
+    }
+
+    /**
+     * @link https://www.php.net/manual/en/function.ftp-cdup.php
+     *
+     * @param $ftpStream
+     *
+     * @return bool
+     */
+    public function cdup($ftpStream)
+    {
+        return ftp_cdup($ftpStream);
     }
 }

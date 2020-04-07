@@ -100,6 +100,7 @@ abstract class FtpManager
     public function setFtpConfiguration($ftpConfiguration)
     {
         $this->ftpConfiguration = $ftpConfiguration;
+        $this->setClientConfiguration();
     }
 
     /**

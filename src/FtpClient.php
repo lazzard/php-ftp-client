@@ -3,7 +3,6 @@
 namespace Lazzard\FtpClient;
 
 use Lazzard\FtpClient\Exception\FtpClientLogicException;
-use Lazzard\FtpClient\Exception\FtpClientRuntimeException;
 
 /**
  * Class FtpClient
@@ -57,12 +56,13 @@ class FtpClient extends FtpManager
      */
     public function getFiles($directory = null, $ignoreDotes = self::IGNORE_DOTS, $callback = null)
     {
-        if (($list = ftp_nlist(parent::getConnection(), $directory ?: parent::getCurrentDir())) === false) {
-            throw FtpClientRuntimeException::unreachableServerContent();
-        }
+        $files = parent::getFtpWrapper()->nlist(
+            parent::getConnection(),
+            $directory ?: parent::getCurrentDir()
+        );
 
         if ($ignoreDotes === true) {
-            $list = array_filter($list, function ($item) {
+            $files = array_filter($files, function ($item) {
                 return !in_array($item, ['.', '..']);
             });
         }
@@ -72,72 +72,76 @@ class FtpClient extends FtpManager
                 throw new FtpClientLogicException("Invalid callback parameter passed to " . __FUNCTION__ . "() function.");
             }
 
-            $list = array_filter($list, $callback);
+            $files = array_filter($files, $callback);
         }
 
-        return array_values($list);
+        return array_values($files);
     }
 
-    public function getFilesOnly($directory = null, $ignoreDotes = self::IGNORE_DOTS)
+    /**
+     * Get files of type file from the giving directory.
+     *
+     * @param null $directory
+     * @param bool $ignoreDotes
+     * @param null $callback
+     *
+     * @return array
+     */
+    public function getFilesOnly($directory = null, $ignoreDotes = self::IGNORE_DOTS, $callback = null)
     {
-        return $this->extractRawList($this->getConnection(), $directory);
+        $files = $this->getFiles($directory, $ignoreDotes, $callback);
+
+        $filesOnly = [];
+        foreach ($files as $file) {
+            if ($this->isDirectory($directory . '/' . $file) === false) {
+                $filesOnly[] = $file;
+            }
+        }
+
+        return $filesOnly;
+    }
+
+    /**
+     * Get only directories files.
+     *
+     * @param null $directory
+     * @param bool $ignoreDotes
+     * @param null $callback
+     *
+     * @return array
+     */
+    public function getDirsOnly($directory = null, $ignoreDotes = self::IGNORE_DOTS, $callback =
+    null) {
+        $files = $this->getFiles($directory, $ignoreDotes, $callback);
+
+        $dirsOnly = [];
+        foreach ($files as $file) {
+            if ($this->isDirectory($directory . '/' . $file)) {
+                $dirsOnly[] = $file;
+            }
+        }
+
+        return $dirsOnly;
     }
 
     /**
      * Check weather if a file is a directory or not.
      *
-     * @param $directory
+     * @param string|null $directory
      *
      * @return bool Return true if the giving file is a directory,
      * false if isn't or the file doesn't exists.
      */
-    public function isDirectory($directory)
+    public function isDirectory($directory = null)
     {
-        if (parent::getFtpWrapper()->chdir(parent::getConnection(), $directory) !== false) {
-            parent::getFtpWrapper()->chdir(parent::getConnection(), parent::getCurrentDir());
+        $originalDir = parent::getCurrentDir();
+        if (parent::getFtpWrapper()->chdir(parent::getConnection(), $directory ?: $this->getCurrentDir()) !== false) {
+            parent::getFtpWrapper()->chdir($this->getConnection(),
+                $originalDir);
             return true;
         }
 
         return false;
     }
-
-    public function extractRawList($ftpStream, $fileName)
-    {
-        $info = [];
-
-        # Check if the file is directory.
-        $isDir = ftp_size($ftpStream, $fileName) === -1 ? true : false;
-
-        # Throwing exception if rawlist fail to getting the file data.
-        # If the file is a directory we back to the previous folder and lopping over it to get the dir info.
-        if (empty($list = ftp_rawlist($ftpStream, $isDir ? $fileName . '/..' : $fileName)))
-            throw new FtpClientRuntimeException("Unreachable server content.");
-
-        # Extract date from rawlist result array.
-        foreach ($list as $item) {
-            # Clean the spaces.
-            $clean = preg_replace('/\s+/', ' ', $item);
-
-            # rawlist string to an array.
-            $split_string = explode(" ", $clean);
-            # file name.
-            $name = $split_string[count($split_string) - 1];
-
-            # Compare the file name from rawlist with the file name that we want information from.
-            if ($name === ($isDir ? pathinfo($fileName, PATHINFO_BASENAME) : $fileName))
-            {
-                $info['chmod'] = $split_string[0];
-                $info['num'] = $split_string[1];
-                $info['owner'] = $split_string[2];
-                $info['group'] = $split_string[3];
-                $info['size'] = $split_string[4];
-                $info['Mtime'] = sprintf("%s %s %s", $split_string[5], $split_string[6], $split_string[7]);
-                $info['name'] = $split_string[8];
-            }
-        }
-
-        return $info;
-    }
-
 
 }

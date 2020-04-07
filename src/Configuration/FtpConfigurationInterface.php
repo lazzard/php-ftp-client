@@ -20,21 +20,9 @@ interface FtpConfigurationInterface
     public function getTimeout();
 
     /**
-     * Set FTP timeout option value.
-     *
-     * @param int
-     */
-    public function setTimeout($timeout);
-
-    /**
      * @return bool
      */
     public function isPassive();
-
-    /**
-     * @param bool $passive
-     */
-    public function setPassive($passive);
 
     /**
      * @return bool
@@ -42,29 +30,13 @@ interface FtpConfigurationInterface
     public function isAutoSeek();
 
     /**
-     * @param bool $autoSeek
-     */
-    public function setAutoSeek($autoSeek);
-
-    /**
      * @return bool
      */
     public function isUsePassiveAddress();
 
     /**
-     * @param bool $usePassiveAddress
-     */
-    public function setUsePassiveAddress($usePassiveAddress);
-
-    /**
      * @return string
      */
     public function getRoot();
-
-    /**
-     * @param string $root
-     */
-    public function setRoot($root);
-
 
 }
