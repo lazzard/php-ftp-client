@@ -51,7 +51,6 @@ class FtpClient extends FtpManager
      * @param null   $callback    Filtering returned files
      *
      * @return array
-     *
      */
     public function getFiles($directory = null, $ignoreDotes = self::IGNORE_DOTS, $callback = null)
     {
@@ -83,6 +82,8 @@ class FtpClient extends FtpManager
      * @param null $directory
      * @param bool $ignoreDotes
      * @param null $callback
+     * 
+     * @see getFiles()
      *
      * @return array
      */
@@ -107,10 +108,12 @@ class FtpClient extends FtpManager
      * @param bool $ignoreDotes
      * @param null $callback
      *
+     * @see getFiles()
+     * 
      * @return array
      */
-    public function getDirsOnly($directory = null, $ignoreDotes = self::IGNORE_DOTS, $callback =
-    null) {
+    public function getDirsOnly($directory = null, $ignoreDotes = self::IGNORE_DOTS, $callback = null)
+    {
         $files = $this->getFiles($directory ?: parent::getCurrentDir(), $ignoreDotes, $callback);
 
         $dirsOnly = [];

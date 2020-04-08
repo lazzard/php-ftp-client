@@ -18,12 +18,16 @@ class FtpConfiguration implements FtpConfigurationInterface
 {
     /** @var int */
     private $timeout;
+
     /** @var bool */
     private $passive;
+
     /** @var bool */
     private $autoSeek;
+
     /** @var bool */
     private $usePassiveAddress;
+
     /** @var string */
     private $root;
 
@@ -37,11 +41,11 @@ class FtpConfiguration implements FtpConfigurationInterface
      */
     public function __construct($options = null)
     {
-        if (extension_loaded("ftp") === false) {
+        if (extension_loaded("ftp") !== true) {
             throw new FtpConfigurationRuntimeException("FTP extension not loaded.");
         }
 
-        if (is_null($options) === false) {
+        if (is_null($options) !== true) {
 
             foreach ($options as $optionKey => $optionValue) {
 

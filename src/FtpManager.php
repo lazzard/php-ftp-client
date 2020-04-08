@@ -2,6 +2,8 @@
 
 namespace Lazzard\FtpClient;
 
+use Lazzard\FtpClient\Configuration\Exception\FtpConfigurationLogicException;
+use Lazzard\FtpClient\Configuration\Exception\FtpConfigurationRuntimeException;
 use Lazzard\FtpClient\Configuration\FtpConfiguration;
 use Lazzard\FtpClient\Configuration\FtpConfigurationInterface;
 use Lazzard\FtpClient\Exception\FtpClientRuntimeException;
@@ -100,7 +102,7 @@ abstract class FtpManager
      */
     public function getCurrentDir()
     {
-        if (($currentDir = $this->getFtpWrapper()->pwd($this->getConnection())) !== '/')
+        if (($currentDir = $this->getFtpWrapper()->pwd($this->getConnection())) !== '.')
             return $currentDir;
 
         return '';
@@ -125,28 +127,22 @@ abstract class FtpManager
      */
     private function setClientConfiguration()
     {
-        $this->getFtpWrapper()->setOption(
-            $this->getConnection(),
+        $this->setOption(
             FtpWrapper::TIMEOUT_SEC,
             $this->getFtpConfiguration()->getTimeout()
         );
 
-        $this->getFtpWrapper()->setOption(
-            $this->getConnection(),
+        $this->setOption(
             FtpWrapper::AUTOSEEK,
             $this->getFtpConfiguration()->isAutoSeek()
         );
 
-        $this->getFtpWrapper()->setOption(
-            $this->getConnection(),
+        $this->setOption(
             FtpWrapper::USEPASVADDRESS,
             $this->getFtpConfiguration()->isUsePassiveAddress()
         );
 
-        $this->getFtpWrapper()->pasv(
-            $this->getConnection(),
-            $this->getFtpConfiguration()->isPassive()
-        );
+        $this->setPassive($this->getFtpConfiguration()->isPassive());
 
         $this->setCurrentDir($this->getFtpConfiguration()->getRoot());
     }
@@ -202,8 +198,52 @@ abstract class FtpManager
      */
     public function close()
     {
-        if ($this->getFtpWrapper()->close($this->getConnection()) === false)
+        if ($this->getFtpWrapper()->close($this->getConnection()) !== true)
             throw new FtpClientRuntimeException("Failed to closing FTP connection.");
+
+        return true;
+    }
+
+    /**
+     * Set FTP runtime options.
+     *
+     * @param $option
+     * @param $value
+     *
+     * @return bool
+     */
+    public function setOption($option, $value)
+    {
+        $options = [
+          FtpWrapper::TIMEOUT_SEC,
+          FtpWrapper::AUTOSEEK,
+          FtpWrapper::USEPASVADDRESS
+        ];
+
+        if (in_array($option, $options) !== true) {
+            throw new FtpConfigurationLogicException("{$option} is invalid FTP runtime option.");
+        }
+
+        if ($this->getFtpWrapper()->setOption($this->getConnection(), $option, $value) !== true) {
+            throw new FtpClientRuntimeException("Unable to set FTP option.");
+        }
+
+        return true;
+    }
+
+    /**
+     * Turn the passive mode on or off.
+     *
+     * Notice that the active mode is the default mode.
+     *
+     * @param $bool
+     *
+     * @return bool
+     */
+    public function setPassive($bool)
+    {
+        if ($this->getFtpWrapper()->pasv($this->getConnection(), $bool) !== true)
+            throw new FtpConfigurationRuntimeException("Unable to switch Ftp mode.");
 
         return true;
     }

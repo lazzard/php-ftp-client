@@ -34,7 +34,7 @@ class FtpSettings
             "type"  => "boolean"
         ],
         "root" => [
-            "value" => "/",
+            "value" => ".",
             "type"  => "string"
         ]
     ];
