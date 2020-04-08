@@ -71,17 +71,9 @@ abstract class FtpManager
     /**
      * @return \Lazzard\FtpClient\FtpWrapper
      */
-    public function getFtpWrapper()
+    protected function getFtpWrapper()
     {
         return $this->ftpWrapper;
-    }
-
-    /**
-     * @param \Lazzard\FtpClient\FtpWrapper $ftpWrapper
-     */
-    public function setFtpWrapper($ftpWrapper)
-    {
-        $this->ftpWrapper = $ftpWrapper;
     }
 
     /**
@@ -108,7 +100,10 @@ abstract class FtpManager
      */
     public function getCurrentDir()
     {
-        return $this->getFtpWrapper()->pwd($this->getConnection());
+        if (($currentDir = $this->getFtpWrapper()->pwd($this->getConnection())) !== '/')
+            return $currentDir;
+
+        return '';
     }
 
     /**
@@ -116,8 +111,13 @@ abstract class FtpManager
      */
     public function setCurrentDir($currentDir)
     {
-        $this->getFtpWrapper()->chdir($this->getConnection(), $currentDir);
-        $this->currentDir = '/' . $currentDir;
+        $fixCurrentDir = $currentDir == '/' ? '' : $currentDir;
+        
+        if ($this->getFtpWrapper()->chdir($this->getConnection(), $fixCurrentDir) !==
+        true)
+            throw new FtpClientRuntimeException("Cannot change to the giving directory.");
+
+        $this->currentDir = $currentDir;
     }
 
     /**
@@ -146,11 +146,6 @@ abstract class FtpManager
         $this->getFtpWrapper()->pasv(
             $this->getConnection(),
             $this->getFtpConfiguration()->isPassive()
-        );
-
-        $this->getFtpWrapper()->chdir(
-            $this->getConnection(),
-            $this->getFtpConfiguration()->getRoot()
         );
 
         $this->setCurrentDir($this->getFtpConfiguration()->getRoot());

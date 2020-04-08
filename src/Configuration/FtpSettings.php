@@ -16,7 +16,7 @@ class FtpSettings
      *
      * @var array
      */
-    const settings = [
+    const SETTINGS = [
         "timeout" => [
           "value" => 90,
           "type"  => "integer"

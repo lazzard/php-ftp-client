@@ -45,9 +45,9 @@ class FtpConfiguration implements FtpConfigurationInterface
 
             foreach ($options as $optionKey => $optionValue) {
 
-                if (key_exists($optionKey, FtpSettings::settings)) {
+                if (key_exists($optionKey, FtpSettings::SETTINGS)) {
 
-                    if (FtpSettings::settings[$optionKey]['type'] === gettype($optionValue)) {
+                    if (FtpSettings::SETTINGS[$optionKey]['type'] === gettype($optionValue)) {
                         $setter = "set" . ucfirst($optionKey);
                         $this->$setter($optionValue);
                         continue;
@@ -56,7 +56,7 @@ class FtpConfiguration implements FtpConfigurationInterface
                     throw new FtpClientLogicException(sprintf(
                         "%s option accept value of type %s",
                         $optionKey,
-                        FtpSettings::settings[$optionKey]['type']
+                        FtpSettings::SETTINGS[$optionKey]['type']
                     ));
                 }
 
@@ -65,7 +65,7 @@ class FtpConfiguration implements FtpConfigurationInterface
         } else {
 
             foreach (get_object_vars($this) as $optionKey => $optionValue) {
-                $defaultValue = FtpSettings::settings[$optionKey]['value'];
+                $defaultValue = FtpSettings::SETTINGS[$optionKey]['value'];
                 $setter = "set" . ucfirst($optionKey);
                 $this->$setter($defaultValue);
             }
@@ -88,7 +88,7 @@ class FtpConfiguration implements FtpConfigurationInterface
     {
         $this->timeout = $timeout;
     }
-
+    
     /**
      * @inheritDoc
      */
@@ -104,7 +104,7 @@ class FtpConfiguration implements FtpConfigurationInterface
     {
         $this->passive = $passive;
     }
-
+    
     /**
      * @inheritDoc
      */
@@ -120,7 +120,7 @@ class FtpConfiguration implements FtpConfigurationInterface
     {
         $this->autoSeek = $autoSeek;
     }
-
+    
     /**
      * @inheritDoc
      */

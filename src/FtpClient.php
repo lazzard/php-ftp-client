@@ -16,7 +16,7 @@ class FtpClient extends FtpManager
     /**
      * FtpClient predefined constants.
      */
-    const IGNORE_DOTS = false;
+    const IGNORE_DOTS     = false;
 
     /**
      * FtpClient __call.
@@ -46,13 +46,12 @@ class FtpClient extends FtpManager
     /**
      * Get files in giving directory.
      *
-     * @param string $directory Target directory
+     * @param string $directory   Target directory
      * @param bool   $ignoreDotes Ignore dots files items '.' and '..'
-     * @param null   $callback Filtering returned files
+     * @param null   $callback    Filtering returned files
      *
      * @return array
      *
-     * @throws \Lazzard\FtpClient\Exception\FtpClientLogicException
      */
     public function getFiles($directory = null, $ignoreDotes = self::IGNORE_DOTS, $callback = null)
     {
@@ -89,11 +88,11 @@ class FtpClient extends FtpManager
      */
     public function getFilesOnly($directory = null, $ignoreDotes = self::IGNORE_DOTS, $callback = null)
     {
-        $files = $this->getFiles($directory, $ignoreDotes, $callback);
+        $files = $this->getFiles($directory ?: parent::getCurrentDir(), $ignoreDotes, $callback);
 
         $filesOnly = [];
         foreach ($files as $file) {
-            if ($this->isDirectory($directory . '/' . $file) === false) {
+            if ($this->isDirectory($directory ?: parent::getCurrentDir() . '/' . $file) !== true) {
                 $filesOnly[] = $file;
             }
         }
@@ -112,11 +111,11 @@ class FtpClient extends FtpManager
      */
     public function getDirsOnly($directory = null, $ignoreDotes = self::IGNORE_DOTS, $callback =
     null) {
-        $files = $this->getFiles($directory, $ignoreDotes, $callback);
+        $files = $this->getFiles($directory ?: parent::getCurrentDir(), $ignoreDotes, $callback);
 
         $dirsOnly = [];
         foreach ($files as $file) {
-            if ($this->isDirectory($directory . '/' . $file)) {
+            if ($this->isDirectory($directory ?: parent::getCurrentDir() . '/' . $file)) {
                 $dirsOnly[] = $file;
             }
         }
@@ -135,9 +134,9 @@ class FtpClient extends FtpManager
     public function isDirectory($directory = null)
     {
         $originalDir = parent::getCurrentDir();
-        if (parent::getFtpWrapper()->chdir(parent::getConnection(), $directory ?: $this->getCurrentDir()) !== false) {
-            parent::getFtpWrapper()->chdir($this->getConnection(),
-                $originalDir);
+        if (parent::getFtpWrapper()->chdir(parent::getConnection(), $directory ?: $this->getCurrentDir()) !== false)
+        {
+            parent::getFtpWrapper()->chdir($this->getConnection(), $originalDir);
             return true;
         }
 
