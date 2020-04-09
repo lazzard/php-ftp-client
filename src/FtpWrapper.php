@@ -14,13 +14,6 @@ namespace Lazzard\FtpClient;
 class FtpWrapper
 {
     /**
-     * FTP predefined constants alias
-     */
-    const TIMEOUT_SEC    = FTP_TIMEOUT_SEC;
-    const AUTOSEEK       = FTP_AUTOSEEK;
-    const USEPASVADDRESS = FTP_USEPASVADDRESS;
-
-    /**
      * @link https://www.php.net/manual/en/function.ftp-connect.php
      *
      * @param string $host

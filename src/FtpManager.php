@@ -5,7 +5,7 @@ namespace Lazzard\FtpClient;
 use Lazzard\FtpClient\Configuration\Exception\FtpConfigurationLogicException;
 use Lazzard\FtpClient\Configuration\Exception\FtpConfigurationRuntimeException;
 use Lazzard\FtpClient\Configuration\FtpConfiguration;
-use Lazzard\FtpClient\Configuration\FtpConfigurationInterface;
+use Lazzard\FtpClient\Configuration\ConfigurationInterface;
 use Lazzard\FtpClient\Exception\FtpClientRuntimeException;
 
 /**
@@ -19,6 +19,13 @@ use Lazzard\FtpClient\Exception\FtpClientRuntimeException;
  */
 abstract class FtpManager
 {
+    /**
+     * FTP predefined constants alias
+     */
+    const TIMEOUT_SEC    = FTP_TIMEOUT_SEC;
+    const AUTOSEEK       = FTP_AUTOSEEK;
+    const USEPASVADDRESS = FTP_USEPASVADDRESS;
+
     /** @var resource */
     protected $connection;
 
@@ -34,9 +41,9 @@ abstract class FtpManager
     /**
      * FtpManager constructor.
      *
-     * @param \Lazzard\FtpClient\Configuration\FtpConfigurationInterface|null $ftpConfiguration
+     * @param \Lazzard\FtpClient\Configuration\ConfigurationInterface|null $ftpConfiguration
      */
-    public function __construct(FtpConfigurationInterface $ftpConfiguration = null)
+    public function __construct(ConfigurationInterface $ftpConfiguration = null)
     {
         if (is_null($ftpConfiguration)) {
             $this->ftpConfiguration = new FtpConfiguration();
@@ -128,17 +135,17 @@ abstract class FtpManager
     private function setClientConfiguration()
     {
         $this->setOption(
-            FtpWrapper::TIMEOUT_SEC,
+            self::TIMEOUT_SEC,
             $this->getFtpConfiguration()->getTimeout()
         );
 
         $this->setOption(
-            FtpWrapper::AUTOSEEK,
+            self::AUTOSEEK,
             $this->getFtpConfiguration()->isAutoSeek()
         );
 
         $this->setOption(
-            FtpWrapper::USEPASVADDRESS,
+            self::USEPASVADDRESS,
             $this->getFtpConfiguration()->isUsePassiveAddress()
         );
 
@@ -215,9 +222,9 @@ abstract class FtpManager
     public function setOption($option, $value)
     {
         $options = [
-          FtpWrapper::TIMEOUT_SEC,
-          FtpWrapper::AUTOSEEK,
-          FtpWrapper::USEPASVADDRESS
+          self::TIMEOUT_SEC,
+          self::AUTOSEEK,
+          self::USEPASVADDRESS
         ];
 
         if (in_array($option, $options) !== true) {
@@ -243,7 +250,7 @@ abstract class FtpManager
     public function setPassive($bool)
     {
         if ($this->getFtpWrapper()->pasv($this->getConnection(), $bool) !== true)
-            throw new FtpConfigurationRuntimeException("Unable to switch Ftp mode.");
+            throw new FtpConfigurationRuntimeException("Unable to switch FTP mode.");
 
         return true;
     }

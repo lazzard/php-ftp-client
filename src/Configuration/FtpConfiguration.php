@@ -5,16 +5,15 @@ namespace Lazzard\FtpClient\Configuration;
 
 use Lazzard\FtpClient\Configuration\Exception\FtpConfigurationLogicException;
 use Lazzard\FtpClient\Configuration\Exception\FtpConfigurationRuntimeException;
-use Lazzard\FtpClient\Exception\FtpClientLogicException;
 
 /**
  * Class FtpConfiguration
  *
  * @since 1.0
- * @package Lazzard\FtpClient\Configuration
+ * @package Lazzard\FtpClient\FtpConfiguration
  * @author EL AMRANI CHAKIR <elamrani.sv.laza@gmail.com>
  */
-class FtpConfiguration implements FtpConfigurationInterface
+class FtpConfiguration implements ConfigurationInterface
 {
     /** @var int */
     private $timeout;
@@ -32,7 +31,7 @@ class FtpConfiguration implements FtpConfigurationInterface
     private $root;
 
     /**
-     * FtpSettings constructor.
+     * FtpOptionsValidator constructor.
      *
      * @param array|null $options
      *
@@ -50,21 +49,15 @@ class FtpConfiguration implements FtpConfigurationInterface
             foreach ($options as $optionKey => $optionValue) {
 
                 if (key_exists($optionKey, FtpSettings::SETTINGS)) {
-
                     if (FtpSettings::SETTINGS[$optionKey]['type'] === gettype($optionValue)) {
                         $setter = "set" . ucfirst($optionKey);
                         $this->$setter($optionValue);
                         continue;
                     }
-
-                    throw new FtpClientLogicException(sprintf(
-                        "%s option accept value of type %s",
-                        $optionKey,
-                        FtpSettings::SETTINGS[$optionKey]['type']
-                    ));
                 }
 
-                throw new FtpConfigurationLogicException("{$optionKey} is invalid FTP configuration option.");
+                throw FtpConfigurationLogicException::InvalidFtpConfigurationOption($optionKey,
+                    FtpSettings::SETTINGS[$optionKey]['type']);
             }
         } else {
 
@@ -86,11 +79,18 @@ class FtpConfiguration implements FtpConfigurationInterface
     }
 
     /**
-     * @param int $timeout
+     * @inheritDoc
      */
-    private function setTimeout($timeout)
+    public function setTimeout($timeout)
     {
-        $this->timeout = $timeout;
+        if (FtpSettings::SETTINGS['timeout']['type'] === gettype($timeout)) {
+            $this->timeout = $timeout;
+        } else {
+            throw FtpConfigurationLogicException::InvalidFtpConfigurationOption(
+                'timeout',
+                FtpSettings::SETTINGS['timeout']['type']
+            );
+        }
     }
     
     /**
@@ -102,11 +102,18 @@ class FtpConfiguration implements FtpConfigurationInterface
     }
 
     /**
-     * @param bool $passive
+     * @inheritDoc
      */
-    private function setPassive($passive)
+    public function setPassive($passive)
     {
-        $this->passive = $passive;
+        if (FtpSettings::SETTINGS['passive']['type'] === gettype($passive)) {
+            $this->passive = $passive;
+        } else {
+            throw FtpConfigurationLogicException::InvalidFtpConfigurationOption(
+                'passive',
+                FtpSettings::SETTINGS['passive']['type']
+            );
+        }
     }
     
     /**
@@ -118,11 +125,18 @@ class FtpConfiguration implements FtpConfigurationInterface
     }
 
     /**
-     * @param bool $autoSeek
+     * @inheritDoc
      */
-    private function setAutoSeek($autoSeek)
+    public function setAutoSeek($autoSeek)
     {
-        $this->autoSeek = $autoSeek;
+        if (FtpSettings::SETTINGS['autoSeek']['type'] === gettype($autoSeek)) {
+            $this->autoSeek = $autoSeek;
+        } else {
+            throw FtpConfigurationLogicException::InvalidFtpConfigurationOption(
+                'autoSeek',
+                FtpSettings::SETTINGS['autoSeek']['type']
+            );
+        }
     }
     
     /**
@@ -134,11 +148,18 @@ class FtpConfiguration implements FtpConfigurationInterface
     }
 
     /**
-     * @param bool $usePassiveAddress
+     * @inheritDoc
      */
-    private function setUsePassiveAddress($usePassiveAddress)
+    public function setUsePassiveAddress($usePassiveAddress)
     {
-        $this->usePassiveAddress = $usePassiveAddress;
+        if (FtpSettings::SETTINGS['usePassiveAddress']['type'] === gettype($usePassiveAddress)) {
+            $this->usePassiveAddress = $usePassiveAddress;
+        } else {
+            throw FtpConfigurationLogicException::InvalidFtpConfigurationOption(
+                'usePassiveAddress',
+                FtpSettings::SETTINGS['usePassiveAddress']['type']
+            );
+        }
     }
 
     /**
@@ -150,11 +171,18 @@ class FtpConfiguration implements FtpConfigurationInterface
     }
 
     /**
-     * @param string $root
+     * @inheritDoc
      */
-    private function setRoot($root)
+    public function setRoot($root)
     {
-        $this->root = $root;
+        if (FtpSettings::SETTINGS['root']['type'] === gettype($root)) {
+            $this->root = $root;
+        } else {
+            throw FtpConfigurationLogicException::InvalidFtpConfigurationOption(
+                'root',
+                FtpSettings::SETTINGS['root']['type']
+            );
+        }
     }
 
 }
