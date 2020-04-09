@@ -31,7 +31,7 @@ class FtpConfiguration implements ConfigurationInterface
     private $root;
 
     /**
-     * FtpOptionsValidator constructor.
+     * FtpConfiguration constructor.
      *
      * @param array|null $options
      *

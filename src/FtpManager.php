@@ -2,6 +2,7 @@
 
 namespace Lazzard\FtpClient;
 
+use Lazzard\FtpClient\Command\FtpCommand;
 use Lazzard\FtpClient\Configuration\Exception\FtpConfigurationLogicException;
 use Lazzard\FtpClient\Configuration\Exception\FtpConfigurationRuntimeException;
 use Lazzard\FtpClient\Configuration\FtpConfiguration;
@@ -34,6 +35,9 @@ abstract class FtpManager
 
     /** @var \Lazzard\FtpClient\Configuration\FtpConfiguration */
     protected $ftpConfiguration;
+
+    /** @var \Lazzard\FtpClient\Command\FtpCommand */
+    protected $ftpCommand;
 
     /** @var string */
     protected $currentDir;
@@ -172,6 +176,7 @@ abstract class FtpManager
             $timeout)) !== false)
         {
             $this->setConnection($connection);
+            $this->ftpCommand = new FtpCommand($this->getConnection());
             return true;
         }
 
@@ -254,4 +259,20 @@ abstract class FtpManager
 
         return true;
     }
+
+    /**
+     * Get supported remote server features.
+     *
+     * @return mixed
+     *
+     * @throws \Lazzard\FtpClient\Exception\FtpClientRuntimeException
+     */
+    public function getFeatures()
+    {
+        if ($this->ftpCommand->request("FEAT") !== false)
+            return $this->ftpCommand->getResponse();
+
+        throw new FtpClientRuntimeException("Cannot getting remote server features");
+    }
+
 }

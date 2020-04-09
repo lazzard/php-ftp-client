@@ -130,4 +130,15 @@ class FtpWrapper
         return ftp_cdup($ftpStream);
     }
 
+    /**
+     * @param $ftpStream
+     * @param $command
+     *
+     * @return array
+     */
+    public function raw($ftpStream, $command)
+    {
+        return ftp_raw($ftpStream, $command);
+    }
+
 }
