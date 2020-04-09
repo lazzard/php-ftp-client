@@ -3,6 +3,7 @@
 namespace Lazzard\FtpClient;
 
 use Lazzard\FtpClient\Exception\FtpClientLogicException;
+use Lazzard\FtpClient\Exception\FtpClientRuntimeException;
 
 /**
  * Class FtpClient
@@ -14,9 +15,9 @@ use Lazzard\FtpClient\Exception\FtpClientLogicException;
 class FtpClient extends FtpManager
 {
     /**
-     * FtpClient predefined constants.
+     * FtpClient predefined constants
      */
-    const IGNORE_DOTS     = false;
+    const IGNORE_DOTS = false;
 
     /**
      * FtpClient __call.
@@ -146,5 +147,59 @@ class FtpClient extends FtpManager
         return false;
     }
 
+    /**
+     * Get supported remote server features.
+     *
+     * @return array
+     *
+     * @see \Lazzard\FtpClient\Command\FtpCommand::request()
+     *
+     * @throws \Lazzard\FtpClient\Exception\FtpClientRuntimeException
+     */
+    public function getFeatures()
+    {
+        if (parent::getFtpCommand()->request("FEAT") !== false) {
+            return parent::getFtpCommand()->getResponseBody();
+        }
+
+        throw new FtpClientRuntimeException("Cannot get remote server features.");
+    }
+
+    /**
+     * Determine if the giving feature is supported by the remote server or not.
+     *
+     * @param string $feature
+     *
+     * @see \Lazzard\FtpClient\FtpClient::getFeatures()
+     *
+     * @return bool
+     */
+    public function isFeatureSupported($feature)
+    {
+        $feats_case_insensitive = array_map(
+            function ($item) {
+                ltrim(strtolower($item));
+                return true;
+            },
+            $this->getFeatures()
+        );
+        return in_array(strtolower($feature), $feats_case_insensitive);
+    }
+
+    /**
+     * Get remote server system name.
+     *
+     * @return string|null
+     *
+     * @throws \Lazzard\FtpClient\Exception\FtpClientRuntimeException
+     */
+    public function getSystem()
+    {
+        if (parent::getFtpCommand()->request("SYST") !== false) {
+            return parent::getFtpCommand()->getResponseMessage();
+        }
+
+        throw new FtpClientRuntimeException("Unable to get remote system name.");
+    }
 
 }

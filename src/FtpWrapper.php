@@ -24,7 +24,7 @@ class FtpWrapper
      */
     public function connect($host, $port = 21, $timeout = 90)
     {
-        return ftp_connect($host, $port, $timeout);
+        return @ftp_connect($host, $port, $timeout);
     }
 
     /**

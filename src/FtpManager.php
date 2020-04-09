@@ -21,7 +21,7 @@ use Lazzard\FtpClient\Exception\FtpClientRuntimeException;
 abstract class FtpManager
 {
     /**
-     * FTP predefined constants alias
+     * Php FTP predefined constants aliases
      */
     const TIMEOUT_SEC    = FTP_TIMEOUT_SEC;
     const AUTOSEEK       = FTP_AUTOSEEK;
@@ -87,6 +87,14 @@ abstract class FtpManager
     protected function getFtpWrapper()
     {
         return $this->ftpWrapper;
+    }
+
+    /**
+     * @return \Lazzard\FtpClient\Command\FtpCommand
+     */
+    protected function getFtpCommand()
+    {
+        return $this->ftpCommand;
     }
 
     /**
@@ -258,21 +266,6 @@ abstract class FtpManager
             throw new FtpConfigurationRuntimeException("Unable to switch FTP mode.");
 
         return true;
-    }
-
-    /**
-     * Get supported remote server features.
-     *
-     * @return mixed
-     *
-     * @throws \Lazzard\FtpClient\Exception\FtpClientRuntimeException
-     */
-    public function getFeatures()
-    {
-        if ($this->ftpCommand->request("FEAT") !== false)
-            return $this->ftpCommand->getResponse();
-
-        throw new FtpClientRuntimeException("Cannot getting remote server features");
     }
 
 }
