@@ -2,6 +2,7 @@
 
 namespace Lazzard\FtpClient\Command;
 
+use Lazzard\FtpClient\Command\Exception\FtpCommandException;
 use Lazzard\FtpClient\FtpWrapper;
 
 /**
@@ -27,6 +28,9 @@ class FtpCommand implements CommandInterface
 
     /** @var string */
     private $responseMessage;
+
+    /** @var string */
+    private $endResponseMessage;
 
     /** @var mixed */
     private $responseBody;
@@ -91,6 +95,22 @@ class FtpCommand implements CommandInterface
     }
 
     /**
+     * @return string
+     */
+    public function getEndResponseMessage()
+    {
+        return $this->endResponseMessage;
+    }
+
+    /**
+     * @param string $endResponseMessage
+     */
+    private function setEndResponseMessage($endResponseMessage)
+    {
+        $this->endResponseMessage = $endResponseMessage;
+    }
+
+    /**
      * @inheritDoc
      */
     public function getResponseBody()
@@ -125,20 +145,60 @@ class FtpCommand implements CommandInterface
     /**
      * @inheritDoc
      */
-    public function request($command)
+    public function rawRequest($command)
     {
         $this->setResponse($this->getFtpWrapper()->raw($this->getConnection(), trim($command)));
         $this->setResponseCode(intval(substr($this->getResponse()[0], 0, 3)));
         $this->setResponseMessage(ltrim(substr($this->getResponse()[0], 3)));
 
-        $response = $this->getResponse();
-        $responseBody = array_splice($response, 1, -1);
-        $this->setResponseBody($responseBody ?: null);
+        if ($this->getResponseCode() < 300)
+        {
+            $response = $this->getResponse();
+            $responseBody = array_splice($response, 1, -1);
+            $this->setResponseBody($responseBody ?: null);
 
-        if ($this->getResponseCode() === 500)
-            return false;
+            if (count($this->getResponse()) > 1) {
+                $this->setEndResponseMessage($this->getResponse()[count($this->getResponse()) - 1]);
+            }
+        }
+
+        return ($this->getResponseCode() < 300);
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    public function siteRequest($command)
+    {
+        $siteCommand = explode(' ', trim($command))[0];
+
+        $this->rawRequest("HELP");
+
+        $supportedSITECommands = array_map(
+            function ($item) {
+                ltrim(strtolower($item));
+                return true;
+            },
+            $this->getResponseBody()
+        );
+
+        if (in_array($siteCommand, $supportedSITECommands) !== true) {
+            throw new FtpCommandException("{$siteCommand} not supported by the remote server.");
+        }
+
+        if ($this->getFtpWrapper()->site($this->getConnection(), trim($command)) !== true) {
+            throw new FtpCommandException("SITE command failed.");
+        }
+
+        $this->setResponseCode(200);
+        $this->setResponseMessage("[FtpClient] SITE command succeeded.");
+        $this->setResponse(sprintf(
+            "%s - %s",
+            $this->getResponseCode(),
+            $this->getResponseMessage()
+        ));
 
         return true;
     }
-
 }

@@ -37,7 +37,7 @@ class FtpClient extends FtpManager
         $ftpFunction = "ftp_" . $name;
 
         if (function_exists($ftpFunction)) {
-            array_unshift($arguments, parent::getConnection());
+            array_unshift($arguments, $this->getConnection());
             return call_user_func_array($ftpFunction, $arguments);
         }
 
@@ -55,9 +55,9 @@ class FtpClient extends FtpManager
      */
     public function getFiles($directory = null, $ignoreDotes = self::IGNORE_DOTS, $callback = null)
     {
-        $files = parent::getFtpWrapper()->nlist(
-            parent::getConnection(),
-            $directory ?: parent::getCurrentDir()
+        $files = $this->getFtpWrapper()->nlist(
+            $this->getConnection(),
+            $directory ?: $this->getCurrentDir()
         );
 
         if ($ignoreDotes === true) {
@@ -90,11 +90,11 @@ class FtpClient extends FtpManager
      */
     public function getFilesOnly($directory = null, $ignoreDotes = self::IGNORE_DOTS, $callback = null)
     {
-        $files = $this->getFiles($directory ?: parent::getCurrentDir(), $ignoreDotes, $callback);
+        $files = $this->getFiles($directory ?: $this->getCurrentDir(), $ignoreDotes, $callback);
 
         $filesOnly = [];
         foreach ($files as $file) {
-            if ($this->isDirectory($directory ?: parent::getCurrentDir() . '/' . $file) !== true) {
+            if ($this->isDirectory($directory ?: $this->getCurrentDir() . '/' . $file) !== true) {
                 $filesOnly[] = $file;
             }
         }
@@ -115,11 +115,11 @@ class FtpClient extends FtpManager
      */
     public function getDirsOnly($directory = null, $ignoreDotes = self::IGNORE_DOTS, $callback = null)
     {
-        $files = $this->getFiles($directory ?: parent::getCurrentDir(), $ignoreDotes, $callback);
+        $files = $this->getFiles($directory ?: $this->getCurrentDir(), $ignoreDotes, $callback);
 
         $dirsOnly = [];
         foreach ($files as $file) {
-            if ($this->isDirectory($directory ?: parent::getCurrentDir() . '/' . $file)) {
+            if ($this->isDirectory($directory ?: $this->getCurrentDir() . '/' . $file)) {
                 $dirsOnly[] = $file;
             }
         }
@@ -137,10 +137,10 @@ class FtpClient extends FtpManager
      */
     public function isDirectory($directory = null)
     {
-        $originalDir = parent::getCurrentDir();
-        if (parent::getFtpWrapper()->chdir(parent::getConnection(), $directory ?: $this->getCurrentDir()) !== false)
+        $originalDir = $this->getCurrentDir();
+        if ($this->getFtpWrapper()->chdir($this->getConnection(), $directory ?: $this->getCurrentDir()) !== false)
         {
-            parent::getFtpWrapper()->chdir($this->getConnection(), $originalDir);
+            $this->getFtpWrapper()->chdir($this->getConnection(), $originalDir);
             return true;
         }
 
@@ -158,8 +158,8 @@ class FtpClient extends FtpManager
      */
     public function getFeatures()
     {
-        if (parent::getFtpCommand()->request("FEAT") !== false) {
-            return parent::getFtpCommand()->getResponseBody();
+        if ($this->getFtpCommand()->rawRequest("FEAT") !== false) {
+            return array_map('ltrim', $this->getFtpCommand()->getResponseBody());
         }
 
         throw new FtpClientRuntimeException("Cannot get remote server features.");
@@ -176,30 +176,31 @@ class FtpClient extends FtpManager
      */
     public function isFeatureSupported($feature)
     {
-        $feats_case_insensitive = array_map(
+        $featsCaseInsensitive = array_map(
             function ($item) {
                 ltrim(strtolower($item));
                 return true;
             },
             $this->getFeatures()
         );
-        return in_array(strtolower($feature), $feats_case_insensitive);
+
+        return in_array(strtolower($feature), $featsCaseInsensitive);
     }
 
     /**
      * Get remote server system name.
      *
-     * @return string|null
+     * @return string
      *
      * @throws \Lazzard\FtpClient\Exception\FtpClientRuntimeException
      */
     public function getSystem()
     {
-        if (parent::getFtpCommand()->request("SYST") !== false) {
-            return parent::getFtpCommand()->getResponseMessage();
+        if ($this->getFtpCommand()->rawRequest("SYST") !== false) {
+            return $this->getFtpCommand()->getResponseMessage();
         }
 
-        throw new FtpClientRuntimeException("Unable to get remote system name.");
+        throw new FtpClientRuntimeException("Cannot get remote server features.");
     }
 
 }

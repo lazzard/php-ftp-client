@@ -69,9 +69,9 @@ class FtpWrapper
     /**
      * @link https://www.php.net/manual/en/function.ftp-set-option.php
      *
-     * @param $ftpStream
-     * @param $option
-     * @param $value
+     * @param resource $ftpStream
+     * @param int      $option
+     * @param mixed    $value
      *
      * @return bool
      */
@@ -83,8 +83,8 @@ class FtpWrapper
     /**
      * @link https://www.php.net/manual/en/function.ftp-chdir.php
      *
-     * @param $ftpStream
-     * @param $directory
+     * @param resource $ftpStream
+     * @param string   $directory
      *
      * @return bool
      */
@@ -96,7 +96,7 @@ class FtpWrapper
     /**
      * @link https://www.php.net/manual/en/function.ftp-pwd.php
      *
-     * @param $ftpStream
+     * @param resource $ftpStream
      *
      * @return string
      */
@@ -108,8 +108,8 @@ class FtpWrapper
     /**
      * @link https://www.php.net/manual/en/function.ftp-nlist.php
      *
-     * @param $ftpStream
-     * @param $directory
+     * @param resource $ftpStream
+     * @param string   $directory
      *
      * @return array
      */
@@ -121,7 +121,7 @@ class FtpWrapper
     /**
      * @link https://www.php.net/manual/en/function.ftp-cdup.php
      *
-     * @param $ftpStream
+     * @param resource $ftpStream
      *
      * @return bool
      */
@@ -131,14 +131,42 @@ class FtpWrapper
     }
 
     /**
-     * @param $ftpStream
-     * @param $command
+     * @link https://www.php.net/manual/en/function.ftp-raw.php
+     *
+     * @param resource $ftpStream
+     * @param string   $command
      *
      * @return array
      */
     public function raw($ftpStream, $command)
     {
         return ftp_raw($ftpStream, $command);
+    }
+
+    /**
+     * @link https://www.php.net/manual/en/function.ftp-exec.php
+     *
+     * @param resource $ftpStream
+     * @param string   $command
+     *
+     * @return bool
+     */
+    public function exec($ftpStream, $command)
+    {
+        return @ftp_exec($ftpStream, $command);
+    }
+
+    /**
+     * @link https://www.php.net/manual/en/function.ftp-exec.php
+     *
+     * @param resource $ftpStream
+     * @param string   $command
+     *
+     * @return bool
+     */
+    public function site($ftpStream, $command)
+    {
+        return @ftp_site($ftpStream, $command);
     }
 
 }

@@ -11,11 +11,11 @@ use Lazzard\FtpClient\Exception\FtpClientException;
  * @package Lazzard\FtpClient\FtpConfiguration\Exception
  * @author EL AMRANI CHAKIR <elamrani.sv.laza@gmail.com>
  */
-class FtpConfigurationLogicException extends \RuntimeException implements FtpClientException
+class FtpConfigurationLogicException extends \LogicException implements FtpClientException
 {
     public function __construct($message)
     {
-        parent::__construct("[FtpClient FtpConfiguration Exception] : " . $message);
+        parent::__construct("[FtpConfiguration Exception] : " . $message);
     }
 
     public static function InvalidFtpConfigurationOption($option, $type)

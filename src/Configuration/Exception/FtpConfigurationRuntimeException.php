@@ -15,6 +15,6 @@ class FtpConfigurationRuntimeException extends \RuntimeException implements FtpC
 {
     public function __construct($message)
     {
-        parent::__construct("[FtpClient FtpConfiguration Exception] : " . $message);
+        parent::__construct("[FtpConfiguration Exception] : " . $message);
     }
 }

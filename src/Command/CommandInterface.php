@@ -13,13 +13,27 @@ namespace Lazzard\FtpClient\Command;
 interface CommandInterface
 {
     /**
-     * Send a command to the remote server.
+     * Send an arbitrary command to the remote server.
      *
      * @param $command
      *
-     * @return bool Return true in success false if fail
+     * @return bool Return true if the command success (server response code lesser than 300),
+     *              otherwise return false.
      */
-    public function request($command);
+    public function rawRequest($command);
+
+    /**
+     * Send a SITE command to the FTP server.
+     *
+     * @param $command
+     *
+     * @return bool Return true in success, throws exception in failure.
+     *
+     * @see \Lazzard\FtpClient\Command\FtpCommand::rawRequest()
+     *
+     * @throws \Lazzard\FtpClient\Command\Exception\FtpCommandException
+     */
+    public function siteRequest($command);
 
     /**
      * Get server response for the previous command request.
@@ -41,6 +55,13 @@ interface CommandInterface
      * @return string
      */
     public function getResponseMessage();
+
+    /**
+     * Get server the end status response message for the previous command request.
+     *
+     * @return string
+     */
+    public function getEndResponseMessage();
 
     /**
      * Get server response body for the previous command request.
