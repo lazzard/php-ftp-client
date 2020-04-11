@@ -143,6 +143,21 @@ class FtpCommand implements CommandInterface
     }
 
     /**
+     * @return array
+     */
+    private function supportedSiteCommands()
+    {
+        $this->rawRequest("HELP");
+
+        return array_map(
+            function ($item) {
+                return ltrim(strtolower($item));
+            },
+            $this->getResponseBody()
+        );
+    }
+
+    /**
      * @inheritDoc
      */
     public function rawRequest($command)
@@ -171,24 +186,14 @@ class FtpCommand implements CommandInterface
      */
     public function siteRequest($command)
     {
-        $siteCommand = explode(' ', trim($command))[0];
+        $siteCommand = strtolower(explode(' ', trim($command))[0]);
 
-        $this->rawRequest("HELP");
-
-        $supportedSITECommands = array_map(
-            function ($item) {
-                ltrim(strtolower($item));
-                return true;
-            },
-            $this->getResponseBody()
-        );
-
-        if (in_array($siteCommand, $supportedSITECommands) !== true) {
-            throw new FtpCommandException("{$siteCommand} not supported by the remote server.");
+        if (in_array($siteCommand, $this->supportedSiteCommands()) !== true) {
+            throw new FtpCommandException("{$siteCommand} command not supported by the remote server.");
         }
 
         if ($this->getFtpWrapper()->site($this->getConnection(), trim($command)) !== true) {
-            throw new FtpCommandException("SITE command failed.");
+            throw new FtpCommandException("SITE command was fail.");
         }
 
         $this->setResponseCode(200);
@@ -201,4 +206,26 @@ class FtpCommand implements CommandInterface
 
         return true;
     }
+
+    public function execRequest($command)
+    {
+        if (in_array('exec', $this->supportedSiteCommands()) !== true) {
+            throw new FtpCommandException("SITE EXEC command not provided by the FTP server.");
+        }
+
+        if (($this->getFtpWrapper()->exec($this->getConnection(), $command)) !== true) {
+            throw new FtpCommandException("SITE EXEC command was fail.");
+        }
+
+        $this->setResponseCode(200);
+        $this->setResponseMessage("[FtpClient] SITE EXEC command succeeded.");
+        $this->setResponse(sprintf(
+            "%s - %s",
+            $this->getResponseCode(),
+            $this->getResponseMessage()
+        ));
+
+        return true;
+    }
+
 }

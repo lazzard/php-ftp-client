@@ -49,6 +49,7 @@ class FtpConfiguration implements ConfigurationInterface
             foreach ($options as $optionKey => $optionValue) {
 
                 if (key_exists($optionKey, FtpSettings::SETTINGS)) {
+                    
                     if (FtpSettings::SETTINGS[$optionKey]['type'] === gettype($optionValue)) {
                         $setter = "set" . ucfirst($optionKey);
                         $this->$setter($optionValue);

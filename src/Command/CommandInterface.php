@@ -13,7 +13,7 @@ namespace Lazzard\FtpClient\Command;
 interface CommandInterface
 {
     /**
-     * Send an arbitrary command to the remote server.
+     * Sends an arbitrary command to the remote server.
      *
      * @param $command
      *
@@ -23,7 +23,7 @@ interface CommandInterface
     public function rawRequest($command);
 
     /**
-     * Send a SITE command to the FTP server.
+     * Sends a SITE command to the FTP server.
      *
      * @param $command
      *
@@ -34,6 +34,17 @@ interface CommandInterface
      * @throws \Lazzard\FtpClient\Command\Exception\FtpCommandException
      */
     public function siteRequest($command);
+
+    /**
+     * Send a SITE EXEC command to the remote server.
+     *
+     * @param $command
+     *
+     * @return bool Return true in success, throws exception in failure.
+     *
+     * @throws \Lazzard\FtpClient\Command\Exception\FtpCommandException
+     */
+    public function execRequest($command);
 
     /**
      * Get server response for the previous command request.
@@ -59,7 +70,7 @@ interface CommandInterface
     /**
      * Get server the end status response message for the previous command request.
      *
-     * @return string
+     * @return string|null
      */
     public function getEndResponseMessage();
 

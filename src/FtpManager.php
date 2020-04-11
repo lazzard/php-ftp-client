@@ -122,11 +122,7 @@ abstract class FtpManager
      */
     public function getCurrentDir()
     {
-        if (($currentDir = $this->getFtpWrapper()->pwd($this->getConnection())) !== '.') {
-            return $currentDir;
-        }
-
-        return '';
+        return $this->getFtpWrapper()->pwd($this->getConnection());
     }
 
     /**
@@ -134,9 +130,7 @@ abstract class FtpManager
      */
     public function setCurrentDir($currentDir)
     {
-        $fixCurrentDir = $currentDir == '/' ? '' : $currentDir;
-        
-        if ($this->getFtpWrapper()->chdir($this->getConnection(), $fixCurrentDir) !==
+        if ($this->getFtpWrapper()->chdir($this->getConnection(), $currentDir) !==
         true) {
             throw new FtpClientRuntimeException("Cannot change to the giving directory.");
         }

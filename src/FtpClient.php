@@ -18,6 +18,7 @@ class FtpClient extends FtpManager
      * FtpClient predefined constants
      */
     const IGNORE_DOTS = false;
+    const DOTS = ['.', '..'];
 
     /**
      * FtpClient __call.
@@ -62,7 +63,7 @@ class FtpClient extends FtpManager
 
         if ($ignoreDotes === true) {
             $files = array_filter($files, function ($item) {
-                return !in_array($item, ['.', '..']);
+                return !in_array($item, self::DOTS);
             });
         }
 
@@ -201,6 +202,22 @@ class FtpClient extends FtpManager
         }
 
         throw new FtpClientRuntimeException("Cannot get remote server features.");
+    }
+
+    /**
+     * Get supported SITE commands by the remote server.
+     *
+     * @return array Return array of SITE available commands in success.
+     *
+     * @throws \Lazzard\FtpClient\Exception\FtpClientRuntimeException
+     */
+    public function getSupportedSiteCommands()
+    {
+        if (($this->getFtpCommand()->rawRequest("HELP")) !== false) {
+            return array_map('ltrim', $this->getFtpCommand()->getResponseBody());
+        }
+
+        throw new FtpClientRuntimeException("Cannot get supported site commands.");
     }
 
 }
