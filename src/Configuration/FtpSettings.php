@@ -3,7 +3,7 @@
 namespace Lazzard\FtpClient\Configuration;
 
 /**
- * Class FtpConfiguration
+ * Class FtpSettings
  *
  * @since 1.0
  * @package Lazzard\FtpClient\FtpConfiguration

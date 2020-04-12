@@ -153,7 +153,7 @@ class FtpWrapper
      */
     public function exec($ftpStream, $command)
     {
-        return @ftp_exec($ftpStream, $command);
+        return ftp_exec($ftpStream, $command);
     }
 
     /**
@@ -166,7 +166,7 @@ class FtpWrapper
      */
     public function site($ftpStream, $command)
     {
-        return @ftp_site($ftpStream, $command);
+        return ftp_site($ftpStream, $command);
     }
 
 }

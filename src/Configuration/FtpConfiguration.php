@@ -56,18 +56,15 @@ class FtpConfiguration implements ConfigurationInterface
                         continue;
                     }
                 }
-
                 throw FtpConfigurationLogicException::InvalidFtpConfigurationOption($optionKey,
                     FtpSettings::SETTINGS[$optionKey]['type']);
             }
         } else {
-
             foreach (get_object_vars($this) as $optionKey => $optionValue) {
                 $defaultValue = FtpSettings::SETTINGS[$optionKey]['value'];
                 $setter = "set" . ucfirst($optionKey);
                 $this->$setter($defaultValue);
             }
-
         }
     }
 
@@ -84,14 +81,14 @@ class FtpConfiguration implements ConfigurationInterface
      */
     public function setTimeout($timeout)
     {
-        if (FtpSettings::SETTINGS['timeout']['type'] === gettype($timeout)) {
-            $this->timeout = $timeout;
-        } else {
+        if (FtpSettings::SETTINGS['timeout']['type'] !== gettype($timeout)) {
             throw FtpConfigurationLogicException::InvalidFtpConfigurationOption(
                 'timeout',
                 FtpSettings::SETTINGS['timeout']['type']
             );
         }
+
+        $this->timeout = $timeout;
     }
     
     /**
@@ -107,14 +104,14 @@ class FtpConfiguration implements ConfigurationInterface
      */
     public function setPassive($passive)
     {
-        if (FtpSettings::SETTINGS['passive']['type'] === gettype($passive)) {
-            $this->passive = $passive;
-        } else {
+        if (FtpSettings::SETTINGS['passive']['type'] !== gettype($passive)) {
             throw FtpConfigurationLogicException::InvalidFtpConfigurationOption(
                 'passive',
                 FtpSettings::SETTINGS['passive']['type']
             );
         }
+
+        $this->passive = $passive;
     }
     
     /**
@@ -130,14 +127,14 @@ class FtpConfiguration implements ConfigurationInterface
      */
     public function setAutoSeek($autoSeek)
     {
-        if (FtpSettings::SETTINGS['autoSeek']['type'] === gettype($autoSeek)) {
-            $this->autoSeek = $autoSeek;
-        } else {
+        if (FtpSettings::SETTINGS['autoSeek']['type'] !== gettype($autoSeek)) {
             throw FtpConfigurationLogicException::InvalidFtpConfigurationOption(
                 'autoSeek',
                 FtpSettings::SETTINGS['autoSeek']['type']
             );
         }
+
+        $this->autoSeek = $autoSeek;
     }
     
     /**
@@ -153,14 +150,14 @@ class FtpConfiguration implements ConfigurationInterface
      */
     public function setUsePassiveAddress($usePassiveAddress)
     {
-        if (FtpSettings::SETTINGS['usePassiveAddress']['type'] === gettype($usePassiveAddress)) {
-            $this->usePassiveAddress = $usePassiveAddress;
-        } else {
+        if (FtpSettings::SETTINGS['usePassiveAddress']['type'] !== gettype($usePassiveAddress)) {
             throw FtpConfigurationLogicException::InvalidFtpConfigurationOption(
                 'usePassiveAddress',
                 FtpSettings::SETTINGS['usePassiveAddress']['type']
             );
         }
+
+        $this->usePassiveAddress = $usePassiveAddress;
     }
 
     /**
@@ -176,14 +173,14 @@ class FtpConfiguration implements ConfigurationInterface
      */
     public function setRoot($root)
     {
-        if (FtpSettings::SETTINGS['root']['type'] === gettype($root)) {
-            $this->root = $root;
-        } else {
+        if (FtpSettings::SETTINGS['root']['type'] !== gettype($root)) {
             throw FtpConfigurationLogicException::InvalidFtpConfigurationOption(
                 'root',
                 FtpSettings::SETTINGS['root']['type']
             );
         }
+
+        $this->root = $root;
     }
 
 }

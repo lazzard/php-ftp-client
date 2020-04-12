@@ -166,8 +166,8 @@ class FtpCommand implements CommandInterface
         $this->setResponseCode(intval(substr($this->getResponse()[0], 0, 3)));
         $this->setResponseMessage(ltrim(substr($this->getResponse()[0], 3)));
 
-        if ($this->getResponseCode() < 300)
-        {
+        if ($this->getResponseCode() < 300) {
+
             $response = $this->getResponse();
             $responseBody = array_splice($response, 1, -1);
             $this->setResponseBody($responseBody ?: null);
@@ -207,6 +207,9 @@ class FtpCommand implements CommandInterface
         return true;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function execRequest($command)
     {
         if (in_array('exec', $this->supportedSiteCommands()) !== true) {

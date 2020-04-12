@@ -159,11 +159,11 @@ class FtpClient extends FtpManager
      */
     public function getFeatures()
     {
-        if ($this->getFtpCommand()->rawRequest("FEAT") !== false) {
-            return array_map('ltrim', $this->getFtpCommand()->getResponseBody());
+        if ($this->getFtpCommand()->rawRequest("FEAT") !== true) {
+            throw new FtpClientRuntimeException("Cannot get remote server features.");
         }
 
-        throw new FtpClientRuntimeException("Cannot get remote server features.");
+        return array_map('ltrim', $this->getFtpCommand()->getResponseBody());
     }
 
     /**
@@ -197,11 +197,11 @@ class FtpClient extends FtpManager
      */
     public function getSystem()
     {
-        if ($this->getFtpCommand()->rawRequest("SYST") !== false) {
-            return $this->getFtpCommand()->getResponseMessage();
+        if ($this->getFtpCommand()->rawRequest("SYST") !== true) {
+            throw new FtpClientRuntimeException("Cannot get remote server features.");
         }
 
-        throw new FtpClientRuntimeException("Cannot get remote server features.");
+        return $this->getFtpCommand()->getResponseMessage();
     }
 
     /**
@@ -213,11 +213,27 @@ class FtpClient extends FtpManager
      */
     public function getSupportedSiteCommands()
     {
-        if (($this->getFtpCommand()->rawRequest("HELP")) !== false) {
-            return array_map('ltrim', $this->getFtpCommand()->getResponseBody());
+        if (($this->getFtpCommand()->rawRequest("HELP")) !== true) {
+            throw new FtpClientRuntimeException("Cannot getting available site commands from the FTP server.");
         }
 
-        throw new FtpClientRuntimeException("Cannot get supported site commands.");
+        return array_map('ltrim', $this->getFtpCommand()->getResponseBody());
     }
 
+
+    /**
+     * Back to the parent directory.
+     *
+     * @return bool
+     *
+     * @throws \Lazzard\FtpClient\Exception\FtpClientRuntimeException
+     */
+    public function back()
+    {
+        if (($this->getFtpWrapper()->cdup($this->getConnection())) !== true ) {
+            throw new FtpClientRuntimeException("Cannot change to the parent directory.");
+        }
+
+        return true;
+    }
 }
