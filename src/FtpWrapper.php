@@ -169,4 +169,18 @@ class FtpWrapper
         return ftp_site($ftpStream, $command);
     }
 
+    /**
+     * @link https://www.php.net/manual/en/function.ftp-rawlist.php
+     *
+     * @param resource $ftpStream
+     * @param string   $directory
+     * @param bool     $recursive
+     *
+     * @return array
+     */
+    public function rawlist($ftpStream, $directory, $recursive = false)
+    {
+        return ftp_rawlist($ftpStream, $directory, $recursive);
+    }
+
 }

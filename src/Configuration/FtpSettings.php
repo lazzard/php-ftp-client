@@ -17,6 +17,7 @@ final class FtpSettings
      * @var array
      */
     const SETTINGS = [
+
         "timeout" => [
           "value" => 90,
           "type"  => "integer"
@@ -41,5 +42,6 @@ final class FtpSettings
             "value" => ".",
             "type"  => "string"
         ]
+
     ];
 }

@@ -18,7 +18,7 @@ class FtpClient extends FtpManager
      * FtpClient predefined constants
      */
     const IGNORE_DOTS = false;
-    const DOTS = ['.', '..'];
+    const DOTS        = ['.', '..'];
 
     /**
      * FtpClient __call.
@@ -46,24 +46,51 @@ class FtpClient extends FtpManager
     }
 
     /**
-     * Get files in giving directory.
+     * Extract the file type (type, dir, link) from chmod string
+     * (e.g., 'drwxr-xr-x' string will return 'dir').
      *
-     * @param string $directory   Target directory
-     * @param bool   $ignoreDotes Ignore dots files items '.' and '..'
-     * @param null   $callback    Filtering returned files
+     * @param string $chmod
+     *
+     * @return string
+     */
+    protected function _chmodToFileType($chmod)
+    {
+        switch ($chmod[0])
+        {
+            case '-':
+                return 'file';
+            case 'd':
+                return 'dir';
+            case 'l':
+                return 'link';
+
+            default: return 'unknown file type.';
+        }
+    }
+
+    /**
+     * Get list of files names in giving directory.
+     *
+     * This method depends mainly on ftp_nlist function.
+     *
+     * @param string   $directory             Target directory
+     * @param bool     $ignoreDotes[optional] Ignore dots files items '.' and '..',
+     *                                        default sets to false.
+     * @param callable $callback[optional]    Filtering returned files with a callback
+     *                                        function, default is null.
      *
      * @return array
      */
-    public function getFiles($directory = null, $ignoreDotes = self::IGNORE_DOTS, $callback = null)
+    public function getDirectoryFiles($directory, $ignoreDotes = self::IGNORE_DOTS, $callback = null)
     {
         $files = $this->getFtpWrapper()->nlist(
             $this->getConnection(),
-            $directory ?: $this->getCurrentDir()
+            $directory
         );
 
         if ($ignoreDotes === true) {
             $files = array_filter($files, function ($item) {
-                return !in_array($item, self::DOTS);
+                return !in_array(pathinfo($item, PATHINFO_BASENAME), self::DOTS);
             });
         }
 
@@ -79,23 +106,30 @@ class FtpClient extends FtpManager
     }
 
     /**
-     * Get files of type file from the giving directory.
+     * Get files only (not the directories) from the giving directory.
      *
-     * @param null $directory
-     * @param bool $ignoreDotes
-     * @param null $callback
-     * 
-     * @see getFiles()
+     * @see \Lazzard\FtpClient\FtpClient::getDirectoryFiles()
+     *
+     * @param string   $directory             Target directory
+     * @param bool     $ignoreDotes[optional] Ignore dots files items '.' and '..',
+     *                                        default sets to false.
+     * @param callable $callback[optional]    Filtering returned files with a callback
+     *                                        function, default is null.
      *
      * @return array
      */
-    public function getFilesOnly($directory = null, $ignoreDotes = self::IGNORE_DOTS, $callback = null)
+    public function getDirectoryFilesOnly($directory, $ignoreDotes = self::IGNORE_DOTS, $callback =
+    null)
     {
-        $files = $this->getFiles($directory ?: $this->getCurrentDir(), $ignoreDotes, $callback);
+        $files = $this->getDirectoryFiles(
+            $directory,
+            $ignoreDotes,
+            $callback
+        );
 
         $filesOnly = [];
         foreach ($files as $file) {
-            if ($this->isDirectory($directory ?: $this->getCurrentDir() . '/' . $file) !== true) {
+            if ($this->isDirectory(sprintf('%s/%s', $directory, $file)) !== true) {
                 $filesOnly[] = $file;
             }
         }
@@ -103,24 +137,32 @@ class FtpClient extends FtpManager
         return $filesOnly;
     }
 
+
     /**
-     * Get only directories files.
+     * Get only the directories.
      *
-     * @param null $directory
-     * @param bool $ignoreDotes
-     * @param null $callback
+     * @see \Lazzard\FtpClient\FtpClient::getDirectoryFiles()
      *
-     * @see getFiles()
-     * 
+     * @param string   $directory             Target directory
+     * @param bool     $ignoreDotes[optional] Ignore dots files items '.' and '..',
+     *                                        default sets to false.
+     * @param callable $callback[optional]    Filtering returned files with a callback
+     *                                        function, default is null.
+     *
      * @return array
      */
-    public function getDirsOnly($directory = null, $ignoreDotes = self::IGNORE_DOTS, $callback = null)
+    public function getDirectoryDirsOnly($directory, $ignoreDotes = self::IGNORE_DOTS, $callback =
+    null)
     {
-        $files = $this->getFiles($directory ?: $this->getCurrentDir(), $ignoreDotes, $callback);
+        $files = $this->getDirectoryFiles(
+            $directory,
+            $ignoreDotes,
+            $callback
+        );
 
         $dirsOnly = [];
         foreach ($files as $file) {
-            if ($this->isDirectory($directory ?: $this->getCurrentDir() . '/' . $file)) {
+            if ($this->isDirectory(sprintf('%s/%s', $directory, $file))) {
                 $dirsOnly[] = $file;
             }
         }
@@ -129,17 +171,83 @@ class FtpClient extends FtpManager
     }
 
     /**
+     * Get detailed list of files in the giving directory.
+     *
+     * This method depends mainly on the ftp_rawlist function.
+     *
+     * @param string $directory
+     * @param bool   $recursive
+     *
+     * @return array
+     */
+    public function getDirectoryDetails($directory, $recursive = false)
+    {
+        $details = $this->getFtpWrapper()->rawlist(
+            $this->getConnection(),
+            $directory,
+            $recursive
+        );
+
+        $pathTmp = null;
+        $info = [];
+        foreach ($details as $detail) {
+            $cleanDetail = preg_split('/\s+/', $detail);
+
+            if (strlen($cleanDetail[0]) != 0 && count($cleanDetail) != 9) {
+                $pathTmp = substr($cleanDetail[0], 0, -1);
+            }
+
+            if (count($cleanDetail) == 9) {
+                $info[] = [
+                    'name'  => $cleanDetail[8],
+                    'chmod' => $cleanDetail[0],
+                    'num'   => $cleanDetail[1],
+                    'owner' => $cleanDetail[2],
+                    'group' => $cleanDetail[3],
+                    'size'  => $cleanDetail[4],
+                    'month' => $cleanDetail[5],
+                    'day'   => $cleanDetail[6],
+                    'time'  => $cleanDetail[7],
+                    'type'  => $this->_chmodToFileType($cleanDetail[0]),
+                    'path'  => $pathTmp ? $pathTmp . '/' . $cleanDetail[8] : $cleanDetail[8]
+                ];
+            }
+            
+        }
+
+        return $info;
+    }
+
+    /**
+     * Get files count of the giving directory.
+     *
+     * @see \Lazzard\FtpClient\FtpClient::getDirectoryDetails()
+     *
+     * @param string $directory
+     * @param bool   $recursive
+     *
+     * @return int
+     */
+    public function getDirectoryCount($directory, $recursive = false)
+    {
+        return count($this->getDirectoryDetails(
+            $directory,
+            $recursive)
+        );
+    }
+
+    /**
      * Check weather if a file is a directory or not.
      *
-     * @param string|null $directory
+     * @param string $directory
      *
      * @return bool Return true if the giving file is a directory,
-     * false if isn't or the file doesn't exists.
+     *              false if isn't or the file doesn't exists.
      */
-    public function isDirectory($directory = null)
+    public function isDirectory($directory)
     {
         $originalDir = $this->getCurrentDir();
-        if ($this->getFtpWrapper()->chdir($this->getConnection(), $directory ?: $this->getCurrentDir()) !== false)
+        if ($this->getFtpWrapper()->chdir($this->getConnection(), $directory) !== false)
         {
             $this->getFtpWrapper()->chdir($this->getConnection(), $originalDir);
             return true;
@@ -151,9 +259,9 @@ class FtpClient extends FtpManager
     /**
      * Get supported remote server features.
      *
-     * @return array
+     * @see \Lazzard\FtpClient\Command\FtpCommand::rawRequest()
      *
-     * @see \Lazzard\FtpClient\Command\FtpCommand::request()
+     * @return array
      *
      * @throws \Lazzard\FtpClient\Exception\FtpClientRuntimeException
      */
@@ -169,9 +277,9 @@ class FtpClient extends FtpManager
     /**
      * Determine if the giving feature is supported by the remote server or not.
      *
-     * @param string $feature
-     *
      * @see \Lazzard\FtpClient\FtpClient::getFeatures()
+     *
+     * @param string $feature
      *
      * @return bool
      */
@@ -191,6 +299,8 @@ class FtpClient extends FtpManager
     /**
      * Get remote server system name.
      *
+     * @see \Lazzard\FtpClient\Command\FtpCommand::rawRequest()
+     *
      * @return string
      *
      * @throws \Lazzard\FtpClient\Exception\FtpClientRuntimeException
@@ -206,6 +316,8 @@ class FtpClient extends FtpManager
 
     /**
      * Get supported SITE commands by the remote server.
+     *
+     * @see \Lazzard\FtpClient\Command\FtpCommand::rawRequest()
      *
      * @return array Return array of SITE available commands in success.
      *

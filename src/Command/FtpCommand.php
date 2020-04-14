@@ -145,7 +145,7 @@ class FtpCommand implements CommandInterface
     /**
      * @return array
      */
-    private function supportedSiteCommands()
+    private function _supportedSiteCommands()
     {
         $this->rawRequest("HELP");
 
@@ -188,7 +188,7 @@ class FtpCommand implements CommandInterface
     {
         $siteCommand = strtolower(explode(' ', trim($command))[0]);
 
-        if (in_array($siteCommand, $this->supportedSiteCommands()) !== true) {
+        if (in_array($siteCommand, $this->_supportedSiteCommands()) !== true) {
             throw new FtpCommandException("{$siteCommand} command not supported by the remote server.");
         }
 
@@ -212,7 +212,7 @@ class FtpCommand implements CommandInterface
      */
     public function execRequest($command)
     {
-        if (in_array('exec', $this->supportedSiteCommands()) !== true) {
+        if (in_array('exec', $this->_supportedSiteCommands()) !== true) {
             throw new FtpCommandException("SITE EXEC command not provided by the FTP server.");
         }
 
