@@ -30,13 +30,13 @@ abstract class FtpManager
     /** @var resource */
     protected $connection;
 
-    /** @var \Lazzard\FtpClient\FtpWrapper */
+    /** @var FtpWrapper */
     protected $ftpWrapper;
 
-    /** @var \Lazzard\FtpClient\Configuration\FtpConfiguration */
+    /** @var FtpConfiguration */
     protected $ftpConfiguration;
 
-    /** @var \Lazzard\FtpClient\Command\FtpCommand */
+    /** @var FtpCommand */
     protected $ftpCommand;
 
     /** @var string */
@@ -45,7 +45,7 @@ abstract class FtpManager
     /**
      * FtpManager constructor.
      *
-     * @param \Lazzard\FtpClient\Configuration\ConfigurationInterface|null $ftpConfiguration
+     * @param ConfigurationInterface|null $ftpConfiguration
      */
     public function __construct(ConfigurationInterface $ftpConfiguration = null)
     {
@@ -63,7 +63,7 @@ abstract class FtpManager
      *
      * @return resource
      *
-     * @throws \Lazzard\FtpClient\Exception\FtpClientRuntimeException
+     * @throws FtpClientRuntimeException
      */
     public function getConnection()
     {
@@ -83,7 +83,7 @@ abstract class FtpManager
     }
 
     /**
-     * @return \Lazzard\FtpClient\FtpWrapper
+     * @return FtpWrapper
      */
     protected function getFtpWrapper()
     {
@@ -91,7 +91,7 @@ abstract class FtpManager
     }
 
     /**
-     * @return \Lazzard\FtpClient\Command\FtpCommand
+     * @return FtpCommand
      */
     protected function getFtpCommand()
     {
@@ -101,7 +101,7 @@ abstract class FtpManager
     /**
      * Get current FTP configuration.
      *
-     * @return \Lazzard\FtpClient\Configuration\FtpConfiguration
+     * @return FtpConfiguration
      */
     public function getFtpConfiguration()
     {
@@ -109,7 +109,7 @@ abstract class FtpManager
     }
 
     /**
-     * @param \Lazzard\FtpClient\Configuration\FtpConfiguration $ftpConfiguration
+     * @param FtpConfiguration $ftpConfiguration
      */
     public function setFtpConfiguration($ftpConfiguration)
     {
@@ -127,6 +127,8 @@ abstract class FtpManager
 
     /**
      * @param string $currentDir
+     *
+     * @throws FtpClientRuntimeException
      */
     public function setCurrentDir($currentDir)
     {
@@ -172,6 +174,7 @@ abstract class FtpManager
      *
      * @return bool
      *
+     * @throws FtpClientRuntimeException
      */
     public function connect($host, $port = 21, $timeout = 90)
     {
@@ -196,7 +199,7 @@ abstract class FtpManager
      *
      * @return bool
      *
-     * @throws \Lazzard\FtpClient\Exception\FtpClientRuntimeException
+     * @throws FtpClientRuntimeException
      */
     public function login($username, $password)
     {
@@ -213,7 +216,7 @@ abstract class FtpManager
      *
      * @return bool
      * 
-     * @throws \Lazzard\FtpClient\Exception\FtpClientRuntimeException
+     * @throws FtpClientRuntimeException
      */
     public function close()
     {
@@ -232,7 +235,7 @@ abstract class FtpManager
      *
      * @return bool
      * 
-     * @throws \Lazzard\FtpClient\Exception\FtpClientRuntimeException
+     * @throws FtpClientRuntimeException
      * @throws \Lazzard\FtpClient\Exception\FtpClientLogicException
      */
     public function setOption($option, $value)
@@ -266,7 +269,7 @@ abstract class FtpManager
      *
      * @return bool
      * 
-     * @throws \Lazzard\FtpClient\Exception\FtpClientRuntimeException
+     * @throws FtpClientRuntimeException
      */
     public function setPassive($bool)
     {

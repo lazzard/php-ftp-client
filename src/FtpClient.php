@@ -31,7 +31,7 @@ class FtpClient extends FtpManager
      *
      * @return mixed
      *
-     * @throws \Lazzard\FtpClient\Exception\FtpClientLogicException
+     * @throws FtpClientLogicException
      */
     public function __call($name, $arguments)
     {
@@ -108,7 +108,7 @@ class FtpClient extends FtpManager
     /**
      * Get files only (not the directories) from the giving directory.
      *
-     * @see \Lazzard\FtpClient\FtpClient::getDirectoryFiles()
+     * @see FtpClient::getDirectoryFiles()
      *
      * @param string   $directory             Target directory
      * @param bool     $ignoreDotes[optional] Ignore dots files items '.' and '..',
@@ -141,7 +141,7 @@ class FtpClient extends FtpManager
     /**
      * Get only the directories.
      *
-     * @see \Lazzard\FtpClient\FtpClient::getDirectoryFiles()
+     * @see FtpClient::getDirectoryFiles()
      *
      * @param string   $directory             Target directory
      * @param bool     $ignoreDotes[optional] Ignore dots files items '.' and '..',
@@ -221,7 +221,7 @@ class FtpClient extends FtpManager
     /**
      * Get files count of the giving directory.
      *
-     * @see \Lazzard\FtpClient\FtpClient::getDirectoryDetails()
+     * @see FtpClient::getDirectoryDetails()
      *
      * @param string $directory
      * @param bool   $recursive
@@ -259,15 +259,15 @@ class FtpClient extends FtpManager
     /**
      * Get supported remote server features.
      *
-     * @see \Lazzard\FtpClient\Command\FtpCommand::rawRequest()
-     *
      * @return array
      *
-     * @throws \Lazzard\FtpClient\Exception\FtpClientRuntimeException
+     * @see FtpCommand::rawRequest()
+     *
+     * @throws FtpClientRuntimeException
      */
     public function getFeatures()
     {
-        if ($this->getFtpCommand()->rawRequest("FEAT") !== true) {
+        if (!$this->getFtpCommand()->rawRequest("FEAT")->isSucceeded()) {
             throw new FtpClientRuntimeException("Cannot get remote server features.");
         }
 
@@ -277,7 +277,7 @@ class FtpClient extends FtpManager
     /**
      * Determine if the giving feature is supported by the remote server or not.
      *
-     * @see \Lazzard\FtpClient\FtpClient::getFeatures()
+     * @see FtpClient::getFeatures()
      *
      * @param string $feature
      *
@@ -299,11 +299,11 @@ class FtpClient extends FtpManager
     /**
      * Get remote server system name.
      *
-     * @see \Lazzard\FtpClient\Command\FtpCommand::rawRequest()
+     * @see FtpCommand::rawRequest()
      *
      * @return string
      *
-     * @throws \Lazzard\FtpClient\Exception\FtpClientRuntimeException
+     * @throws FtpClientRuntimeException
      */
     public function getSystem()
     {
@@ -317,11 +317,11 @@ class FtpClient extends FtpManager
     /**
      * Get supported SITE commands by the remote server.
      *
-     * @see \Lazzard\FtpClient\Command\FtpCommand::rawRequest()
+     * @see FtpCommand::rawRequest()
      *
      * @return array Return array of SITE available commands in success.
      *
-     * @throws \Lazzard\FtpClient\Exception\FtpClientRuntimeException
+     * @throws FtpClientRuntimeException
      */
     public function getSupportedSiteCommands()
     {
@@ -338,7 +338,7 @@ class FtpClient extends FtpManager
      *
      * @return bool
      *
-     * @throws \Lazzard\FtpClient\Exception\FtpClientRuntimeException
+     * @throws FtpClientRuntimeException
      */
     public function back()
     {

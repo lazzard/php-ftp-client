@@ -35,8 +35,8 @@ class FtpConfiguration implements ConfigurationInterface
      *
      * @param array|null $options
      *
-     * @throws \Lazzard\FtpClient\Configuration\Exception\FtpConfigurationRuntimeException
-     * @throws \Lazzard\FtpClient\Configuration\Exception\FtpConfigurationLogicException
+     * @throws FtpConfigurationRuntimeException
+     * @throws FtpConfigurationLogicException
      */
     public function __construct($options = null)
     {

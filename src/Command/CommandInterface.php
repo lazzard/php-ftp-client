@@ -3,6 +3,8 @@
 
 namespace Lazzard\FtpClient\Command;
 
+use Lazzard\FtpClient\Command\Exception\FtpCommandRuntimeException;
+
 /**
  * Interface CommandInterface
  *
@@ -15,34 +17,31 @@ interface CommandInterface
     /**
      * Sends an arbitrary command to the remote server.
      *
-     * @param $command
+     * @param string $command
      *
-     * @return bool Return true if the command success (server response code lesser than 300),
-     *              otherwise return false.
+     * @return FtpCommand Return FtpCommand Instance
      */
     public function rawRequest($command);
 
     /**
      * Sends a SITE command to the FTP server.
      *
-     * @param $command
+     * @param string $command
      *
-     * @return bool Return true in success, throws exception in failure.
+     * @return FtpCommand Return FtpCommand Instance
      *
-     * @see \Lazzard\FtpClient\Command\FtpCommand::rawRequest()
-     *
-     * @throws \Lazzard\FtpClient\Command\Exception\FtpCommandException
+     * @throws FtpCommandRuntimeException
      */
     public function siteRequest($command);
 
     /**
      * Send a SITE EXEC command to the remote server.
      *
-     * @param $command
+     * @param string $command
      *
-     * @return bool Return true in success, throws exception in failure.
+     * @return FtpCommand Return FtpCommand Instance
      *
-     * @throws \Lazzard\FtpClient\Command\Exception\FtpCommandException
+     * @throws FtpCommandRuntimeException
      */
     public function execRequest($command);
 
@@ -68,16 +67,23 @@ interface CommandInterface
     public function getResponseMessage();
 
     /**
-     * Get server the end status response message for the previous command request.
+     * Get server the end status response message for the previous (raw command) request.
      *
      * @return string|null
      */
     public function getEndResponseMessage();
 
     /**
-     * Get server response body for the previous command request.
+     * Get server response body for the previous (raw command) request.
      *
      * @return array|null
      */
     public function getResponseBody();
+
+    /**
+     * Check weather if the previous command request was succeeded or not.
+     * 
+     * @return bool
+     */
+    public function isSucceeded();
 }

@@ -2,7 +2,7 @@
 
 namespace Lazzard\FtpClient\Command;
 
-use Lazzard\FtpClient\Command\Exception\FtpCommandException;
+use Lazzard\FtpClient\Command\Exception\FtpCommandRuntimeException;
 use Lazzard\FtpClient\FtpWrapper;
 
 /**
@@ -17,7 +17,7 @@ class FtpCommand implements CommandInterface
     /** @var resource */
     private $connection;
 
-    /** @var \Lazzard\FtpClient\FtpWrapper */
+    /** @var FtpWrapper */
     private $ftpWrapper;
 
     /** @var mixed */
@@ -32,7 +32,7 @@ class FtpCommand implements CommandInterface
     /** @var string */
     private $endResponseMessage;
 
-    /** @var mixed */
+    /** @var array */
     private $responseBody;
 
     /**
@@ -135,11 +135,19 @@ class FtpCommand implements CommandInterface
     }
 
     /**
-     * @return \Lazzard\FtpClient\FtpWrapper
+     * @return FtpWrapper
      */
     private function getFtpWrapper()
     {
         return $this->ftpWrapper;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function isSucceeded()
+    {
+        return $this->getResponseCode() >= 200 && $this->getResponseCode() <= 257;
     }
 
     /**
@@ -157,6 +165,17 @@ class FtpCommand implements CommandInterface
         );
     }
 
+    protected function _setResponse($responseCode, $responseMessage)
+    {
+        $this->setResponseCode($responseCode);
+        $this->setResponseMessage($responseMessage);
+        $this->setResponse(sprintf(
+            "%s - %s",
+            $responseCode,
+            $responseMessage
+        ));
+    }
+
     /**
      * @inheritDoc
      */
@@ -166,7 +185,7 @@ class FtpCommand implements CommandInterface
         $this->setResponseCode(intval(substr($this->getResponse()[0], 0, 3)));
         $this->setResponseMessage(ltrim(substr($this->getResponse()[0], 3)));
 
-        if ($this->getResponseCode() < 300) {
+        if ($this->getResponseCode() <= 257 && $this->getResponseCode() >= 200) {
 
             $response = $this->getResponse();
             $responseBody = array_splice($response, 1, -1);
@@ -177,7 +196,7 @@ class FtpCommand implements CommandInterface
             }
         }
 
-        return ($this->getResponseCode() < 300);
+        return $this;
     }
 
 
@@ -189,22 +208,16 @@ class FtpCommand implements CommandInterface
         $siteCommand = strtolower(explode(' ', trim($command))[0]);
 
         if (in_array($siteCommand, $this->_supportedSiteCommands()) !== true) {
-            throw new FtpCommandException("{$siteCommand} command not supported by the remote server.");
+            throw new FtpCommandRuntimeException("{$siteCommand} SITE command not supported by the remote server.");
         }
 
         if ($this->getFtpWrapper()->site($this->getConnection(), trim($command)) !== true) {
-            throw new FtpCommandException("SITE command was fail.");
+            $this->_setResponse(500, '[FtpClient] SITE command was failed.');
+        } else {
+            $this->_setResponse(200, '[FtpClient] SITE command succeeded.');
         }
 
-        $this->setResponseCode(200);
-        $this->setResponseMessage("[FtpClient] SITE command succeeded.");
-        $this->setResponse(sprintf(
-            "%s - %s",
-            $this->getResponseCode(),
-            $this->getResponseMessage()
-        ));
-
-        return true;
+        return $this;
     }
 
     /**
@@ -213,22 +226,16 @@ class FtpCommand implements CommandInterface
     public function execRequest($command)
     {
         if (in_array('exec', $this->_supportedSiteCommands()) !== true) {
-            throw new FtpCommandException("SITE EXEC command not provided by the FTP server.");
+            throw new FtpCommandRuntimeException("SITE EXEC command not provided by the FTP server.");
         }
 
         if (($this->getFtpWrapper()->exec($this->getConnection(), $command)) !== true) {
-            throw new FtpCommandException("SITE EXEC command was fail.");
+            $this->_setResponse(500, '[FtpClient] SITE EXEC command was failed.');
+        } else {
+            $this->_setResponse(200, '[FtpClient] SITE EXEC command succeeded.');
         }
 
-        $this->setResponseCode(200);
-        $this->setResponseMessage("[FtpClient] SITE EXEC command succeeded.");
-        $this->setResponse(sprintf(
-            "%s - %s",
-            $this->getResponseCode(),
-            $this->getResponseMessage()
-        ));
-
-        return true;
+        return $this;
     }
 
 }

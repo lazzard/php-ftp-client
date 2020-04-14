@@ -166,7 +166,7 @@ class FtpWrapper
      */
     public function site($ftpStream, $command)
     {
-        return ftp_site($ftpStream, $command);
+        return @ftp_site($ftpStream, $command);
     }
 
     /**
