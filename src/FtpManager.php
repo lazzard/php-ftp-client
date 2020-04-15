@@ -203,12 +203,12 @@ abstract class FtpManager
      */
     public function login($username, $password)
     {
-        if ($this->getFtpWrapper()->login($this->getConnection(), $username, $password) !== false) {
-            $this->setClientConfiguration();
-            return true;
+        if ($this->getFtpWrapper()->login($this->getConnection(), $username, $password) !== true) {
+            throw new FtpClientRuntimeException("Logging failed to remote server.");
         }
 
-        throw new FtpClientRuntimeException("Logging failed to remote server.");
+        $this->setClientConfiguration();
+        return true;
     }
 
     /**
@@ -240,13 +240,13 @@ abstract class FtpManager
      */
     public function setOption($option, $value)
     {
-        $options = [
+        $settings = [
           self::TIMEOUT_SEC,
           self::AUTOSEEK,
           self::USEPASVADDRESS
         ];
 
-        if (in_array($option, $options) !== true) {
+        if (in_array($option, $settings) !== true) {
             throw new FtpConfigurationLogicException("{$option} is invalid FTP runtime option.");
         }
 

@@ -33,35 +33,37 @@ class FtpConfiguration implements ConfigurationInterface
     /**
      * FtpConfiguration constructor.
      *
-     * @param array|null $options
+     * @param array|null $settings
      *
      * @throws FtpConfigurationRuntimeException
      * @throws FtpConfigurationLogicException
      */
-    public function __construct($options = null)
+    public function __construct($settings = null)
     {
         if (extension_loaded("ftp") !== true) {
             throw new FtpConfigurationRuntimeException("FTP extension not loaded.");
         }
 
-        if (is_null($options) !== true) {
+        if (is_null($settings) !== true) {
 
-            foreach ($options as $optionKey => $optionValue) {
+            foreach ($settings as $optionKey => $optionValue) {
 
-                if (key_exists($optionKey, FtpSettings::SETTINGS)) {
+                if (key_exists($optionKey, FtpDefaultSettings::SETTINGS)) {
                     
-                    if (FtpSettings::SETTINGS[$optionKey]['type'] === gettype($optionValue)) {
+                    if (FtpDefaultSettings::SETTINGS[$optionKey]['type'] === gettype($optionValue)) {
                         $setter = "set" . ucfirst($optionKey);
                         $this->$setter($optionValue);
                         continue;
                     }
                 }
-                throw FtpConfigurationLogicException::InvalidFtpConfigurationOption($optionKey,
-                    FtpSettings::SETTINGS[$optionKey]['type']);
+                throw FtpConfigurationLogicException::InvalidFtpConfigurationOption(
+                    $optionKey,
+                    FtpDefaultSettings::SETTINGS[$optionKey]['type']
+                );
             }
         } else {
             foreach (get_object_vars($this) as $optionKey => $optionValue) {
-                $defaultValue = FtpSettings::SETTINGS[$optionKey]['value'];
+                $defaultValue = FtpDefaultSettings::SETTINGS[$optionKey]['value'];
                 $setter = "set" . ucfirst($optionKey);
                 $this->$setter($defaultValue);
             }
@@ -81,10 +83,10 @@ class FtpConfiguration implements ConfigurationInterface
      */
     public function setTimeout($timeout)
     {
-        if (FtpSettings::SETTINGS['timeout']['type'] !== gettype($timeout)) {
+        if (FtpDefaultSettings::SETTINGS['timeout']['type'] !== gettype($timeout)) {
             throw FtpConfigurationLogicException::InvalidFtpConfigurationOption(
                 'timeout',
-                FtpSettings::SETTINGS['timeout']['type']
+                FtpDefaultSettings::SETTINGS['timeout']['type']
             );
         }
 
@@ -104,10 +106,10 @@ class FtpConfiguration implements ConfigurationInterface
      */
     public function setPassive($passive)
     {
-        if (FtpSettings::SETTINGS['passive']['type'] !== gettype($passive)) {
+        if (FtpDefaultSettings::SETTINGS['passive']['type'] !== gettype($passive)) {
             throw FtpConfigurationLogicException::InvalidFtpConfigurationOption(
                 'passive',
-                FtpSettings::SETTINGS['passive']['type']
+                FtpDefaultSettings::SETTINGS['passive']['type']
             );
         }
 
@@ -127,10 +129,10 @@ class FtpConfiguration implements ConfigurationInterface
      */
     public function setAutoSeek($autoSeek)
     {
-        if (FtpSettings::SETTINGS['autoSeek']['type'] !== gettype($autoSeek)) {
+        if (FtpDefaultSettings::SETTINGS['autoSeek']['type'] !== gettype($autoSeek)) {
             throw FtpConfigurationLogicException::InvalidFtpConfigurationOption(
                 'autoSeek',
-                FtpSettings::SETTINGS['autoSeek']['type']
+                FtpDefaultSettings::SETTINGS['autoSeek']['type']
             );
         }
 
@@ -150,10 +152,10 @@ class FtpConfiguration implements ConfigurationInterface
      */
     public function setUsePassiveAddress($usePassiveAddress)
     {
-        if (FtpSettings::SETTINGS['usePassiveAddress']['type'] !== gettype($usePassiveAddress)) {
+        if (FtpDefaultSettings::SETTINGS['usePassiveAddress']['type'] !== gettype($usePassiveAddress)) {
             throw FtpConfigurationLogicException::InvalidFtpConfigurationOption(
                 'usePassiveAddress',
-                FtpSettings::SETTINGS['usePassiveAddress']['type']
+                FtpDefaultSettings::SETTINGS['usePassiveAddress']['type']
             );
         }
 
@@ -173,10 +175,10 @@ class FtpConfiguration implements ConfigurationInterface
      */
     public function setRoot($root)
     {
-        if (FtpSettings::SETTINGS['root']['type'] !== gettype($root)) {
+        if (FtpDefaultSettings::SETTINGS['root']['type'] !== gettype($root)) {
             throw FtpConfigurationLogicException::InvalidFtpConfigurationOption(
                 'root',
-                FtpSettings::SETTINGS['root']['type']
+                FtpDefaultSettings::SETTINGS['root']['type']
             );
         }
 

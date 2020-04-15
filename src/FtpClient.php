@@ -59,8 +59,10 @@ class FtpClient extends FtpManager
         {
             case '-':
                 return 'file';
+
             case 'd':
                 return 'dir';
+
             case 'l':
                 return 'link';
 
@@ -81,7 +83,7 @@ class FtpClient extends FtpManager
      *
      * @return array
      */
-    public function getDirectoryFiles($directory, $ignoreDotes = self::IGNORE_DOTS, $callback = null)
+    public function getFilesList($directory, $ignoreDotes = self::IGNORE_DOTS, $callback = null)
     {
         $files = $this->getFtpWrapper()->nlist(
             $this->getConnection(),
@@ -106,9 +108,9 @@ class FtpClient extends FtpManager
     }
 
     /**
-     * Get files only (not the directories) from the giving directory.
+     * Get files only from the giving directory.
      *
-     * @see FtpClient::getDirectoryFiles()
+     * @see FtpClient::getFilesList()
      *
      * @param string   $directory             Target directory
      * @param bool     $ignoreDotes[optional] Ignore dots files items '.' and '..',
@@ -118,10 +120,10 @@ class FtpClient extends FtpManager
      *
      * @return array
      */
-    public function getDirectoryFilesOnly($directory, $ignoreDotes = self::IGNORE_DOTS, $callback =
+    public function getFilesOnly($directory, $ignoreDotes = self::IGNORE_DOTS, $callback =
     null)
     {
-        $files = $this->getDirectoryFiles(
+        $files = $this->getFilesList(
             $directory,
             $ignoreDotes,
             $callback
@@ -139,9 +141,9 @@ class FtpClient extends FtpManager
 
 
     /**
-     * Get only the directories.
+     * Get only the directories from the giving directory.
      *
-     * @see FtpClient::getDirectoryFiles()
+     * @see FtpClient::getFilesList()
      *
      * @param string   $directory             Target directory
      * @param bool     $ignoreDotes[optional] Ignore dots files items '.' and '..',
@@ -151,10 +153,10 @@ class FtpClient extends FtpManager
      *
      * @return array
      */
-    public function getDirectoryDirsOnly($directory, $ignoreDotes = self::IGNORE_DOTS, $callback =
+    public function getDirsOnly($directory, $ignoreDotes = self::IGNORE_DOTS, $callback =
     null)
     {
-        $files = $this->getDirectoryFiles(
+        $files = $this->getFilesList(
             $directory,
             $ignoreDotes,
             $callback
@@ -176,11 +178,12 @@ class FtpClient extends FtpManager
      * This method depends mainly on the ftp_rawlist function.
      *
      * @param string $directory
-     * @param bool   $recursive
+     * @param bool   $recursive[optional]
+     * @param bool   $ignoreDots[optional]
      *
      * @return array
      */
-    public function getDirectoryDetails($directory, $recursive = false)
+    public function getFilesDetails($directory, $recursive = false, $ignoreDots = self::IGNORE_DOTS)
     {
         $details = $this->getFtpWrapper()->rawlist(
             $this->getConnection(),
@@ -191,28 +194,33 @@ class FtpClient extends FtpManager
         $pathTmp = null;
         $info = [];
         foreach ($details as $detail) {
-            $cleanDetail = preg_split('/\s+/', $detail);
+            $chunks = preg_split('/\s+/', $detail);
 
-            if (strlen($cleanDetail[0]) != 0 && count($cleanDetail) != 9) {
-                $pathTmp = substr($cleanDetail[0], 0, -1);
+            if (strlen($chunks[0]) !== 0 && count($chunks) !== 9) {
+                $pathTmp = substr($chunks[0], 0, -1);
             }
 
-            if (count($cleanDetail) == 9) {
+            if (count($chunks) === 9) {
+                if ($ignoreDots === true) {
+                    if (in_array($chunks[8], self::DOTS)) {
+                        continue;
+                    }
+                }
+
                 $info[] = [
-                    'name'  => $cleanDetail[8],
-                    'chmod' => $cleanDetail[0],
-                    'num'   => $cleanDetail[1],
-                    'owner' => $cleanDetail[2],
-                    'group' => $cleanDetail[3],
-                    'size'  => $cleanDetail[4],
-                    'month' => $cleanDetail[5],
-                    'day'   => $cleanDetail[6],
-                    'time'  => $cleanDetail[7],
-                    'type'  => $this->_chmodToFileType($cleanDetail[0]),
-                    'path'  => $pathTmp ? $pathTmp . '/' . $cleanDetail[8] : $cleanDetail[8]
+                    'name'  => $chunks[8],
+                    'chmod' => $chunks[0],
+                    'num'   => $chunks[1],
+                    'owner' => $chunks[2],
+                    'group' => $chunks[3],
+                    'size'  => $chunks[4],
+                    'month' => $chunks[5],
+                    'day'   => $chunks[6],
+                    'time'  => $chunks[7],
+                    'type'  => $this->_chmodToFileType($chunks[0]),
+                    'path'  => $pathTmp ? $pathTmp . '/' . $chunks[8] : $chunks[8]
                 ];
             }
-            
         }
 
         return $info;
@@ -221,19 +229,21 @@ class FtpClient extends FtpManager
     /**
      * Get files count of the giving directory.
      *
-     * @see FtpClient::getDirectoryDetails()
+     * @see FtpClient::getFilesDetails()
      *
      * @param string $directory
-     * @param bool   $recursive
+     * @param bool   $recursive[optional]
+     * @param bool   $ignoreDots[optional]
      *
      * @return int
      */
-    public function getDirectoryCount($directory, $recursive = false)
+    public function getCount($directory, $recursive = false, $ignoreDots = self::IGNORE_DOTS)
     {
-        return count($this->getDirectoryDetails(
+        return count($this->getFilesDetails(
             $directory,
-            $recursive)
-        );
+            $recursive,
+            $ignoreDots
+        ));
     }
 
     /**
@@ -247,8 +257,7 @@ class FtpClient extends FtpManager
     public function isDirectory($directory)
     {
         $originalDir = $this->getCurrentDir();
-        if ($this->getFtpWrapper()->chdir($this->getConnection(), $directory) !== false)
-        {
+        if ($this->getFtpWrapper()->chdir($this->getConnection(), $directory) !== false) {
             $this->getFtpWrapper()->chdir($this->getConnection(), $originalDir);
             return true;
         }
@@ -307,7 +316,7 @@ class FtpClient extends FtpManager
      */
     public function getSystem()
     {
-        if ($this->getFtpCommand()->rawRequest("SYST") !== true) {
+        if (!$this->getFtpCommand()->rawRequest("SYST")->isSucceeded()) {
             throw new FtpClientRuntimeException("Cannot get remote server features.");
         }
 
@@ -325,7 +334,7 @@ class FtpClient extends FtpManager
      */
     public function getSupportedSiteCommands()
     {
-        if (($this->getFtpCommand()->rawRequest("HELP")) !== true) {
+        if (!$this->getFtpCommand()->rawRequest("HELP")->isSucceeded()) {
             throw new FtpClientRuntimeException("Cannot getting available site commands from the FTP server.");
         }
 
@@ -342,7 +351,7 @@ class FtpClient extends FtpManager
      */
     public function back()
     {
-        if (($this->getFtpWrapper()->cdup($this->getConnection())) !== true ) {
+        if ($this->getFtpWrapper()->cdup($this->getConnection()) !== true ) {
             throw new FtpClientRuntimeException("Cannot change to the parent directory.");
         }
 
