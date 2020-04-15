@@ -14,6 +14,49 @@ use Lazzard\FtpClient\Command\Exception\FtpCommandRuntimeException;
  */
 interface CommandInterface
 {
+
+    /**
+     * Get server response for the previous command request.
+     *
+     * @return mixed
+     */
+    public function getResponse();
+
+    /**
+     * Get server response status code for the previous command request.
+     *
+     * @return int
+     */
+    public function getResponseCode();
+
+    /**
+     * Get server response status message for the previous command request.
+     *
+     * @return string
+     */
+    public function getResponseMessage();
+
+    /**
+     * Get server the end status response message for the previous (raw command) request.
+     *
+     * @return string|null
+     */
+    public function getResponseEndMessage();
+
+    /**
+     * Get server response body for the previous (raw command) request.
+     *
+     * @return array|null
+     */
+    public function getResponseBody();
+
+    /**
+     * Check weather if the previous command request was succeeded or not.
+     *
+     * @return bool
+     */
+    public function isSucceeded();
+
     /**
      * Sends an arbitrary command to the remote server.
      *
@@ -45,45 +88,4 @@ interface CommandInterface
      */
     public function execRequest($command);
 
-    /**
-     * Get server response for the previous command request.
-     *
-     * @return mixed
-     */
-    public function getResponse();
-
-    /**
-     * Get server response status code for the previous command request.
-     *
-     * @return int
-     */
-    public function getResponseCode();
-
-    /**
-     * Get server response status message for the previous command request.
-     *
-     * @return string
-     */
-    public function getResponseMessage();
-
-    /**
-     * Get server the end status response message for the previous (raw command) request.
-     *
-     * @return string|null
-     */
-    public function getEndResponseMessage();
-
-    /**
-     * Get server response body for the previous (raw command) request.
-     *
-     * @return array|null
-     */
-    public function getResponseBody();
-
-    /**
-     * Check weather if the previous command request was succeeded or not.
-     * 
-     * @return bool
-     */
-    public function isSucceeded();
 }

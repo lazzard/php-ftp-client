@@ -17,8 +17,7 @@ class FtpClient extends FtpManager
     /**
      * FtpClient predefined constants
      */
-    const IGNORE_DOTS = false;
-    const DOTS        = ['.', '..'];
+    const DOTS = ['.', '..'];
 
     /**
      * FtpClient __call.
@@ -83,9 +82,9 @@ class FtpClient extends FtpManager
      *
      * @return array
      */
-    public function getFilesList($directory, $ignoreDotes = self::IGNORE_DOTS, $callback = null)
+    public function getFilesList($directory, $ignoreDotes = false, $callback = null)
     {
-        $files = $this->getFtpWrapper()->nlist(
+        $files = $this->ftpWrapper->nlist(
             $this->getConnection(),
             $directory
         );
@@ -120,7 +119,7 @@ class FtpClient extends FtpManager
      *
      * @return array
      */
-    public function getFilesOnly($directory, $ignoreDotes = self::IGNORE_DOTS, $callback =
+    public function getFilesOnly($directory, $ignoreDotes = false, $callback =
     null)
     {
         $files = $this->getFilesList(
@@ -131,7 +130,7 @@ class FtpClient extends FtpManager
 
         $filesOnly = [];
         foreach ($files as $file) {
-            if ($this->isDirectory(sprintf('%s/%s', $directory, $file)) !== true) {
+            if ($this->isDirectory(sprintf('%s/%s', $directory, $file))) {
                 $filesOnly[] = $file;
             }
         }
@@ -153,7 +152,7 @@ class FtpClient extends FtpManager
      *
      * @return array
      */
-    public function getDirsOnly($directory, $ignoreDotes = self::IGNORE_DOTS, $callback =
+    public function getDirsOnly($directory, $ignoreDotes = false, $callback =
     null)
     {
         $files = $this->getFilesList(
@@ -183,9 +182,9 @@ class FtpClient extends FtpManager
      *
      * @return array
      */
-    public function getFilesDetails($directory, $recursive = false, $ignoreDots = self::IGNORE_DOTS)
+    public function getFilesDetails($directory, $recursive = false, $ignoreDots = false)
     {
-        $details = $this->getFtpWrapper()->rawlist(
+        $details = $this->ftpWrapper->rawlist(
             $this->getConnection(),
             $directory,
             $recursive
@@ -237,7 +236,7 @@ class FtpClient extends FtpManager
      *
      * @return int
      */
-    public function getCount($directory, $recursive = false, $ignoreDots = self::IGNORE_DOTS)
+    public function getCount($directory, $recursive = false, $ignoreDots = false)
     {
         return count($this->getFilesDetails(
             $directory,
@@ -257,8 +256,8 @@ class FtpClient extends FtpManager
     public function isDirectory($directory)
     {
         $originalDir = $this->getCurrentDir();
-        if ($this->getFtpWrapper()->chdir($this->getConnection(), $directory) !== false) {
-            $this->getFtpWrapper()->chdir($this->getConnection(), $originalDir);
+        if ($this->ftpWrapper->chdir($this->getConnection(), $directory) !== false) {
+            $this->ftpWrapper->chdir($this->getConnection(), $originalDir);
             return true;
         }
 
@@ -276,11 +275,11 @@ class FtpClient extends FtpManager
      */
     public function getFeatures()
     {
-        if (!$this->getFtpCommand()->rawRequest("FEAT")->isSucceeded()) {
+        if (!$this->ftpCommand->rawRequest("FEAT")->isSucceeded()) {
             throw new FtpClientRuntimeException("Cannot get remote server features.");
         }
 
-        return array_map('ltrim', $this->getFtpCommand()->getResponseBody());
+        return array_map('ltrim', $this->ftpCommand->getResponseBody());
     }
 
     /**
@@ -294,15 +293,10 @@ class FtpClient extends FtpManager
      */
     public function isFeatureSupported($feature)
     {
-        $featsCaseInsensitive = array_map(
-            function ($item) {
-                ltrim(strtolower($item));
-                return true;
-            },
-            $this->getFeatures()
+        return in_array(
+            strtolower($feature),
+            array_map('strtolower', $this->getFeatures())
         );
-
-        return in_array(strtolower($feature), $featsCaseInsensitive);
     }
 
     /**
@@ -316,11 +310,11 @@ class FtpClient extends FtpManager
      */
     public function getSystem()
     {
-        if (!$this->getFtpCommand()->rawRequest("SYST")->isSucceeded()) {
+        if (!$this->ftpCommand->rawRequest("SYST")->isSucceeded()) {
             throw new FtpClientRuntimeException("Cannot get remote server features.");
         }
 
-        return $this->getFtpCommand()->getResponseMessage();
+        return $this->ftpCommand->getResponseMessage();
     }
 
     /**
@@ -334,11 +328,11 @@ class FtpClient extends FtpManager
      */
     public function getSupportedSiteCommands()
     {
-        if (!$this->getFtpCommand()->rawRequest("HELP")->isSucceeded()) {
+        if (!$this->ftpCommand->rawRequest("HELP")->isSucceeded()) {
             throw new FtpClientRuntimeException("Cannot getting available site commands from the FTP server.");
         }
 
-        return array_map('ltrim', $this->getFtpCommand()->getResponseBody());
+        return array_map('ltrim', $this->ftpCommand->getResponseBody());
     }
 
 
@@ -351,10 +345,55 @@ class FtpClient extends FtpManager
      */
     public function back()
     {
-        if ($this->getFtpWrapper()->cdup($this->getConnection()) !== true ) {
+        if ($this->ftpWrapper->cdup($this->getConnection()) !== true ) {
             throw new FtpClientRuntimeException("Cannot change to the parent directory.");
         }
 
         return true;
     }
+
+    /**
+     * Delete an FTP file.
+     *
+     * @param string $remoteFile
+     *
+     * @return bool
+     *
+     * @throws FtpClientRuntimeException
+     */
+    public function delete($remoteFile)
+    {
+        // TODO Delete this when implement the recursive option
+        if ($this->isDirectory($remoteFile)) {
+            throw new FtpClientRuntimeException("{$remoteFile} must be a directory.");
+        }
+
+        if (!$this->isExists($remoteFile)) {
+            throw new FtpClientRuntimeException("{$remoteFile} doesn't exists.");
+        }
+
+        if ($this->ftpWrapper->delete($this->getConnection(), $remoteFile) !== true) {
+            throw new FtpClientRuntimeException("Unable to delete the file {$remoteFile}.");
+        }
+
+        return true;
+    }
+
+    /**
+     * Check weather if the giving file is exists or not.
+     *
+     * @param string $remoteFile
+     *
+     * @return bool
+     */
+    public function isExists($remoteFile)
+    {
+        $list = $this->ftpWrapper->nlist(
+            $this->getConnection(),
+            dirname($remoteFile)
+        );
+
+        return in_array(basename($remoteFile), $list);
+    }
+
 }

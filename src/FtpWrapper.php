@@ -183,4 +183,17 @@ class FtpWrapper
         return ftp_rawlist($ftpStream, $directory, $recursive);
     }
 
+    /**
+     * @link https://www.php.net/manual/en/function.ftp-delete.php
+     *
+     * @param resource $ftpStream
+     * @param string   $path
+     *
+     * @return bool
+     */
+    public function delete($ftpStream, $path)
+    {
+        return ftp_delete($ftpStream, $path);
+    }
+
 }

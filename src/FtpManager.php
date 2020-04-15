@@ -83,22 +83,6 @@ abstract class FtpManager
     }
 
     /**
-     * @return FtpWrapper
-     */
-    protected function getFtpWrapper()
-    {
-        return $this->ftpWrapper;
-    }
-
-    /**
-     * @return FtpCommand
-     */
-    protected function getFtpCommand()
-    {
-        return $this->ftpCommand;
-    }
-
-    /**
      * Get current FTP configuration.
      *
      * @return FtpConfiguration
@@ -122,7 +106,7 @@ abstract class FtpManager
      */
     public function getCurrentDir()
     {
-        return $this->getFtpWrapper()->pwd($this->getConnection());
+        return $this->ftpWrapper->pwd($this->getConnection());
     }
 
     /**
@@ -132,7 +116,7 @@ abstract class FtpManager
      */
     public function setCurrentDir($currentDir)
     {
-        if ($this->getFtpWrapper()->chdir($this->getConnection(), $currentDir) !==
+        if ($this->ftpWrapper->chdir($this->getConnection(), $currentDir) !==
         true) {
             throw new FtpClientRuntimeException("Cannot change to the giving directory.");
         }
@@ -178,7 +162,7 @@ abstract class FtpManager
      */
     public function connect($host, $port = 21, $timeout = 90)
     {
-        if (($connection = $this->getFtpWrapper()->connect(
+        if (($connection = $this->ftpWrapper->connect(
             $host,
             $port,
             $timeout)) !== false)
@@ -203,7 +187,7 @@ abstract class FtpManager
      */
     public function login($username, $password)
     {
-        if ($this->getFtpWrapper()->login($this->getConnection(), $username, $password) !== true) {
+        if ($this->ftpWrapper->login($this->getConnection(), $username, $password) !== true) {
             throw new FtpClientRuntimeException("Logging failed to remote server.");
         }
 
@@ -220,7 +204,7 @@ abstract class FtpManager
      */
     public function close()
     {
-        if ($this->getFtpWrapper()->close($this->getConnection()) !== true) {
+        if ($this->ftpWrapper->close($this->getConnection()) !== true) {
             throw new FtpClientRuntimeException("Failed to closing FTP connection.");
         }
 
@@ -250,7 +234,7 @@ abstract class FtpManager
             throw new FtpConfigurationLogicException("{$option} is invalid FTP runtime option.");
         }
 
-        if ($this->getFtpWrapper()->setOption(
+        if ($this->ftpWrapper->setOption(
             $this->getConnection(), 
             $option, 
             $value) !== true) {
@@ -273,7 +257,7 @@ abstract class FtpManager
      */
     public function setPassive($bool)
     {
-        if ($this->getFtpWrapper()->pasv($this->getConnection(), $bool) !== true) {
+        if ($this->ftpWrapper->pasv($this->getConnection(), $bool) !== true) {
             throw new FtpConfigurationRuntimeException("Unable to switch FTP mode.");
         }
 

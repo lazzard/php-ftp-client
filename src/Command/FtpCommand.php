@@ -30,7 +30,7 @@ class FtpCommand implements CommandInterface
     private $_responseMessage;
 
     /** @var string */
-    private $_endResponseMessage;
+    private $_responseEndMessage;
 
     /** @var array */
     private $_responseBody;
@@ -55,27 +55,11 @@ class FtpCommand implements CommandInterface
     }
 
     /**
-     * @param mixed $response
-     */
-    private function _setResponse($response)
-    {
-        $this->_response = $response;
-    }
-
-    /**
      * @inheritDoc
      */
     public function getResponseCode()
     {
         return $this->_responseCode;
-    }
-
-    /**
-     * @param int $responseCode
-     */
-    private function _setResponseCode($responseCode)
-    {
-        $this->_responseCode = $responseCode;
     }
 
     /**
@@ -87,27 +71,11 @@ class FtpCommand implements CommandInterface
     }
 
     /**
-     * @param string $responseMessage
-     */
-    private function _setResponseMessage($responseMessage)
-    {
-        $this->_responseMessage = $responseMessage;
-    }
-
-    /**
      * @return string
      */
-    public function getEndResponseMessage()
+    public function getResponseEndMessage()
     {
-        return $this->_endResponseMessage;
-    }
-
-    /**
-     * @param string $endResponseMessage
-     */
-    private function _setEndResponseMessage($endResponseMessage)
-    {
-        $this->_endResponseMessage = $endResponseMessage;
+        return $this->_responseEndMessage;
     }
 
     /**
@@ -119,27 +87,11 @@ class FtpCommand implements CommandInterface
     }
 
     /**
-     * @param mixed $responseBody
-     */
-    private function _setResponseBody($responseBody)
-    {
-        $this->_responseBody = $responseBody;
-    }
-
-    /**
      * @return resource
      */
     private function getConnection()
     {
         return $this->_connection;
-    }
-
-    /**
-     * @return FtpWrapper
-     */
-    private function getFtpWrapper()
-    {
-        return $this->_ftpWrapper;
     }
 
     /**
@@ -166,21 +118,20 @@ class FtpCommand implements CommandInterface
     }
 
     /**
-     * Sets response status code and response status message,
-     * And Formatting the response string.
+     * Sets an FtpClient response (not a server response).
      *
      * @param $responseCode
      * @param $responseMessage
      */
     private function _responseFormatter($responseCode, $responseMessage)
     {
-        $this->_setResponseCode($responseCode);
-        $this->_setResponseMessage($responseMessage);
-        $this->_setResponse(sprintf(
+        $this->_responseCode    = $responseCode;
+        $this->_responseMessage = $responseMessage;
+        $this->_response = sprintf(
             "%s - %s",
             $responseCode,
             $responseMessage
-        ));
+        );
     }
 
     /**
@@ -188,18 +139,18 @@ class FtpCommand implements CommandInterface
      */
     public function rawRequest($command)
     {
-        $this->_setResponse($this->getFtpWrapper()->raw($this->getConnection(), trim($command)));
-        $this->_setResponseCode(intval(substr($this->getResponse()[0], 0, 3)));
-        $this->_setResponseMessage(ltrim(substr($this->getResponse()[0], 3)));
+        $this->_response        = $this->_ftpWrapper->raw($this->getConnection(), trim($command));
+        $this->_responseCode    = intval(substr($this->getResponse()[0], 0, 3));
+        $this->_responseMessage = ltrim(substr($this->getResponse()[0], 3));
 
         if ($this->getResponseCode() >= 200 && $this->getResponseCode() <= 257) {
 
             $response = $this->getResponse();
             $responseBody = array_splice($response, 1, -1);
-            $this->_setResponseBody($responseBody ?: null);
+            $this->_responseBody = $responseBody ?: null;
 
             if (count($this->getResponse()) > 1) {
-                $this->_setEndResponseMessage($this->getResponse()[count($this->getResponse()) - 1]);
+                $this->_responseEndMessage = $this->getResponse()[count($this->getResponse()) - 1];
             }
         }
 
@@ -218,7 +169,7 @@ class FtpCommand implements CommandInterface
             throw new FtpCommandRuntimeException("{$siteCommand} SITE command not supported by the remote server.");
         }
 
-        if ($this->getFtpWrapper()->site($this->getConnection(), trim($command)) !== true) {
+        if ($this->_ftpWrapper->site($this->getConnection(), trim($command)) !== true) {
             $this->_responseFormatter(500, '[FtpClient] SITE command was failed.');
         } else {
             $this->_responseFormatter(200, '[FtpClient] SITE command succeeded.');
@@ -236,7 +187,7 @@ class FtpCommand implements CommandInterface
             throw new FtpCommandRuntimeException("SITE EXEC command not provided by the FTP server.");
         }
 
-        if (($this->getFtpWrapper()->exec($this->getConnection(), $command)) !== true) {
+        if (($this->_ftpWrapper->exec($this->getConnection(), $command)) !== true) {
             $this->_responseFormatter(500, '[FtpClient] SITE EXEC command was failed.');
         } else {
             $this->_responseFormatter(200, '[FtpClient] SITE EXEC command succeeded.');
@@ -244,5 +195,4 @@ class FtpCommand implements CommandInterface
 
         return $this;
     }
-
 }
