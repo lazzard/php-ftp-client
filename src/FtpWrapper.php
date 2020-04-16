@@ -213,13 +213,39 @@ class FtpWrapper
     /**
      * @link https://www.php.net/manual/en/function.ftp-mdtm.php
      *
-     * @param $ftpStream
-     * @param $remoteFile
+     * @param resource $ftpStream
+     * @param string   $remoteFile
      *
      * @return int
      */
     public function mdtm($ftpStream, $remoteFile)
     {
         return ftp_mdtm($ftpStream, $remoteFile);
+    }
+
+    /**
+     * @link https://www.php.net/manual/en/function.ftp-rmdir.php
+     *
+     * @param resource $ftpStream
+     * @param string   $directory
+     *
+     * @return bool
+     */
+    public function rmdir($ftpStream, $directory)
+    {
+        return @ftp_rmdir($ftpStream, $directory);
+    }
+
+    /**
+     * @link https://www.php.net/manual/en/function.ftp-rmdir.php
+     *
+     * @param resource $ftpStream
+     * @param string   $directory
+     *
+     * @return string|false
+     */
+    public function mkdir($ftpStream, $directory)
+    {
+        return @ftp_mkdir($ftpStream, $directory);
     }
 }

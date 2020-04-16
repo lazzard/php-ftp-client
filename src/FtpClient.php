@@ -2,6 +2,7 @@
 
 namespace Lazzard\FtpClient;
 
+use Lazzard\FtpClient\Command\Exception\FtpCommandRuntimeException;
 use Lazzard\FtpClient\Exception\FtpClientLogicException;
 use Lazzard\FtpClient\Exception\FtpClientRuntimeException;
 
@@ -103,7 +104,7 @@ class FtpClient extends FtpManager
             $files = array_filter($files, $callback);
         }
 
-        return array_values($files);
+        return !empty($files) ? array_values($files) : $files;
     }
 
     /**
@@ -182,7 +183,7 @@ class FtpClient extends FtpManager
      *
      * @return array
      */
-    public function listDirectoryDetails($directory, $recursive = false, $ignoreDots = false)
+    public function rawListDirectory($directory, $recursive = false, $ignoreDots = false)
     {
         $details = $this->ftpWrapper->rawlist(
             $this->getConnection(),
@@ -196,9 +197,10 @@ class FtpClient extends FtpManager
             $chunks = preg_split('/\s+/', $detail);
 
             if (strlen($chunks[0]) !== 0 && count($chunks) !== 9) {
+                $splice = explode('/', substr($chunks[0], 0, -1));
                 $pathTmp = join(
                     '/', 
-                    array_splice(explode('/', substr($chunks[0], 0, -1)), 1)
+                    array_splice($splice, 1)
                 );
             }
 
@@ -231,7 +233,7 @@ class FtpClient extends FtpManager
     /**
      * Get files count of the giving directory.
      *
-     * @see FtpClient::listDirectoryDetails()
+     * @see FtpClient::rawListDirectory()
      *
      * @param string $directory
      * @param bool   $recursive[optional]
@@ -241,7 +243,7 @@ class FtpClient extends FtpManager
      */
     public function getCount($directory, $recursive = false, $ignoreDots = false)
     {
-        return count($this->listDirectoryDetails(
+        return count($this->rawListDirectory(
             $directory,
             $recursive,
             $ignoreDots
@@ -364,19 +366,130 @@ class FtpClient extends FtpManager
      *
      * @throws FtpClientRuntimeException
      */
-    public function delete($remoteFile)
+    public function removeFile($remoteFile)
     {
-        // TODO Delete this when implement the recursive option
         if ($this->isDirectory($remoteFile)) {
-            throw new FtpClientRuntimeException("{$remoteFile} must be a directory.");
+            throw new FtpClientRuntimeException("[{$remoteFile}] must be a file.");
         }
 
         if (!$this->isExists($remoteFile)) {
-            throw new FtpClientRuntimeException("{$remoteFile} does not exists.");
+            throw new FtpClientRuntimeException("[{$remoteFile}] does not exists.");
         }
 
         if ($this->ftpWrapper->delete($this->getConnection(), $remoteFile) !== true) {
-            throw new FtpClientRuntimeException("Unable to delete the file {$remoteFile}.");
+            throw new FtpClientRuntimeException("Unable to delete the file [{$remoteFile}].");
+        }
+
+        return true;
+    }
+
+    /**
+     * Delete an FTP remote directory.
+     *
+     * Be careful with this method, it well remove everything within the giving directory.
+     *
+     * @param string $directory
+     *
+     * @return bool
+     *
+     * @throws FtpClientRuntimeException
+     */
+    public function removeDirectory($directory)
+    {
+        if (!$this->isExists($directory)) {
+            throw new FtpClientRuntimeException("[{$directory}] does not exists.");
+        }
+
+        if (!$this->isDirectory($directory)) {
+            throw new FtpClientRuntimeException("[{$directory}] must be a directory.");
+        }
+
+        $list = $this->listDirectory($directory);
+        foreach ($list as $file) {
+            $path = $directory . '/' . $file;
+
+            if(in_array(basename($path), self::DOTS)) continue;
+
+            if (!$this->isDirectory($path)) {
+                $this->ftpWrapper->delete($this->getConnection(), $path);
+            } elseif ($this->ftpWrapper->rmdir($this->getConnection(), $path) !== true) {
+                $this->removeDirectory($path);
+            }
+
+
+        }
+
+        $this->ftpWrapper->rmdir($this->getConnection(), $directory);
+
+        return true;
+    }
+
+    public $tempDir = null;
+    public function removeDir($directory)
+    {
+        if (!$this->isExists($directory)) {
+            throw new FtpClientRuntimeException("[{$directory}] does not exists.");
+        }
+
+        if (is_null($this->tempDir)) {
+            $this->tempDir = $directory;
+        }
+
+        if (!$this->isDirectory($directory)) {
+            throw new FtpClientRuntimeException("[{$directory}] must be a directory.");
+        }
+
+        $list = $this->listDirectory($directory);
+        if (!empty($list)) {
+            foreach ($list as $file) {
+                $path = $directory . '/' . $file;
+
+                if (in_array(basename($path), self::DOTS)) {
+                    continue;
+                }
+
+                if (!$this->isDirectory($path)) {
+                    $this->ftpWrapper->delete($this->getConnection(), $path);
+                } elseif ($this->ftpWrapper->rmdir($this->getConnection(), $path) !== true) {
+                    $this->removeDir($path);
+                }
+
+                if (empty($this->listDirectory($directory)) && ($directory != $this->tempDir)) {
+                    $this->removeDir(dirname($directory));
+                }
+            }
+        }
+
+        $this->ftpWrapper->rmdir($this->getConnection(), $directory);
+
+        return true;
+    }
+
+
+    /**
+     * Create an FTP directory.
+     *
+     * @param string $directory
+     *
+     * @return bool
+     */
+    public function createDirectory($directory)
+    {
+        if ($this->isDirectory($directory)) {
+            throw new FtpCommandRuntimeException("[{$directory}] already exits.");
+        }
+
+        $folders = explode('/', $directory);
+        $count = count($folders);
+        for ($i = 1; $i <= $count; $i++) {
+            $parts = array_splice($folders, 0, $i);
+            $folders = array_merge($parts, $folders);
+
+            $path = join("/", $parts);
+
+            if (!$this->isDirectory($path)) {
+                $this->ftpWrapper->mkdir($this->getConnection(), $path);
+            }
         }
 
         return true;
@@ -396,7 +509,11 @@ class FtpClient extends FtpManager
             dirname($remoteFile)
         );
 
-        return in_array(basename($remoteFile), $list);
+        if (!empty($list)) {
+            return in_array(basename($remoteFile), $list);
+        }
+
+        return false;
     }
 
     /**
@@ -407,6 +524,8 @@ class FtpClient extends FtpManager
      *
      * @return string|int Returns the string format if the format parameter was
      *                    specified, if not returns an numeric timestamp representation.
+     *
+     * @throws FtpCommandRuntimeException
      */
     public function lastMTime($remoteFile, $format = null)
     {
