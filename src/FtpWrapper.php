@@ -28,6 +28,20 @@ class FtpWrapper
     }
 
     /**
+     * @link https://www.php.net/manual/en/function.ftp-ssl-connect.php
+     *
+     * @param string $host
+     * @param int    $port
+     * @param int    $timeout
+     *
+     * @return false|resource
+     */
+    public function ssl_connect($host, $port = 21, $timeout = 90)
+    {
+        return @ftp_ssl_connect($host, $port, $timeout);
+    }
+
+    /**
      * @link https://www.php.net/manual/en/function.ftp-login.php
      *
      * @param resource $ftpStream
@@ -187,13 +201,25 @@ class FtpWrapper
      * @link https://www.php.net/manual/en/function.ftp-delete.php
      *
      * @param resource $ftpStream
-     * @param string   $path
+     * @param string   $remoteFile
      *
      * @return bool
      */
-    public function delete($ftpStream, $path)
+    public function delete($ftpStream, $remoteFile)
     {
-        return ftp_delete($ftpStream, $path);
+        return ftp_delete($ftpStream, $remoteFile);
     }
 
+    /**
+     * @link https://www.php.net/manual/en/function.ftp-mdtm.php
+     *
+     * @param $ftpStream
+     * @param $remoteFile
+     *
+     * @return int
+     */
+    public function mdtm($ftpStream, $remoteFile)
+    {
+        return ftp_mdtm($ftpStream, $remoteFile);
+    }
 }

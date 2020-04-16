@@ -82,7 +82,7 @@ class FtpClient extends FtpManager
      *
      * @return array
      */
-    public function getFilesList($directory, $ignoreDotes = false, $callback = null)
+    public function listDirectory($directory, $ignoreDotes = false, $callback = null)
     {
         $files = $this->ftpWrapper->nlist(
             $this->getConnection(),
@@ -109,7 +109,7 @@ class FtpClient extends FtpManager
     /**
      * Get files only from the giving directory.
      *
-     * @see FtpClient::getFilesList()
+     * @see FtpClient::listDirectory()
      *
      * @param string   $directory             Target directory
      * @param bool     $ignoreDotes[optional] Ignore dots files items '.' and '..',
@@ -122,7 +122,7 @@ class FtpClient extends FtpManager
     public function getFilesOnly($directory, $ignoreDotes = false, $callback =
     null)
     {
-        $files = $this->getFilesList(
+        $files = $this->listDirectory(
             $directory,
             $ignoreDotes,
             $callback
@@ -142,7 +142,7 @@ class FtpClient extends FtpManager
     /**
      * Get only the directories from the giving directory.
      *
-     * @see FtpClient::getFilesList()
+     * @see FtpClient::listDirectory()
      *
      * @param string   $directory             Target directory
      * @param bool     $ignoreDotes[optional] Ignore dots files items '.' and '..',
@@ -155,7 +155,7 @@ class FtpClient extends FtpManager
     public function getDirsOnly($directory, $ignoreDotes = false, $callback =
     null)
     {
-        $files = $this->getFilesList(
+        $files = $this->listDirectory(
             $directory,
             $ignoreDotes,
             $callback
@@ -182,7 +182,7 @@ class FtpClient extends FtpManager
      *
      * @return array
      */
-    public function getFilesDetails($directory, $recursive = false, $ignoreDots = false)
+    public function listDirectoryDetails($directory, $recursive = false, $ignoreDots = false)
     {
         $details = $this->ftpWrapper->rawlist(
             $this->getConnection(),
@@ -196,11 +196,14 @@ class FtpClient extends FtpManager
             $chunks = preg_split('/\s+/', $detail);
 
             if (strlen($chunks[0]) !== 0 && count($chunks) !== 9) {
-                $pathTmp = substr($chunks[0], 0, -1);
+                $pathTmp = join(
+                    '/', 
+                    array_splice(explode('/', substr($chunks[0], 0, -1)), 1)
+                );
             }
 
             if (count($chunks) === 9) {
-                if ($ignoreDots === true) {
+                if ($ignoreDots) {
                     if (in_array($chunks[8], self::DOTS)) {
                         continue;
                     }
@@ -228,7 +231,7 @@ class FtpClient extends FtpManager
     /**
      * Get files count of the giving directory.
      *
-     * @see FtpClient::getFilesDetails()
+     * @see FtpClient::listDirectoryDetails()
      *
      * @param string $directory
      * @param bool   $recursive[optional]
@@ -238,7 +241,7 @@ class FtpClient extends FtpManager
      */
     public function getCount($directory, $recursive = false, $ignoreDots = false)
     {
-        return count($this->getFilesDetails(
+        return count($this->listDirectoryDetails(
             $directory,
             $recursive,
             $ignoreDots
@@ -265,11 +268,11 @@ class FtpClient extends FtpManager
     }
 
     /**
-     * Get supported remote server features.
-     *
-     * @return array
+     * Get supported remote server commands.
      *
      * @see FtpCommand::rawRequest()
+     *
+     * @return array
      *
      * @throws FtpClientRuntimeException
      */
@@ -346,7 +349,7 @@ class FtpClient extends FtpManager
     public function back()
     {
         if ($this->ftpWrapper->cdup($this->getConnection()) !== true ) {
-            throw new FtpClientRuntimeException("Cannot change to the parent directory.");
+            throw new FtpClientRuntimeException("Unable to change to the parent directory.");
         }
 
         return true;
@@ -369,7 +372,7 @@ class FtpClient extends FtpManager
         }
 
         if (!$this->isExists($remoteFile)) {
-            throw new FtpClientRuntimeException("{$remoteFile} doesn't exists.");
+            throw new FtpClientRuntimeException("{$remoteFile} does not exists.");
         }
 
         if ($this->ftpWrapper->delete($this->getConnection(), $remoteFile) !== true) {
@@ -396,4 +399,31 @@ class FtpClient extends FtpManager
         return in_array(basename($remoteFile), $list);
     }
 
+    /**
+     * Gets last modified time for an FTP remote file.
+     *
+     * @param string      $remoteFile
+     * @param string|null $format[optional]
+     *
+     * @return string|int Returns the string format if the format parameter was
+     *                    specified, if not returns an numeric timestamp representation.
+     */
+    public function lastMTime($remoteFile, $format = null)
+    {
+        if (!$this->isFeatureSupported('MDTM')) {
+            throw new FtpClientRuntimeException("This feature not supported by the remote server.");
+        }
+        
+        if ($this->isDirectory($remoteFile)) {
+            throw new FtpClientRuntimeException(sprintf(
+                "%s() does not work with directories.",
+                __FUNCTION__));
+        }
+
+        if ($format) {
+            return date($format, $this->ftpWrapper->mdtm($this->getConnection(), $remoteFile));
+        }
+
+        return $this->ftpWrapper->mdtm($this->getConnection(), $remoteFile);
+    }
 }

@@ -150,7 +150,7 @@ abstract class FtpManager
     }
 
     /**
-     * Open an FTP connection.
+     * Opens an FTP connection.
      *
      * @param string $host    Host name
      * @param int    $port    Default sets to port 21
@@ -173,6 +173,32 @@ abstract class FtpManager
         }
 
         throw new FtpClientRuntimeException("Connection failed to remote server.");
+    }
+
+    /**
+     * Opens a secure FTP connection.
+     *
+     * @param string $host    Host name
+     * @param int    $port    Default sets to port 21
+     * @param int    $timeout Default value is 90
+     *
+     * @return bool
+     *
+     * @throws FtpClientRuntimeException
+     */
+    public function sslConnect($host, $port = 21, $timeout = 90)
+    {
+        if (($connection = $this->ftpWrapper->ssl_connect(
+                $host,
+                $port,
+                $timeout)) !== false)
+        {
+            $this->setConnection($connection);
+            $this->ftpCommand = new FtpCommand($this->getConnection());
+            return true;
+        }
+
+        throw new FtpClientRuntimeException("SSL connection failed to remote server.");
     }
 
     /**

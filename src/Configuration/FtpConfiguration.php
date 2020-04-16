@@ -40,16 +40,16 @@ class FtpConfiguration implements ConfigurationInterface
      */
     public function __construct($settings = null)
     {
-        if (extension_loaded("ftp") !== true) {
+        if (!extension_loaded("ftp")) {
             throw new FtpConfigurationRuntimeException("FTP extension not loaded.");
         }
 
-        if (is_null($settings) !== true) {
+        if ($settings) {
 
             foreach ($settings as $optionKey => $optionValue) {
 
                 if (key_exists($optionKey, FtpDefaultSettings::SETTINGS)) {
-                    
+
                     if (FtpDefaultSettings::SETTINGS[$optionKey]['type'] === gettype($optionValue)) {
                         $setter = "set" . ucfirst($optionKey);
                         $this->$setter($optionValue);
