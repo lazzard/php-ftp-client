@@ -424,19 +424,20 @@ class FtpClient extends FtpManager
         return true;
     }
 
-    public $tempDir = null;
+    public $temp = null;
     public function removeDir($directory)
     {
+/*
         if (!$this->isExists($directory)) {
             throw new FtpClientRuntimeException("[{$directory}] does not exists.");
-        }
+        }*/
 
-        if (is_null($this->tempDir)) {
-            $this->tempDir = $directory;
-        }
-
-        if (!$this->isDirectory($directory)) {
+        if (ftp_size($this->getConnection(), $directory) !== -1) {
             throw new FtpClientRuntimeException("[{$directory}] must be a directory.");
+        }
+
+        if (is_null($this->temp)) {
+            $this->temp = $directory;
         }
 
         $list = $this->listDirectory($directory);
@@ -448,14 +449,14 @@ class FtpClient extends FtpManager
                     continue;
                 }
 
-                if (!$this->isDirectory($path)) {
+                if (ftp_size($this->getConnection(), $path) !== -1) {
                     $this->ftpWrapper->delete($this->getConnection(), $path);
                 } elseif ($this->ftpWrapper->rmdir($this->getConnection(), $path) !== true) {
                     $this->removeDir($path);
                 }
 
-                if (empty($this->listDirectory($directory)) && ($directory != $this->tempDir)) {
-                    $this->removeDir(dirname($directory));
+                if (empty($this->listDirectory($directory))) {
+                    $this->removeDir($directory);
                 }
             }
         }
