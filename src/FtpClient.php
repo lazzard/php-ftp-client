@@ -49,7 +49,7 @@ class FtpClient extends FtpManager
      * Extract the file type (type, dir, link) from chmod string
      * (e.g., 'drwxr-xr-x' string will return 'dir').
      *
-     * @param string $chmod
+     * @param string $chmod 
      *
      * @return string
      */
@@ -78,12 +78,10 @@ class FtpClient extends FtpManager
      * @param string   $directory             Target directory
      * @param bool     $ignoreDotes[optional] Ignore dots files items '.' and '..',
      *                                        default sets to false.
-     * @param callable $callback[optional]    Filtering returned files with a callback
-     *                                        function, default is null.
      *
      * @return array
      */
-    public function listDirectory($directory, $ignoreDotes = false, $callback = null)
+    public function listDirectory($directory, $ignoreDotes = false)
     {
         $files = $this->ftpWrapper->nlist(
             $this->getConnection(),
@@ -96,15 +94,7 @@ class FtpClient extends FtpManager
             });
         }
 
-        if (is_null($callback) === false) {
-            if (is_callable($callback) === false) {
-                throw new FtpClientLogicException("Invalid callback parameter passed to " . __FUNCTION__ . "() function.");
-            }
-
-            $files = array_filter($files, $callback);
-        }
-
-        return !empty($files) ? array_values($files) : $files;
+        return array_values($files);
     }
 
     /**
@@ -115,18 +105,14 @@ class FtpClient extends FtpManager
      * @param string   $directory             Target directory
      * @param bool     $ignoreDotes[optional] Ignore dots files items '.' and '..',
      *                                        default sets to false.
-     * @param callable $callback[optional]    Filtering returned files with a callback
-     *                                        function, default is null.
      *
      * @return array
      */
-    public function getFilesOnly($directory, $ignoreDotes = false, $callback =
-    null)
+    public function getFilesOnly($directory, $ignoreDotes = false)
     {
         $files = $this->listDirectory(
             $directory,
-            $ignoreDotes,
-            $callback
+            $ignoreDotes
         );
 
         $filesOnly = [];
@@ -147,19 +133,15 @@ class FtpClient extends FtpManager
      *
      * @param string   $directory             Target directory
      * @param bool     $ignoreDotes[optional] Ignore dots files items '.' and '..',
-     *                                        default sets to false.
-     * @param callable $callback[optional]    Filtering returned files with a callback
-     *                                        function, default is null.
+     *                                        default sets to false
      *
      * @return array
      */
-    public function getDirsOnly($directory, $ignoreDotes = false, $callback =
-    null)
+    public function getDirsOnly($directory, $ignoreDotes = false)
     {
         $files = $this->listDirectory(
             $directory,
-            $ignoreDotes,
-            $callback
+            $ignoreDotes
         );
 
         $dirsOnly = [];
@@ -183,7 +165,7 @@ class FtpClient extends FtpManager
      *
      * @return array
      */
-    public function rawListDirectory($directory, $recursive = false, $ignoreDots = false)
+    public function listDirectoryDetails($directory, $recursive = false, $ignoreDots = false)
     {
         $details = $this->ftpWrapper->rawlist(
             $this->getConnection(),
@@ -198,10 +180,7 @@ class FtpClient extends FtpManager
 
             if (strlen($chunks[0]) !== 0 && count($chunks) !== 9) {
                 $splice = explode('/', substr($chunks[0], 0, -1));
-                $pathTmp = join(
-                    '/', 
-                    array_splice($splice, 1)
-                );
+                $pathTmp = join('/', $splice);
             }
 
             if (count($chunks) === 9) {
@@ -222,7 +201,7 @@ class FtpClient extends FtpManager
                     'day'   => $chunks[6],
                     'time'  => $chunks[7],
                     'type'  => $this->_chmodToFileType($chunks[0]),
-                    'path'  => $pathTmp ? $pathTmp . '/' . $chunks[8] : $chunks[8]
+                    'path'  => $pathTmp ? $pathTmp . '/' . $chunks[8] : $directory . '/' . $chunks[8]
                 ];
             }
         }
@@ -243,7 +222,7 @@ class FtpClient extends FtpManager
      */
     public function getCount($directory, $recursive = false, $ignoreDots = false)
     {
-        return count($this->rawListDirectory(
+        return count($this->listDirectoryDetails(
             $directory,
             $recursive,
             $ignoreDots
@@ -396,74 +375,23 @@ class FtpClient extends FtpManager
      */
     public function removeDirectory($directory)
     {
-        if (!$this->isExists($directory)) {
-            throw new FtpClientRuntimeException("[{$directory}] does not exists.");
-        }
-
-        if (!$this->isDirectory($directory)) {
-            throw new FtpClientRuntimeException("[{$directory}] must be a directory.");
-        }
-
         $list = $this->listDirectory($directory);
-        foreach ($list as $file) {
-            $path = $directory . '/' . $file;
 
-            if(in_array(basename($path), self::DOTS)) continue;
-
-            if (!$this->isDirectory($path)) {
-                $this->ftpWrapper->delete($this->getConnection(), $path);
-            } elseif ($this->ftpWrapper->rmdir($this->getConnection(), $path) !== true) {
-                $this->removeDirectory($path);
-            }
-
-
-        }
-
-        $this->ftpWrapper->rmdir($this->getConnection(), $directory);
-
-        return true;
-    }
-
-    public $temp = null;
-    public function removeDir($directory)
-    {
-/*
-        if (!$this->isExists($directory)) {
-            throw new FtpClientRuntimeException("[{$directory}] does not exists.");
-        }*/
-
-        if (ftp_size($this->getConnection(), $directory) !== -1) {
-            throw new FtpClientRuntimeException("[{$directory}] must be a directory.");
-        }
-
-        if (is_null($this->temp)) {
-            $this->temp = $directory;
-        }
-
-        $list = $this->listDirectory($directory);
         if (!empty($list)) {
             foreach ($list as $file) {
                 $path = $directory . '/' . $file;
 
-                if (in_array(basename($path), self::DOTS)) {
-                    continue;
-                }
+                if (in_array(basename($path), self::DOTS)) continue;
 
                 if (ftp_size($this->getConnection(), $path) !== -1) {
                     $this->ftpWrapper->delete($this->getConnection(), $path);
                 } elseif ($this->ftpWrapper->rmdir($this->getConnection(), $path) !== true) {
-                    $this->removeDir($path);
-                }
-
-                if (empty($this->listDirectory($directory))) {
-                    $this->removeDir($directory);
+                    $this->removeDirectory($path);
                 }
             }
         }
 
-        $this->ftpWrapper->rmdir($this->getConnection(), $directory);
-
-        return true;
+        return $this->ftpWrapper->rmdir($this->getConnection(), $directory);
     }
 
 

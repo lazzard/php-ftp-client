@@ -1,8 +1,8 @@
 <?php
 
-namespace Lazzard\FtpClient\Configuration;
+namespace Lazzard\FtpClient\Config;
 
-use Lazzard\FtpClient\Configuration\Exception\FtpConfigurationLogicException;
+use Lazzard\FtpClient\Config\Exception\FtpConfigurationLogicException;
 
 /**
  * Interface ConfigurationInterface

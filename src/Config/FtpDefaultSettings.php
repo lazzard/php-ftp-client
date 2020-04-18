@@ -1,6 +1,6 @@
 <?php
 
-namespace Lazzard\FtpClient\Configuration;
+namespace Lazzard\FtpClient\Config;
 
 /**
  * Class FtpDefaultSettings

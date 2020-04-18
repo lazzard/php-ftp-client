@@ -58,7 +58,7 @@ interface CommandInterface
     public function isSucceeded();
 
     /**
-     * Sends an arbitrary command to the remote server.
+     * Send a request to FTP server for execution an arbitrary command.
      *
      * @param string $command
      *
@@ -67,7 +67,7 @@ interface CommandInterface
     public function rawRequest($command);
 
     /**
-     * Sends a SITE command to the FTP server.
+     * Send a request to FTP server for execution a SITE command.
      *
      * @param string $command
      *
@@ -78,7 +78,7 @@ interface CommandInterface
     public function siteRequest($command);
 
     /**
-     * Send a SITE EXEC command to the remote server.
+     * Send a request to FTP server for execution a SITE EXEC command.
      *
      * @param string $command
      *

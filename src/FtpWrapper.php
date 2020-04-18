@@ -207,7 +207,7 @@ class FtpWrapper
      */
     public function delete($ftpStream, $remoteFile)
     {
-        return @ftp_delete($ftpStream, $remoteFile);
+        return ftp_delete($ftpStream, $remoteFile);
     }
 
     /**

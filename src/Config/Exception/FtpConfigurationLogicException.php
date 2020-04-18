@@ -1,6 +1,6 @@
 <?php
 
-namespace Lazzard\FtpClient\Configuration\Exception;
+namespace Lazzard\FtpClient\Config\Exception;
 
 use Lazzard\FtpClient\Exception\FtpClientException;
 

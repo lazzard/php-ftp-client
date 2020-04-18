@@ -1,10 +1,10 @@
 <?php
 
 
-namespace Lazzard\FtpClient\Configuration;
+namespace Lazzard\FtpClient\Config;
 
-use Lazzard\FtpClient\Configuration\Exception\FtpConfigurationLogicException;
-use Lazzard\FtpClient\Configuration\Exception\FtpConfigurationRuntimeException;
+use Lazzard\FtpClient\Config\Exception\FtpConfigurationLogicException;
+use Lazzard\FtpClient\Config\Exception\FtpConfigurationRuntimeException;
 
 /**
  * Class FtpConfiguration
@@ -45,23 +45,20 @@ class FtpConfiguration implements ConfigurationInterface
         }
 
         if ($settings) {
-
+            # Client settings
             foreach ($settings as $optionKey => $optionValue) {
-
                 if (key_exists($optionKey, FtpDefaultSettings::SETTINGS)) {
-
-                    if (FtpDefaultSettings::SETTINGS[$optionKey]['type'] === gettype($optionValue)) {
-                        $setter = "set" . ucfirst($optionKey);
-                        $this->$setter($optionValue);
-                        continue;
-                    }
+                    $setter = "set" . ucfirst($optionKey);
+                    $this->$setter($optionValue);
+                    continue;
+                } else {
+                    throw new FtpConfigurationLogicException(
+                        "[{$optionKey}] is invalid FTP setting."
+                    );
                 }
-                throw FtpConfigurationLogicException::InvalidFtpConfigurationOption(
-                    $optionKey,
-                    FtpDefaultSettings::SETTINGS[$optionKey]['type']
-                );
             }
         } else {
+            # Default settings
             foreach (get_object_vars($this) as $optionKey => $optionValue) {
                 $defaultValue = FtpDefaultSettings::SETTINGS[$optionKey]['value'];
                 $setter = "set" . ucfirst($optionKey);

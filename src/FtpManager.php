@@ -3,10 +3,10 @@
 namespace Lazzard\FtpClient;
 
 use Lazzard\FtpClient\Command\FtpCommand;
-use Lazzard\FtpClient\Configuration\Exception\FtpConfigurationLogicException;
-use Lazzard\FtpClient\Configuration\Exception\FtpConfigurationRuntimeException;
-use Lazzard\FtpClient\Configuration\FtpConfiguration;
-use Lazzard\FtpClient\Configuration\ConfigurationInterface;
+use Lazzard\FtpClient\Config\Exception\FtpConfigurationLogicException;
+use Lazzard\FtpClient\Config\Exception\FtpConfigurationRuntimeException;
+use Lazzard\FtpClient\Config\FtpConfiguration;
+use Lazzard\FtpClient\Config\ConfigurationInterface;
 use Lazzard\FtpClient\Exception\FtpClientRuntimeException;
 
 /**

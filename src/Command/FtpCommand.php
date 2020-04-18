@@ -110,22 +110,11 @@ class FtpCommand implements CommandInterface
     }
 
     /**
-     * @return array
-     */
-    private function _features()
-    {
-        $commands = $this->ftpWrapper->raw($this->connection, 'FEAT');
-
-        return array_map(
-            function ($item) {
-                return ltrim(strtolower($item));
-            },
-            $commands
-        );
-    }
-
-    /**
      * Sets an FtpClient response (not a server response).
+     *
+     * This method is for the site and exec requests,
+     * as an attempt to cover the boolean returns values,
+     * of the ftp_site and ftp_exec FTP functions.
      *
      * @param $responseCode
      * @param $responseMessage
@@ -170,7 +159,7 @@ class FtpCommand implements CommandInterface
     {
         $siteCommand = strtolower(explode(' ', trim($command))[0]);
 
-        if (!in_array($siteCommand, $this->_supportedSiteCommands())) {
+        if ( ! in_array($siteCommand, $this->_supportedSiteCommands())) {
             throw new FtpCommandRuntimeException("{$siteCommand} SITE command not supported by the remote server.");
         }
 
@@ -188,7 +177,7 @@ class FtpCommand implements CommandInterface
      */
     public function execRequest($command)
     {
-        if (!in_array('exec', $this->_supportedSiteCommands())) {
+        if ( ! in_array('exec', $this->_supportedSiteCommands())) {
             throw new FtpCommandRuntimeException("SITE EXEC command not provided by the FTP server.");
         }
 
