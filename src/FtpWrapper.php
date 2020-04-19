@@ -138,7 +138,7 @@ class FtpWrapper
      * @param resource $ftpStream
      * @param string   $directory
      *
-     * @return array
+     * @return array|false
      */
     public function nlist($ftpStream, $directory)
     {
@@ -193,7 +193,7 @@ class FtpWrapper
      */
     public function site($ftpStream, $command)
     {
-        return @ftp_site($ftpStream, $command);
+        return ftp_site($ftpStream, $command);
     }
 
     /**
@@ -246,7 +246,7 @@ class FtpWrapper
      */
     public function rmdir($ftpStream, $directory)
     {
-        return @ftp_rmdir($ftpStream, $directory);
+        return ftp_rmdir($ftpStream, $directory);
     }
 
     /**

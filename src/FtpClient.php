@@ -44,6 +44,25 @@ class FtpClient extends FtpManager
     }
 
     /**
+     * Check weather if a file is a directory or not.
+     *
+     * @param string $directory
+     *
+     * @return bool Return true if the giving file is a directory,
+     *              false if isn't or the file doesn't exists.
+     */
+    public function isDirectory($directory)
+    {
+        $originalDir = $this->getCurrentDir();
+        if ($this->ftpWrapper->chdir($this->getConnection(), $directory) !== false) {
+            $this->ftpWrapper->chdir($this->getConnection(), $originalDir);
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Extract the file type (type, dir, link) from chmod string
      * (e.g., 'drwxr-xr-x' string will return 'dir').
      *
@@ -71,28 +90,22 @@ class FtpClient extends FtpManager
     /**
      * Get list of files names in giving directory.
      *
-     * This method depends mainly on ftp_nlist function.
-     *
      * @param string   $directory             Target directory
      * @param bool     $ignoreDotes[optional] Ignore dots files items '.' and '..',
      *                                        default sets to false.
      *
      * @return array
      */
-    public function listDirectory($directory, $ignoreDotes = false)
+    public function listDirectory($directory, $ignoreDotes = true)
     {
-        $files = $this->ftpWrapper->nlist(
+        if ( ! $files = $this->ftpWrapper->nlist(
             $this->getConnection(),
             $directory
-        );
-
-        if ($ignoreDotes === true) {
-            $files = array_filter($files, function ($item) {
-                return !in_array(pathinfo($item, PATHINFO_BASENAME), self::DOTS);
-            });
+        )) {
+            throw new ClientException("Failed to get files list.");
         }
 
-        return array_values($files);
+        return $ignoreDotes ? array_slice($files, 2) : $files;
     }
 
     /**
@@ -106,7 +119,7 @@ class FtpClient extends FtpManager
      *
      * @return array
      */
-    public function getFilesOnly($directory, $ignoreDotes = false)
+    public function getFilesOnly($directory, $ignoreDotes = true)
     {
         $files = $this->listDirectory(
             $directory,
@@ -135,7 +148,7 @@ class FtpClient extends FtpManager
      *
      * @return array
      */
-    public function getDirsOnly($directory, $ignoreDotes = false)
+    public function getDirsOnly($directory, $ignoreDotes = true)
     {
         $files = $this->listDirectory(
             $directory,
@@ -155,15 +168,13 @@ class FtpClient extends FtpManager
     /**
      * Get detailed list of files in the giving directory.
      *
-     * This method depends mainly on the ftp_rawlist function.
-     *
      * @param string $directory
      * @param bool   $recursive[optional]
      * @param bool   $ignoreDots[optional]
      *
      * @return array
      */
-    public function listDirectoryDetails($directory, $recursive = false, $ignoreDots = false)
+    public function listDirectoryDetails($directory, $recursive = false, $ignoreDots = true)
     {
         $details = $this->ftpWrapper->rawlist(
             $this->getConnection(),
@@ -225,25 +236,6 @@ class FtpClient extends FtpManager
             $recursive,
             $ignoreDots
         ));
-    }
-
-    /**
-     * Check weather if a file is a directory or not.
-     *
-     * @param string $directory
-     *
-     * @return bool Return true if the giving file is a directory,
-     *              false if isn't or the file doesn't exists.
-     */
-    public function isDirectory($directory)
-    {
-        $originalDir = $this->getCurrentDir();
-        if ($this->ftpWrapper->chdir($this->getConnection(), $directory) !== false) {
-            $this->ftpWrapper->chdir($this->getConnection(), $originalDir);
-            return true;
-        }
-
-        return false;
     }
 
     /**
@@ -369,7 +361,15 @@ class FtpClient extends FtpManager
      */
     public function removeDirectory($directory)
     {
-        $list = $this->listDirectory($directory);
+        if ($this->ftpWrapper->size($this->getConnection(), $directory) !== -1) {
+            throw new ClientException(
+                "[{$directory}] must be an existing directory."
+            );
+        }
+
+        if ( ! ($list = $this->ftpWrapper->nlist($this->getConnection(), $directory))) {
+            $this->removeDirectory($directory);
+        }
 
         if ( ! empty($list)) {
             foreach ($list as $file) {
@@ -377,8 +377,7 @@ class FtpClient extends FtpManager
 
                 if (in_array(basename($path), self::DOTS)) continue;
 
-                // TODO consider to replace ftp_size function to isDirectory function
-                if (ftp_size($this->getConnection(), $path) !== -1) {
+                if ($this->ftpWrapper->size($this->getConnection(), $path) !== -1) {
                     $this->ftpWrapper->delete($this->getConnection(), $path);
                 } elseif ($this->ftpWrapper->rmdir($this->getConnection(), $path) !== true) {
                     $this->removeDirectory($path);
@@ -407,11 +406,7 @@ class FtpClient extends FtpManager
         $count = count($dirs);
 
         for ($i = 1; $i <= $count; $i++) {
-            // TODO find better solution for splice problem
-            $parts = array_splice($dirs, 0, $i);
-            $dirs = array_merge($parts, $dirs);
-
-            $path = join("/", $parts);
+            $path = join("/", array_slice($dirs, 0, $i));
 
             if ( ! $this->isDirectory($path)) {
                 $this->ftpWrapper->mkdir($this->getConnection(), $path);
@@ -435,12 +430,7 @@ class FtpClient extends FtpManager
             dirname($remoteFile)
         );
 
-        // TODO recheck
-        if ( ! empty($list)) {
-            return in_array(basename($remoteFile), $list);
-        }
-
-        return false;
+        return in_array(basename($remoteFile), $list);
     }
 
     /**
@@ -456,10 +446,11 @@ class FtpClient extends FtpManager
      */
     public function lastMTime($remoteFile, $format = null)
     {
-        if (!$this->isFeatureSupported('MDTM')) {
+        if ( ! $this->isFeatureSupported('MDTM')) {
             throw new ClientException("This feature not supported by the remote server.");
         }
-        
+
+        // TODO implementation for directories
         if ($this->isDirectory($remoteFile)) {
             throw new ClientException(sprintf(
                 "%s() does not work with directories.",
@@ -475,7 +466,7 @@ class FtpClient extends FtpManager
     }
 
     /**
-     * Gets size of an FTP remote file.
+     * Gets file size.
      *
      * @param string $remoteFile
      *
@@ -483,20 +474,66 @@ class FtpClient extends FtpManager
      *
      * @throws ClientException
      */
-    // TODO test
     public function fileSize($remoteFile) {
         if ( ! $this->isFeatureSupported("SIZE")) {
             throw new ClientException("SIZE feature not provided by the remote server.");
         }
 
-        if ($this->isDirectory($remoteFile)) {
-            throw new ClientException(sprintf(
-                "%s() does not work with directories.",
-                __FUNCTION__)
+        if ( ! $this->isDirectory($remoteFile)) {
+            throw new ClientException(
+                "[{$remoteFile}] must be an existing file."
             );
         }
 
         return $this->ftpWrapper->size($this->getConnection(), $remoteFile);
+    }
+
+    /**
+     * Gets directory size.
+     *
+     * @param string $directory
+     *
+     * @return int Return the size on bytes.
+     *
+     * @throws ClientException
+     */
+    public function dirSize($directory) {
+        if ( ! $this->isFeatureSupported("SIZE")) {
+            throw new ClientException(
+                "SIZE feature not provided by the remote server."
+            );
+        }
+
+        if ( ! $this->isDirectory($directory)) {
+            throw new ClientException(
+                "[{$directory}] must be an existing directory."
+            );
+        }
+
+        $list = $this->listDirectoryDetails($directory, true);
+
+        $size = 0;
+        foreach ($list as $fileInfo) {
+            $size += $this->ftpWrapper->size($this->getConnection(), $fileInfo['path']);
+        }
+
+        return $size;
+    }
+
+    /**
+     * Check weather if the giving file/directory is empty or not.
+     *
+     * @param string $remoteFile
+     *
+     * @return bool
+     */
+    public function isEmpty($remoteFile)
+    {
+        if ($this->isDirectory($remoteFile)) {
+            return empty($this->listDirectory($remoteFile, true));
+        }
+
+        return ($this->fileSize($remoteFile) === 0);
     }
 
     /**
@@ -507,11 +544,12 @@ class FtpClient extends FtpManager
      *
      * @return bool
      */
-    // TODO test
     public function rename($oldName, $newName)
     {
         if ($this->isExists($newName)) {
-            throw new ClientException("[$newName] is already used, choose another name.");
+            throw new ClientException(
+                "[{$newName}] is already exists, please choose another name."
+            );
         }
 
         if ( ! $this->ftpWrapper->rename($this->getConnection(), $oldName, $newName)) {
@@ -523,5 +561,40 @@ class FtpClient extends FtpManager
         }
 
         return true;
+    }
+
+    /**
+     * Move a file or a directory to another path.
+     *
+     * @param string $source      Source file
+     * @param string $destination Destination directory
+     *
+     * @return bool
+     */
+    public function move($source, $destination)
+    {
+        if ( ! $this->isExists($source)) {
+            throw new ClientException(
+                "[{$source}] source file does not exists."
+            );
+        }
+
+        if ( ! $this->isDirectory($destination)) {
+            throw new ClientException(
+                "[{$destination}] must be an existing directory."
+            );
+        }
+
+        return $this->rename($source, $destination . '/' . basename($source));
+    }
+
+    /**
+     * Check if the FTP server is still connected and responds for commands.
+     *
+     * @return bool
+     */
+    public function isServerAlive()
+    {
+        return ($this->ftpCommand->rawRequest("NOOP")->getResponseCode() === 200);
     }
 }

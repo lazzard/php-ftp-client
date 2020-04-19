@@ -40,6 +40,9 @@ abstract class FtpManager
     /** @var string */
     protected $currentDir;
 
+    /** @var array */
+    protected $messages;
+
     /**
      * FtpManager constructor.
      *
@@ -56,6 +59,23 @@ abstract class FtpManager
         }
 
         $this->ftpWrapper = new FtpWrapper();
+
+        set_error_handler(function ($code, $message) {
+            $this->logMessage($code, $message);
+        });
+    }
+
+    /**
+     * @return array
+     */
+    public function getMessages()
+    {
+        return $this->messages;
+    }
+
+    protected function logMessage($code, $message)
+    {
+        $this->messages[] = sprintf("%s - %s", $code ?: count($this->messages), $message);
     }
 
     /**
@@ -170,6 +190,7 @@ abstract class FtpManager
         {
             $this->setConnection($connection);
             $this->ftpCommand = new FtpCommand($this->getConnection());
+            $this->logMessage(null, "Connection to the FTP server was succeeded.");
             return true;
         }
 
@@ -219,6 +240,7 @@ abstract class FtpManager
         }
 
         $this->setClientConfiguration();
+        $this->logMessage(null,"Logging to the FTP server.");
         return true;
     }
 
