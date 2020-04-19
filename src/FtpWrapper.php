@@ -95,6 +95,19 @@ class FtpWrapper
     }
 
     /**
+     * @link https://www.php.net/manual/en/function.ftp-set-option.php
+     *
+     * @param resource $ftpStream
+     * @param int      $option
+     *
+     * @return mixed
+     */
+    public function getOption($ftpStream, $option)
+    {
+        return @ftp_get_option($ftpStream, $option);
+    }
+
+    /**
      * @link https://www.php.net/manual/en/function.ftp-chdir.php
      *
      * @param resource $ftpStream
@@ -247,5 +260,32 @@ class FtpWrapper
     public function mkdir($ftpStream, $directory)
     {
         return @ftp_mkdir($ftpStream, $directory);
+    }
+
+    /**
+     * @link https://www.php.net/manual/en/function.ftp-size.php
+     *
+     * @param resource $ftpStream
+     * @param string   $remoteFile
+     *
+     * @return int
+     */
+    public function size($ftpStream, $remoteFile)
+    {
+        return ftp_size($ftpStream, $remoteFile);
+    }
+
+    /**
+     * @link https://www.php.net/manual/en/function.ftp-rename.php
+     *
+     * @param resource $ftpStream
+     * @param string   $oldName
+     * @param string   $newName
+     *
+     * @return bool
+     */
+    public function rename($ftpStream, $oldName, $newName)
+    {
+        return ftp_rename($ftpStream, $oldName, $newName);
     }
 }

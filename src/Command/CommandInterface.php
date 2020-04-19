@@ -3,7 +3,8 @@
 
 namespace Lazzard\FtpClient\Command;
 
-use Lazzard\FtpClient\Command\Exception\FtpCommandRuntimeException;
+
+use Lazzard\FtpClient\Exception\CommandException;
 
 /**
  * Interface CommandInterface
@@ -62,7 +63,7 @@ interface CommandInterface
      *
      * @param string $command
      *
-     * @return FtpCommand Return FtpCommand Instance
+     * @return FtpCommand Return CommandException Instance
      */
     public function rawRequest($command);
 
@@ -71,9 +72,9 @@ interface CommandInterface
      *
      * @param string $command
      *
-     * @return FtpCommand Return FtpCommand Instance
+     * @return FtpCommand Return CommandException Instance
      *
-     * @throws FtpCommandRuntimeException
+     * @throws CommandException
      */
     public function siteRequest($command);
 
@@ -82,9 +83,9 @@ interface CommandInterface
      *
      * @param string $command
      *
-     * @return FtpCommand Return FtpCommand Instance
+     * @return FtpCommand Return CommandException Instance
      *
-     * @throws FtpCommandRuntimeException
+     * @throws CommandException
      */
     public function execRequest($command);
 

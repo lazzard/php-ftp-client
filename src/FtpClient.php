@@ -2,9 +2,7 @@
 
 namespace Lazzard\FtpClient;
 
-use Lazzard\FtpClient\Command\Exception\FtpCommandRuntimeException;
-use Lazzard\FtpClient\Exception\FtpClientLogicException;
-use Lazzard\FtpClient\Exception\FtpClientRuntimeException;
+use Lazzard\FtpClient\Exception\ClientException;
 
 /**
  * Class FtpClient
@@ -31,7 +29,7 @@ class FtpClient extends FtpManager
      *
      * @return mixed
      *
-     * @throws FtpClientLogicException
+     * @throws ClientException
      */
     public function __call($name, $arguments)
     {
@@ -42,7 +40,7 @@ class FtpClient extends FtpManager
             return call_user_func_array($ftpFunction, $arguments);
         }
 
-        throw new FtpClientLogicException("{$ftpFunction} is invalid FTP function.");
+        throw new ClientException("{$ftpFunction} is invalid FTP function.");
     }
 
     /**
@@ -255,12 +253,12 @@ class FtpClient extends FtpManager
      *
      * @return array
      *
-     * @throws FtpClientRuntimeException
+     * @throws ClientException
      */
     public function getFeatures()
     {
         if (!$this->ftpCommand->rawRequest("FEAT")->isSucceeded()) {
-            throw new FtpClientRuntimeException("Cannot get remote server features.");
+            throw new ClientException("Cannot get remote server features.");
         }
 
         return array_map('ltrim', $this->ftpCommand->getResponseBody());
@@ -290,12 +288,12 @@ class FtpClient extends FtpManager
      *
      * @return string
      *
-     * @throws FtpClientRuntimeException
+     * @throws ClientException
      */
     public function getSystem()
     {
         if (!$this->ftpCommand->rawRequest("SYST")->isSucceeded()) {
-            throw new FtpClientRuntimeException("Cannot get remote server features.");
+            throw new ClientException("Cannot get remote server features.");
         }
 
         return $this->ftpCommand->getResponseMessage();
@@ -308,12 +306,12 @@ class FtpClient extends FtpManager
      *
      * @return array Return array of SITE available commands in success.
      *
-     * @throws FtpClientRuntimeException
+     * @throws ClientException
      */
     public function getSupportedSiteCommands()
     {
-        if (!$this->ftpCommand->rawRequest("HELP")->isSucceeded()) {
-            throw new FtpClientRuntimeException("Cannot getting available site commands from the FTP server.");
+        if ( ! $this->ftpCommand->rawRequest("HELP")->isSucceeded()) {
+            throw new ClientException("Cannot getting available site commands from the FTP server.");
         }
 
         return array_map('ltrim', $this->ftpCommand->getResponseBody());
@@ -325,12 +323,12 @@ class FtpClient extends FtpManager
      *
      * @return bool
      *
-     * @throws FtpClientRuntimeException
+     * @throws ClientException
      */
     public function back()
     {
-        if ($this->ftpWrapper->cdup($this->getConnection()) !== true ) {
-            throw new FtpClientRuntimeException("Unable to change to the parent directory.");
+        if ( ! $this->ftpWrapper->cdup($this->getConnection())) {
+            throw new ClientException("Unable to change to the parent directory.");
         }
 
         return true;
@@ -343,20 +341,16 @@ class FtpClient extends FtpManager
      *
      * @return bool
      *
-     * @throws FtpClientRuntimeException
+     * @throws ClientException
      */
     public function removeFile($remoteFile)
     {
-        if ($this->isDirectory($remoteFile)) {
-            throw new FtpClientRuntimeException("[{$remoteFile}] must be a file.");
+        if ( ! $this->isExists($remoteFile) || $this->isDirectory($remoteFile) ) {
+            throw new ClientException("[{$remoteFile}] must be an existing file.");
         }
 
-        if (!$this->isExists($remoteFile)) {
-            throw new FtpClientRuntimeException("[{$remoteFile}] does not exists.");
-        }
-
-        if ($this->ftpWrapper->delete($this->getConnection(), $remoteFile) !== true) {
-            throw new FtpClientRuntimeException("Unable to delete the file [{$remoteFile}].");
+        if ( ! $this->ftpWrapper->delete($this->getConnection(), $remoteFile)) {
+            throw new ClientException("Unable to delete the file [{$remoteFile}].");
         }
 
         return true;
@@ -371,18 +365,19 @@ class FtpClient extends FtpManager
      *
      * @return bool
      *
-     * @throws FtpClientRuntimeException
+     * @throws ClientException
      */
     public function removeDirectory($directory)
     {
         $list = $this->listDirectory($directory);
 
-        if (!empty($list)) {
+        if ( ! empty($list)) {
             foreach ($list as $file) {
                 $path = $directory . '/' . $file;
 
                 if (in_array(basename($path), self::DOTS)) continue;
 
+                // TODO consider to replace ftp_size function to isDirectory function
                 if (ftp_size($this->getConnection(), $path) !== -1) {
                     $this->ftpWrapper->delete($this->getConnection(), $path);
                 } elseif ($this->ftpWrapper->rmdir($this->getConnection(), $path) !== true) {
@@ -405,18 +400,20 @@ class FtpClient extends FtpManager
     public function createDirectory($directory)
     {
         if ($this->isDirectory($directory)) {
-            throw new FtpCommandRuntimeException("[{$directory}] already exits.");
+            throw new ClientException("[{$directory}] already exits.");
         }
 
-        $folders = explode('/', $directory);
-        $count = count($folders);
+        $dirs = explode('/', $directory);
+        $count = count($dirs);
+
         for ($i = 1; $i <= $count; $i++) {
-            $parts = array_splice($folders, 0, $i);
-            $folders = array_merge($parts, $folders);
+            // TODO find better solution for splice problem
+            $parts = array_splice($dirs, 0, $i);
+            $dirs = array_merge($parts, $dirs);
 
             $path = join("/", $parts);
 
-            if (!$this->isDirectory($path)) {
+            if ( ! $this->isDirectory($path)) {
                 $this->ftpWrapper->mkdir($this->getConnection(), $path);
             }
         }
@@ -438,7 +435,8 @@ class FtpClient extends FtpManager
             dirname($remoteFile)
         );
 
-        if (!empty($list)) {
+        // TODO recheck
+        if ( ! empty($list)) {
             return in_array(basename($remoteFile), $list);
         }
 
@@ -454,18 +452,19 @@ class FtpClient extends FtpManager
      * @return string|int Returns the string format if the format parameter was
      *                    specified, if not returns an numeric timestamp representation.
      *
-     * @throws FtpCommandRuntimeException
+     * @throws ClientException
      */
     public function lastMTime($remoteFile, $format = null)
     {
         if (!$this->isFeatureSupported('MDTM')) {
-            throw new FtpClientRuntimeException("This feature not supported by the remote server.");
+            throw new ClientException("This feature not supported by the remote server.");
         }
         
         if ($this->isDirectory($remoteFile)) {
-            throw new FtpClientRuntimeException(sprintf(
+            throw new ClientException(sprintf(
                 "%s() does not work with directories.",
-                __FUNCTION__));
+                __FUNCTION__)
+            );
         }
 
         if ($format) {
@@ -473,5 +472,56 @@ class FtpClient extends FtpManager
         }
 
         return $this->ftpWrapper->mdtm($this->getConnection(), $remoteFile);
+    }
+
+    /**
+     * Gets size of an FTP remote file.
+     *
+     * @param string $remoteFile
+     *
+     * @return int Return the size on bytes.
+     *
+     * @throws ClientException
+     */
+    // TODO test
+    public function fileSize($remoteFile) {
+        if ( ! $this->isFeatureSupported("SIZE")) {
+            throw new ClientException("SIZE feature not provided by the remote server.");
+        }
+
+        if ($this->isDirectory($remoteFile)) {
+            throw new ClientException(sprintf(
+                "%s() does not work with directories.",
+                __FUNCTION__)
+            );
+        }
+
+        return $this->ftpWrapper->size($this->getConnection(), $remoteFile);
+    }
+
+    /**
+     * Rename a file/directory.
+     *
+     * @param string $oldName
+     * @param string $newName
+     *
+     * @return bool
+     */
+    // TODO test
+    public function rename($oldName, $newName)
+    {
+        if ($this->isExists($newName)) {
+            throw new ClientException("[$newName] is already used, choose another name.");
+        }
+
+        if ( ! $this->ftpWrapper->rename($this->getConnection(), $oldName, $newName)) {
+            throw new ClientException(sprintf(
+                "Unable to rename %s to %s",
+                $oldName,
+                $newName
+            ));
+        }
+
+        return true;
     }
 }

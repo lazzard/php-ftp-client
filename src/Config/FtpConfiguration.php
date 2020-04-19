@@ -3,8 +3,7 @@
 
 namespace Lazzard\FtpClient\Config;
 
-use Lazzard\FtpClient\Config\Exception\FtpConfigurationLogicException;
-use Lazzard\FtpClient\Config\Exception\FtpConfigurationRuntimeException;
+use Lazzard\FtpClient\Exception\ConfigException;
 
 /**
  * Class FtpConfiguration
@@ -13,7 +12,7 @@ use Lazzard\FtpClient\Config\Exception\FtpConfigurationRuntimeException;
  * @package Lazzard\FtpClient\FtpConfiguration
  * @author EL AMRANI CHAKIR <elamrani.sv.laza@gmail.com>
  */
-class FtpConfiguration implements ConfigurationInterface
+class FtpConfiguration implements Configurable
 {
     /** @var int */
     private $timeout;
@@ -28,39 +27,37 @@ class FtpConfiguration implements ConfigurationInterface
     private $usePassiveAddress;
 
     /** @var string */
-    private $root;
+    private $initialDirectory;
+
 
     /**
      * FtpConfiguration constructor.
      *
      * @param array|null $settings
      *
-     * @throws FtpConfigurationRuntimeException
-     * @throws FtpConfigurationLogicException
+     * @throws ConfigException
      */
     public function __construct($settings = null)
     {
         if (!extension_loaded("ftp")) {
-            throw new FtpConfigurationRuntimeException("FTP extension not loaded.");
+            throw new ConfigException("FTP extension not loaded.");
         }
 
         if ($settings) {
             # Client settings
             foreach ($settings as $optionKey => $optionValue) {
-                if (key_exists($optionKey, FtpDefaultSettings::SETTINGS)) {
+                if (key_exists($optionKey, Config::SETTINGS)) {
                     $setter = "set" . ucfirst($optionKey);
                     $this->$setter($optionValue);
                     continue;
                 } else {
-                    throw new FtpConfigurationLogicException(
-                        "[{$optionKey}] is invalid FTP setting."
-                    );
+                    throw new ConfigException("[{$optionKey}] is invalid FTP setting.");
                 }
             }
         } else {
             # Default settings
-            foreach (get_object_vars($this) as $optionKey => $optionValue) {
-                $defaultValue = FtpDefaultSettings::SETTINGS[$optionKey]['value'];
+            foreach (Config::SETTINGS as $optionKey => $optionValue) {
+                $defaultValue = Config::SETTINGS[$optionKey]['value'];
                 $setter = "set" . ucfirst($optionKey);
                 $this->$setter($defaultValue);
             }
@@ -80,16 +77,16 @@ class FtpConfiguration implements ConfigurationInterface
      */
     public function setTimeout($timeout)
     {
-        if (FtpDefaultSettings::SETTINGS['timeout']['type'] !== gettype($timeout)) {
-            throw FtpConfigurationLogicException::InvalidFtpConfigurationOption(
+        if (Config::SETTINGS['timeout']['type'] !== gettype($timeout)) {
+            throw ConfigException::InvalidFtpConfigurationSetting(
                 'timeout',
-                FtpDefaultSettings::SETTINGS['timeout']['type']
+                Config::SETTINGS['timeout']['type']
             );
         }
 
         $this->timeout = $timeout;
     }
-    
+
     /**
      * @inheritDoc
      */
@@ -103,16 +100,16 @@ class FtpConfiguration implements ConfigurationInterface
      */
     public function setPassive($passive)
     {
-        if (FtpDefaultSettings::SETTINGS['passive']['type'] !== gettype($passive)) {
-            throw FtpConfigurationLogicException::InvalidFtpConfigurationOption(
+        if (Config::SETTINGS['passive']['type'] !== gettype($passive)) {
+            throw ConfigException::InvalidFtpConfigurationSetting(
                 'passive',
-                FtpDefaultSettings::SETTINGS['passive']['type']
+                Config::SETTINGS['passive']['type']
             );
         }
 
         $this->passive = $passive;
     }
-    
+
     /**
      * @inheritDoc
      */
@@ -126,16 +123,16 @@ class FtpConfiguration implements ConfigurationInterface
      */
     public function setAutoSeek($autoSeek)
     {
-        if (FtpDefaultSettings::SETTINGS['autoSeek']['type'] !== gettype($autoSeek)) {
-            throw FtpConfigurationLogicException::InvalidFtpConfigurationOption(
+        if (Config::SETTINGS['autoSeek']['type'] !== gettype($autoSeek)) {
+            throw ConfigException::InvalidFtpConfigurationSetting(
                 'autoSeek',
-                FtpDefaultSettings::SETTINGS['autoSeek']['type']
+                Config::SETTINGS['autoSeek']['type']
             );
         }
 
         $this->autoSeek = $autoSeek;
     }
-    
+
     /**
      * @inheritDoc
      */
@@ -149,10 +146,10 @@ class FtpConfiguration implements ConfigurationInterface
      */
     public function setUsePassiveAddress($usePassiveAddress)
     {
-        if (FtpDefaultSettings::SETTINGS['usePassiveAddress']['type'] !== gettype($usePassiveAddress)) {
-            throw FtpConfigurationLogicException::InvalidFtpConfigurationOption(
+        if (Config::SETTINGS['usePassiveAddress']['type'] !== gettype($usePassiveAddress)) {
+            throw ConfigException::InvalidFtpConfigurationSetting(
                 'usePassiveAddress',
-                FtpDefaultSettings::SETTINGS['usePassiveAddress']['type']
+                Config::SETTINGS['usePassiveAddress']['type']
             );
         }
 
@@ -162,24 +159,24 @@ class FtpConfiguration implements ConfigurationInterface
     /**
      * @inheritDoc
      */
-    public function getRoot()
+    public function getinitialDirectory()
     {
-        return $this->root;
+        return $this->initialDirectory;
     }
 
     /**
      * @inheritDoc
      */
-    public function setRoot($root)
+    public function setinitialDirectory($initialDirectory)
     {
-        if (FtpDefaultSettings::SETTINGS['root']['type'] !== gettype($root)) {
-            throw FtpConfigurationLogicException::InvalidFtpConfigurationOption(
-                'root',
-                FtpDefaultSettings::SETTINGS['root']['type']
+        if (Config::SETTINGS['initialDirectory']['type'] !== gettype($initialDirectory)) {
+            throw ConfigException::InvalidFtpConfigurationSetting(
+                'initialDirectory',
+                Config::SETTINGS['initialDirectory']['type']
             );
         }
 
-        $this->root = $root;
+        $this->initialDirectory = $initialDirectory;
     }
 
 }

@@ -3,11 +3,9 @@
 namespace Lazzard\FtpClient;
 
 use Lazzard\FtpClient\Command\FtpCommand;
-use Lazzard\FtpClient\Config\Exception\FtpConfigurationLogicException;
-use Lazzard\FtpClient\Config\Exception\FtpConfigurationRuntimeException;
 use Lazzard\FtpClient\Config\FtpConfiguration;
-use Lazzard\FtpClient\Config\ConfigurationInterface;
-use Lazzard\FtpClient\Exception\FtpClientRuntimeException;
+use Lazzard\FtpClient\Config\Configurable;
+use Lazzard\FtpClient\Exception\ClientException;
 
 /**
  * Class FtpManager
@@ -45,9 +43,11 @@ abstract class FtpManager
     /**
      * FtpManager constructor.
      *
-     * @param ConfigurationInterface|null $ftpConfiguration
+     * @param Configurable|null $ftpConfiguration
+     *
+     * @throws Exception\ConfigException
      */
-    public function __construct(ConfigurationInterface $ftpConfiguration = null)
+    public function __construct(Configurable $ftpConfiguration = null)
     {
         if (is_null($ftpConfiguration)) {
             $this->ftpConfiguration = new FtpConfiguration();
@@ -63,7 +63,7 @@ abstract class FtpManager
      *
      * @return resource
      *
-     * @throws FtpClientRuntimeException
+     * @throws ClientException
      */
     public function getConnection()
     {
@@ -71,7 +71,7 @@ abstract class FtpManager
             return $this->connection;
         }
 
-        throw new FtpClientRuntimeException("Invalid FTP resource stream, try to reconnect to the remote server.");
+        throw new ClientException("Invalid FTP resource stream, try to reconnect to the remote server.");
     }
 
     /**
@@ -112,13 +112,13 @@ abstract class FtpManager
     /**
      * @param string $currentDir
      *
-     * @throws FtpClientRuntimeException
+     * @throws ClientException
      */
     public function setCurrentDir($currentDir)
     {
         if ($this->ftpWrapper->chdir($this->getConnection(), $currentDir) !==
         true) {
-            throw new FtpClientRuntimeException("Cannot change to the giving directory.");
+            throw new ClientException("Cannot change to the giving directory.");
         }
 
         $this->currentDir = $currentDir;
@@ -146,7 +146,8 @@ abstract class FtpManager
 
         $this->setPassive($this->getFtpConfiguration()->isPassive());
 
-        $this->setCurrentDir($this->getFtpConfiguration()->getRoot());
+        // TODO setCurrentDir
+        $this->setCurrentDir($this->getFtpConfiguration()->getinitialDirectory());
     }
 
     /**
@@ -158,7 +159,7 @@ abstract class FtpManager
      *
      * @return bool
      *
-     * @throws FtpClientRuntimeException
+     * @throws ClientException
      */
     public function connect($host, $port = 21, $timeout = 90)
     {
@@ -172,7 +173,7 @@ abstract class FtpManager
             return true;
         }
 
-        throw new FtpClientRuntimeException("Connection failed to remote server.");
+        throw new ClientException("Connection failed to remote server.");
     }
 
     /**
@@ -184,7 +185,7 @@ abstract class FtpManager
      *
      * @return bool
      *
-     * @throws FtpClientRuntimeException
+     * @throws ClientException
      */
     public function sslConnect($host, $port = 21, $timeout = 90)
     {
@@ -198,7 +199,7 @@ abstract class FtpManager
             return true;
         }
 
-        throw new FtpClientRuntimeException("SSL connection failed to remote server.");
+        throw new ClientException("SSL connection failed to remote server.");
     }
 
     /**
@@ -209,12 +210,12 @@ abstract class FtpManager
      *
      * @return bool
      *
-     * @throws FtpClientRuntimeException
+     * @throws ClientException
      */
     public function login($username, $password)
     {
-        if ($this->ftpWrapper->login($this->getConnection(), $username, $password) !== true) {
-            throw new FtpClientRuntimeException("Logging failed to remote server.");
+        if ( ! $this->ftpWrapper->login($this->getConnection(), $username, $password)) {
+            throw new ClientException("Logging failed to remote server.");
         }
 
         $this->setClientConfiguration();
@@ -226,12 +227,12 @@ abstract class FtpManager
      *
      * @return bool
      * 
-     * @throws FtpClientRuntimeException
+     * @throws ClientException
      */
     public function close()
     {
-        if ($this->ftpWrapper->close($this->getConnection()) !== true) {
-            throw new FtpClientRuntimeException("Failed to closing FTP connection.");
+        if ( ! $this->ftpWrapper->close($this->getConnection())) {
+            throw new ClientException("Failed to closing FTP connection.");
         }
 
         return true;
@@ -245,8 +246,7 @@ abstract class FtpManager
      *
      * @return bool
      * 
-     * @throws FtpClientRuntimeException
-     * @throws \Lazzard\FtpClient\Exception\FtpClientLogicException
+     * @throws ClientException
      */
     public function setOption($option, $value)
     {
@@ -256,18 +256,35 @@ abstract class FtpManager
           self::USEPASVADDRESS
         ];
 
-        if (in_array($option, $settings) !== true) {
-            throw new FtpConfigurationLogicException("{$option} is invalid FTP runtime option.");
+        if ( ! in_array($option, $settings)) {
+            // TODO constant name
+            throw new ClientException("{$option} is invalid FTP runtime option.");
         }
 
         if ($this->ftpWrapper->setOption(
             $this->getConnection(), 
             $option, 
             $value) !== true) {
-            throw new FtpClientRuntimeException("Unable to set FTP option.");
+            throw new ClientException("Unable to set FTP option.");
         }
 
         return true;
+    }
+
+    /**
+     * Gets an FTP runtime option value.
+     *
+     * @param string $option
+     *
+     * @return mixed
+     */
+    public function getOption($option)
+    {
+        if ( ! ($value = $this->ftpWrapper->getOption($this->getConnection(), $option))) {
+            throw new ClientException("Cannot get FTP runtime option value.");
+        }
+
+        return $value;
     }
 
     /**
@@ -279,12 +296,12 @@ abstract class FtpManager
      *
      * @return bool
      * 
-     * @throws FtpClientRuntimeException
+     * @throws ClientException
      */
     public function setPassive($bool)
     {
-        if ($this->ftpWrapper->pasv($this->getConnection(), $bool) !== true) {
-            throw new FtpConfigurationRuntimeException("Unable to switch FTP mode.");
+        if ( ! $this->ftpWrapper->pasv($this->getConnection(), $bool)) {
+            throw new ClientException("Unable to switch FTP mode.");
         }
 
         return true;

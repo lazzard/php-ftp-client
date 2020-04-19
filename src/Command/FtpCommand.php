@@ -2,11 +2,11 @@
 
 namespace Lazzard\FtpClient\Command;
 
-use Lazzard\FtpClient\Command\Exception\FtpCommandRuntimeException;
+use Lazzard\FtpClient\Exception\CommandException;
 use Lazzard\FtpClient\FtpWrapper;
 
 /**
- * Class FtpCommand
+ * Class CommandException
  *
  * @since 1.0
  * @package Lazzard\FtpClient\Command
@@ -36,7 +36,7 @@ class FtpCommand implements CommandInterface
     private $responseBody;
 
     /**
-     * FtpCommand constructor.
+     * CommandException constructor.
      *
      * @param $connection
      */
@@ -112,9 +112,9 @@ class FtpCommand implements CommandInterface
     /**
      * Sets an FtpClient response (not a server response).
      *
-     * This method is for the site and exec requests,
-     * as an attempt to cover the boolean returns values,
-     * of the ftp_site and ftp_exec FTP functions.
+     * This method sets an FtpClient response, as
+     * an attempt to cover the boolean returns values of
+     * the The ftp_site and ftp_exec functions.
      *
      * @param $responseCode
      * @param $responseMessage
@@ -153,14 +153,16 @@ class FtpCommand implements CommandInterface
     }
 
     /**
-     * @inheritDoc
+     * @see FtpCommand::_responseFormatter()
+     *
+     * {@inheritDoc}
      */
     public function siteRequest($command)
     {
         $siteCommand = strtolower(explode(' ', trim($command))[0]);
 
         if ( ! in_array($siteCommand, $this->_supportedSiteCommands())) {
-            throw new FtpCommandRuntimeException("{$siteCommand} SITE command not supported by the remote server.");
+            throw new CommandException("{$siteCommand} SITE command not supported by the remote server.");
         }
 
         if ($this->ftpWrapper->site($this->connection, trim($command)) !== true) {
@@ -173,12 +175,14 @@ class FtpCommand implements CommandInterface
     }
 
     /**
-     * @inheritDoc
+     * @see FtpCommand::_responseFormatter()
+     *
+     * {@inheritDoc}
      */
     public function execRequest($command)
     {
         if ( ! in_array('exec', $this->_supportedSiteCommands())) {
-            throw new FtpCommandRuntimeException("SITE EXEC command not provided by the FTP server.");
+            throw new CommandException("SITE EXEC command not provided by the FTP server.");
         }
 
         if ($this->ftpWrapper->exec($this->connection, $command) !== true) {

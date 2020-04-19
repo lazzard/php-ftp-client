@@ -3,16 +3,16 @@
 namespace Lazzard\FtpClient\Exception;
 
 /**
- * Class FtpClientLogicException
+ * Class CommandException
  *
  * @since 1.0
  * @package Lazzard\FtpClient\Exception
  * @author EL AMRANI CHAKIR <elamrani.sv.laza@gmail.com>
  */
-class FtpClientLogicException extends \LogicException implements FtpClientException
+class CommandException extends \RuntimeException implements FtpClientException
 {
     public function __construct($message)
     {
-        parent::__construct("[FtpClient Exception] " . $message);
+        parent::__construct("[CommandException Exception] - " . $message);
     }
 }

@@ -3,13 +3,13 @@
 namespace Lazzard\FtpClient\Config;
 
 /**
- * Class FtpDefaultSettings
+ * Class Config
  *
  * @since 1.0
  * @package Lazzard\FtpClient\FtpConfiguration
  * @author EL AMRANI CHAKIR <elamrani.sv.laza@gmail.com>
  */
-final class FtpDefaultSettings
+final class Config
 {
     /**
      * FTP client default settings values and their types.
@@ -38,7 +38,7 @@ final class FtpDefaultSettings
             "type"  => "boolean"
         ],
 
-        "root" => [
+        "initialDirectory" => [
             "value" => ".",
             "type"  => "string"
         ]

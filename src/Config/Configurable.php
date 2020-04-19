@@ -2,16 +2,16 @@
 
 namespace Lazzard\FtpClient\Config;
 
-use Lazzard\FtpClient\Config\Exception\FtpConfigurationLogicException;
+use Lazzard\FtpClient\Exception\ConfigException;
 
 /**
- * Interface ConfigurationInterface
+ * Interface Configurable
  *
  * @since 1.0
  * @package Lazzard\FtpClient\FtpConfiguration
  * @author EL AMRANI CHAKIR <elamrani.sv.laza@gmail.com>
  */
-interface ConfigurationInterface
+interface Configurable
 {
     /**
      * Gets FTP timeout value of an FTP configuration instance.
@@ -26,7 +26,7 @@ interface ConfigurationInterface
      *
      * @param int $timeout
      *
-     * @throws FtpConfigurationLogicException
+     * @throws ConfigException
      */
     public function setTimeout($timeout);
 
@@ -38,7 +38,7 @@ interface ConfigurationInterface
     /**
      * @param bool $passive
      *
-     * @throws FtpConfigurationLogicException
+     * @throws ConfigException
      */
     public function setPassive($passive);
 
@@ -50,7 +50,7 @@ interface ConfigurationInterface
     /**
      * @param bool $autoSeek
      *
-     * @throws FtpConfigurationLogicException
+     * @throws ConfigException
      */
     public function setAutoSeek($autoSeek);
 
@@ -67,7 +67,7 @@ interface ConfigurationInterface
      *
      * @param $usePassiveAddress
      *
-     * @throws FtpConfigurationLogicException
+     * @throws ConfigException
      */
     public function setUsePassiveAddress($usePassiveAddress);
 
@@ -76,14 +76,14 @@ interface ConfigurationInterface
      *
      * @return string
      */
-    public function getRoot();
+    public function getinitialDirectory();
 
     /**
      * Sets the initial directory of an FTP configuration instance.
      *
-     * @param $root
+     * @param $initialDirectory
      *
-     * @throws FtpConfigurationLogicException
+     * @throws ConfigException
      */
-    public function setRoot($root);
+    public function setinitialDirectory($initialDirectory);
 }
