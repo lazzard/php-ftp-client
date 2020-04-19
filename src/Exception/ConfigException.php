@@ -14,7 +14,7 @@ class ConfigException extends \Exception implements FtpClientException
 {
     public function __construct($message)
     {
-        parent::__construct("[FtpConfiguration Exception] - " . $message);
+        parent::__construct("[Configuration Exception] - " . $message);
     }
 
     public static function InvalidFtpConfigurationSetting($setting, $type)

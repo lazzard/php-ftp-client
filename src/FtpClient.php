@@ -2,6 +2,11 @@
 
 namespace Lazzard\FtpClient;
 
+use Lazzard\FtpClient\Command\Command;
+use Lazzard\FtpClient\Config\Configurable;
+use Lazzard\FtpClient\Config\Configuration;
+use Lazzard\FtpClient\Connection\Connection;
+use Lazzard\FtpClient\Connection\ConnectionInterface;
 use Lazzard\FtpClient\Exception\ClientException;
 
 /**
@@ -11,12 +16,55 @@ use Lazzard\FtpClient\Exception\ClientException;
  * @package Lazzard\FtpClient
  * @author EL AMRANI CHAKIR <elamrani.sv.laza@gmail.com>
  */
-class FtpClient extends FtpManager
+class FtpClient
 {
     /**
      * FtpClient predefined constants
      */
     const DOTS = ['.', '..'];
+
+    /**
+     * Php FTP predefined constants aliases
+     */
+    const TIMEOUT_SEC    = FTP_TIMEOUT_SEC;
+    const AUTOSEEK       = FTP_AUTOSEEK;
+    const USEPASVADDRESS = FTP_USEPASVADDRESS;
+
+    /** @var Connection */
+    protected $connection;
+
+    /** @var Configuration */
+    protected $configuration;
+
+    /** @var Command */
+    protected $ftpCommand;
+
+    /** @var FtpWrapper */
+    protected $wrapper;
+
+    /**
+     * FtpManager constructor.
+     *
+     * @param ConnectionInterface $connection
+     * @param Configurable|null   $configuration
+     *
+     * @throws Exception\ConfigException
+     */
+    public function __construct(ConnectionInterface $connection, Configurable $configuration =
+    null)
+    {
+        if (is_null($configuration)) {
+            $this->configuration = new Configuration();
+        } else {
+            $this->configuration = $configuration;
+        }
+
+        $this->ftpCommand = new Command($connection);
+        $this->wrapper = new FtpWrapper($connection);
+
+        $this->applyConfiguration();
+    }
+
 
     /**
      * FtpClient __call.
@@ -36,11 +84,82 @@ class FtpClient extends FtpManager
         $ftpFunction = "ftp_" . $name;
 
         if (function_exists($ftpFunction)) {
-            array_unshift($arguments, $this->getConnection());
+            array_unshift($arguments, $this->getConnection()->getStream());
             return call_user_func_array($ftpFunction, $arguments);
         }
 
         throw new ClientException("{$ftpFunction} is invalid FTP function.");
+    }
+
+    /**
+     * @return Connection
+     */
+    public function getConnection()
+    {
+        return $this->connection;
+    }
+
+    /**
+     * @param Connection $connection
+     */
+    public function setConnection($connection)
+    {
+        $this->connection = $connection;
+    }
+
+    /**
+     * Get current FTP configuration.
+     *
+     * @return Configurable
+     */
+    public function getConfiguration()
+    {
+        return $this->configuration;
+    }
+
+    /**
+     * @param Configurable $configuration
+     */
+    public function setConfiguration(Configurable $configuration)
+    {
+        $this->ftpConfiguration = $configuration;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCurrentDir()
+    {
+        return $this->wrapper->pwd();
+    }
+
+    /**
+     * @param string $currentDir
+     *
+     * @throws ClientException
+     */
+    public function setCurrentDir($currentDir)
+    {
+        if ( ! $this->wrapper->chdir($currentDir)) {
+            throw new ClientException("Cannot change to the giving directory.");
+        }
+
+        $this->currentDir = $currentDir;
+    }
+
+    /**
+     * Set client ftp configuration.
+     */
+    public function applyConfiguration()
+    {
+        $this->setOption(self::TIMEOUT_SEC, $this->getConfiguration()->getTimeout());
+        $this->setOption(self::AUTOSEEK, $this->getConfiguration()->isAutoSeek());
+        $this->setOption(self::USEPASVADDRESS, $this->getConfiguration()->isUsePassiveAddress());
+
+        $this->setPassive($this->getConfiguration()->isPassive());
+
+        // TODO setCurrentDir
+        //$this->setCurrentDir($this->getFtpConfiguration()->getinitialDirectory());
     }
 
     /**
@@ -54,8 +173,8 @@ class FtpClient extends FtpManager
     public function isDirectory($directory)
     {
         $originalDir = $this->getCurrentDir();
-        if ($this->ftpWrapper->chdir($this->getConnection(), $directory) !== false) {
-            $this->ftpWrapper->chdir($this->getConnection(), $originalDir);
+        if ($this->wrapper->chdir($directory) !== false) {
+            $this->wrapper->chdir($originalDir);
             return true;
         }
 
@@ -66,7 +185,7 @@ class FtpClient extends FtpManager
      * Extract the file type (type, dir, link) from chmod string
      * (e.g., 'drwxr-xr-x' string will return 'dir').
      *
-     * @param string $chmod 
+     * @param string $chmod
      *
      * @return string
      */
@@ -98,10 +217,7 @@ class FtpClient extends FtpManager
      */
     public function listDirectory($directory, $ignoreDotes = true)
     {
-        if ( ! $files = $this->ftpWrapper->nlist(
-            $this->getConnection(),
-            $directory
-        )) {
+        if ( ! $files = $this->wrapper->nlist($directory)) {
             throw new ClientException("Failed to get files list.");
         }
 
@@ -150,10 +266,7 @@ class FtpClient extends FtpManager
      */
     public function getDirsOnly($directory, $ignoreDotes = true)
     {
-        $files = $this->listDirectory(
-            $directory,
-            $ignoreDotes
-        );
+        $files = $this->listDirectory($directory, $ignoreDotes);
 
         $dirsOnly = [];
         foreach ($files as $file) {
@@ -176,11 +289,7 @@ class FtpClient extends FtpManager
      */
     public function listDirectoryDetails($directory, $recursive = false, $ignoreDots = true)
     {
-        $details = $this->ftpWrapper->rawlist(
-            $this->getConnection(),
-            $directory,
-            $recursive
-        );
+        $details = $this->wrapper->rawlist($directory, $recursive);
 
         $pathTmp = null;
         $info = [];
@@ -241,9 +350,9 @@ class FtpClient extends FtpManager
     /**
      * Get supported remote server commands.
      *
-     * @see FtpCommand::rawRequest()
-     *
      * @return array
+     *
+     * @see Command::rawRequest()
      *
      * @throws ClientException
      */
@@ -276,7 +385,7 @@ class FtpClient extends FtpManager
     /**
      * Get remote server system name.
      *
-     * @see FtpCommand::rawRequest()
+     * @see Command::rawRequest()
      *
      * @return string
      *
@@ -294,7 +403,7 @@ class FtpClient extends FtpManager
     /**
      * Get supported SITE commands by the remote server.
      *
-     * @see FtpCommand::rawRequest()
+     * @see Command::rawRequest()
      *
      * @return array Return array of SITE available commands in success.
      *
@@ -319,7 +428,7 @@ class FtpClient extends FtpManager
      */
     public function back()
     {
-        if ( ! $this->ftpWrapper->cdup($this->getConnection())) {
+        if ( ! $this->wrapper->cdup()) {
             throw new ClientException("Unable to change to the parent directory.");
         }
 
@@ -341,7 +450,7 @@ class FtpClient extends FtpManager
             throw new ClientException("[{$remoteFile}] must be an existing file.");
         }
 
-        if ( ! $this->ftpWrapper->delete($this->getConnection(), $remoteFile)) {
+        if ( ! $this->wrapper->delete($remoteFile)) {
             throw new ClientException("Unable to delete the file [{$remoteFile}].");
         }
 
@@ -361,13 +470,11 @@ class FtpClient extends FtpManager
      */
     public function removeDirectory($directory)
     {
-        if ($this->ftpWrapper->size($this->getConnection(), $directory) !== -1) {
-            throw new ClientException(
-                "[{$directory}] must be an existing directory."
-            );
+        if ($this->wrapper->size($directory) !== -1) {
+            throw new ClientException("[{$directory}] must be an existing directory.");
         }
 
-        if ( ! ($list = $this->ftpWrapper->nlist($this->getConnection(), $directory))) {
+        if ( ! ($list = $this->wrapper->nlist($directory))) {
             $this->removeDirectory($directory);
         }
 
@@ -377,15 +484,15 @@ class FtpClient extends FtpManager
 
                 if (in_array(basename($path), self::DOTS)) continue;
 
-                if ($this->ftpWrapper->size($this->getConnection(), $path) !== -1) {
-                    $this->ftpWrapper->delete($this->getConnection(), $path);
-                } elseif ($this->ftpWrapper->rmdir($this->getConnection(), $path) !== true) {
+                if ($this->wrapper->size($path) !== -1) {
+                    $this->wrapper->delete($path);
+                } elseif ($this->wrapper->rmdir($path) !== true) {
                     $this->removeDirectory($path);
                 }
             }
         }
 
-        return $this->ftpWrapper->rmdir($this->getConnection(), $directory);
+        return $this->wrapper->rmdir($directory);
     }
 
 
@@ -409,7 +516,7 @@ class FtpClient extends FtpManager
             $path = join("/", array_slice($dirs, 0, $i));
 
             if ( ! $this->isDirectory($path)) {
-                $this->ftpWrapper->mkdir($this->getConnection(), $path);
+                $this->wrapper->mkdir($path);
             }
         }
 
@@ -425,12 +532,10 @@ class FtpClient extends FtpManager
      */
     public function isExists($remoteFile)
     {
-        $list = $this->ftpWrapper->nlist(
-            $this->getConnection(),
-            dirname($remoteFile)
+        return in_array(
+            basename($remoteFile),
+            $this->wrapper->nlist(dirname($remoteFile))
         );
-
-        return in_array(basename($remoteFile), $list);
     }
 
     /**
@@ -459,10 +564,10 @@ class FtpClient extends FtpManager
         }
 
         if ($format) {
-            return date($format, $this->ftpWrapper->mdtm($this->getConnection(), $remoteFile));
+            return date($format, $this->wrapper->mdtm($remoteFile));
         }
 
-        return $this->ftpWrapper->mdtm($this->getConnection(), $remoteFile);
+        return $this->wrapper->mdtm($remoteFile);
     }
 
     /**
@@ -480,12 +585,10 @@ class FtpClient extends FtpManager
         }
 
         if ( ! $this->isDirectory($remoteFile)) {
-            throw new ClientException(
-                "[{$remoteFile}] must be an existing file."
-            );
+            throw new ClientException("[{$remoteFile}] must be an existing file.");
         }
 
-        return $this->ftpWrapper->size($this->getConnection(), $remoteFile);
+        return $this->wrapper->size($remoteFile);
     }
 
     /**
@@ -499,22 +602,18 @@ class FtpClient extends FtpManager
      */
     public function dirSize($directory) {
         if ( ! $this->isFeatureSupported("SIZE")) {
-            throw new ClientException(
-                "SIZE feature not provided by the remote server."
-            );
+            throw new ClientException("SIZE feature not provided by the remote server.");
         }
 
         if ( ! $this->isDirectory($directory)) {
-            throw new ClientException(
-                "[{$directory}] must be an existing directory."
-            );
+            throw new ClientException("[{$directory}] must be an existing directory.");
         }
 
         $list = $this->listDirectoryDetails($directory, true);
 
         $size = 0;
         foreach ($list as $fileInfo) {
-            $size += $this->ftpWrapper->size($this->getConnection(), $fileInfo['path']);
+            $size += $this->wrapper->size($fileInfo['path']);
         }
 
         return $size;
@@ -547,12 +646,10 @@ class FtpClient extends FtpManager
     public function rename($oldName, $newName)
     {
         if ($this->isExists($newName)) {
-            throw new ClientException(
-                "[{$newName}] is already exists, please choose another name."
-            );
+            throw new ClientException("[{$newName}] is already exists, please choose another name.");
         }
 
-        if ( ! $this->ftpWrapper->rename($this->getConnection(), $oldName, $newName)) {
+        if ( ! $this->wrapper->rename($oldName, $newName)) {
             throw new ClientException(sprintf(
                 "Unable to rename %s to %s",
                 $oldName,
@@ -574,15 +671,11 @@ class FtpClient extends FtpManager
     public function move($source, $destination)
     {
         if ( ! $this->isExists($source)) {
-            throw new ClientException(
-                "[{$source}] source file does not exists."
-            );
+            throw new ClientException("[{$source}] source file does not exists.");
         }
 
         if ( ! $this->isDirectory($destination)) {
-            throw new ClientException(
-                "[{$destination}] must be an existing directory."
-            );
+            throw new ClientException("[{$destination}] must be an existing directory.");
         }
 
         return $this->rename($source, $destination . '/' . basename($source));
@@ -596,5 +689,79 @@ class FtpClient extends FtpManager
     public function isServerAlive()
     {
         return ($this->ftpCommand->rawRequest("NOOP")->getResponseCode() === 200);
+    }
+
+    /**
+     * Set FTP runtime options.
+     *
+     * @param $option
+     * @param $value
+     *
+     * @return bool
+     *
+     * @throws ClientException
+     */
+    public function setOption($option, $value)
+    {
+        $settings = [
+            self::TIMEOUT_SEC,
+            self::AUTOSEEK,
+            self::USEPASVADDRESS
+        ];
+
+        if ( ! in_array($option, $settings)) {
+            // TODO constant name
+            throw new ClientException("{$option} is invalid FTP runtime option.");
+        }
+
+        if ( ! $this->wrapper->setOption($option, $value)) {
+            throw new ClientException("Unable to set FTP option.");
+        }
+
+        return true;
+    }
+
+    /**
+     * Gets an FTP runtime option value.
+     *
+     * @param string $option
+     *
+     * @return mixed
+     *
+     * @throws ClientException
+     */
+    public function getOption($option)
+    {
+        if ( ! ($value = $this->wrapper->getOption($option))) {
+            throw new ClientException("Cannot get FTP runtime option value.");
+        }
+
+        return $value;
+    }
+
+    /**
+     * Turn the passive mode on or off.
+     *
+     * Notice that the active mode is the default mode.
+     *
+     * @param $bool
+     *
+     * @return bool
+     *
+     * @throws ClientException
+     */
+    public function setPassive($bool)
+    {
+        if ($this->isFeatureSupported("EPSV")) {
+            if ($this->ftpCommand->rawRequest("EPSV")->isSucceeded()) {
+                return true;
+            }
+        }
+
+        if ( ! $this->wrapper->pasv($bool)) {
+            throw new ClientException("Unable to switch FTP mode.");
+        }
+
+        return true;
     }
 }

@@ -6,13 +6,13 @@ namespace Lazzard\FtpClient\Config;
 use Lazzard\FtpClient\Exception\ConfigException;
 
 /**
- * Class FtpConfiguration
+ * Class Configuration
  *
  * @since 1.0
- * @package Lazzard\FtpClient\FtpConfiguration
+ * @package Lazzard\FtpClient\Configuration
  * @author EL AMRANI CHAKIR <elamrani.sv.laza@gmail.com>
  */
-class FtpConfiguration implements Configurable
+class Configuration implements Configurable
 {
     /** @var int */
     private $timeout;
@@ -31,7 +31,7 @@ class FtpConfiguration implements Configurable
 
 
     /**
-     * FtpConfiguration constructor.
+     * Configuration constructor.
      *
      * @param array|null $settings
      *

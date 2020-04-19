@@ -8,7 +8,7 @@ use Lazzard\FtpClient\Exception\ConfigException;
  * Interface Configurable
  *
  * @since 1.0
- * @package Lazzard\FtpClient\FtpConfiguration
+ * @package Lazzard\FtpClient\Configuration
  * @author EL AMRANI CHAKIR <elamrani.sv.laza@gmail.com>
  */
 interface Configurable

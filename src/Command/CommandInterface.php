@@ -63,7 +63,7 @@ interface CommandInterface
      *
      * @param string $command
      *
-     * @return FtpCommand Return CommandException Instance
+     * @return Command Return CommandException Instance
      */
     public function rawRequest($command);
 
@@ -72,7 +72,7 @@ interface CommandInterface
      *
      * @param string $command
      *
-     * @return FtpCommand Return CommandException Instance
+     * @return Command Return CommandException Instance
      *
      * @throws CommandException
      */
@@ -83,7 +83,7 @@ interface CommandInterface
      *
      * @param string $command
      *
-     * @return FtpCommand Return CommandException Instance
+     * @return Command Return CommandException Instance
      *
      * @throws CommandException
      */

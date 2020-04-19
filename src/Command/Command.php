@@ -2,8 +2,9 @@
 
 namespace Lazzard\FtpClient\Command;
 
+use Lazzard\FtpClient\Connection\Connection;
+use Lazzard\FtpClient\Connection\ConnectionInterface;
 use Lazzard\FtpClient\Exception\CommandException;
-use Lazzard\FtpClient\FtpWrapper;
 
 /**
  * Class CommandException
@@ -12,13 +13,10 @@ use Lazzard\FtpClient\FtpWrapper;
  * @package Lazzard\FtpClient\Command
  * @author EL AMRANI CHAKIR <elamrani.sv.laza@gmail.com>
  */
-class FtpCommand implements CommandInterface
+class Command implements CommandInterface
 {
-    /** @var resource */
+    /** @var Connection */
     private $connection;
-
-    /** @var FtpWrapper */
-    private $ftpWrapper;
 
     /** @var mixed */
     private $response;
@@ -40,10 +38,17 @@ class FtpCommand implements CommandInterface
      *
      * @param $connection
      */
-    public function __construct($connection)
+    public function __construct(ConnectionInterface $connection)
     {
         $this->connection = $connection;
-        $this->ftpWrapper = new FtpWrapper();
+    }
+
+    /**
+     * @return Connection
+     */
+    public function getConnection()
+    {
+        return $this->connection;
     }
 
     /**
@@ -99,13 +104,11 @@ class FtpCommand implements CommandInterface
      */
     private function _supportedSiteCommands()
     {
-        $commands = $this->ftpWrapper->raw($this->connection, 'HELP');
-
         return array_map(
             function ($item) {
                 return ltrim(strtolower($item));
             },
-            $commands
+            $this->rawRequest("HELP")->getResponseBody()
         );
     }
 
@@ -135,11 +138,12 @@ class FtpCommand implements CommandInterface
      */
     public function rawRequest($command)
     {
-        $this->response        = $this->ftpWrapper->raw($this->connection, trim($command));
+        $this->response        = ftp_raw($this->getConnection()->getStream(), ltrim($command));
         $this->responseCode    = intval(substr($this->getResponse()[0], 0, 3));
         $this->responseMessage = ltrim(substr($this->getResponse()[0], 3));
 
         if ($this->isSucceeded()) {
+            // TODO array_splice replace
             $response = $this->getResponse();
             $responseBody = array_splice($response, 1, -1);
             $this->responseBody = $responseBody ?: null;
@@ -153,7 +157,7 @@ class FtpCommand implements CommandInterface
     }
 
     /**
-     * @see FtpCommand::_responseFormatter()
+     * @see Command::_responseFormatter()
      *
      * {@inheritDoc}
      */
@@ -165,7 +169,7 @@ class FtpCommand implements CommandInterface
             throw new CommandException("{$siteCommand} SITE command not supported by the remote server.");
         }
 
-        if ($this->ftpWrapper->site($this->connection, trim($command)) !== true) {
+        if ( ! ftp_site($this->getConnection()->getStream(), trim($command))) {
             $this->_responseFormatter(500, '[FtpClient] SITE command was failed.');
         } else {
             $this->_responseFormatter(200, '[FtpClient] SITE command succeeded.');
@@ -175,7 +179,7 @@ class FtpCommand implements CommandInterface
     }
 
     /**
-     * @see FtpCommand::_responseFormatter()
+     * @see Command::_responseFormatter()
      *
      * {@inheritDoc}
      */
@@ -185,7 +189,7 @@ class FtpCommand implements CommandInterface
             throw new CommandException("SITE EXEC command not provided by the FTP server.");
         }
 
-        if ($this->ftpWrapper->exec($this->connection, $command) !== true) {
+        if ( ! ftp_exec($this->getConnection()->getStream(), trim($command))) {
             $this->_responseFormatter(500, '[FtpClient] SITE EXEC command was failed.');
         } else {
             $this->_responseFormatter(200, '[FtpClient] SITE EXEC command succeeded.');

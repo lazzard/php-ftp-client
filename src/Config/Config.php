@@ -6,7 +6,7 @@ namespace Lazzard\FtpClient\Config;
  * Class Config
  *
  * @since 1.0
- * @package Lazzard\FtpClient\FtpConfiguration
+ * @package Lazzard\FtpClient\Configuration
  * @author EL AMRANI CHAKIR <elamrani.sv.laza@gmail.com>
  */
 final class Config

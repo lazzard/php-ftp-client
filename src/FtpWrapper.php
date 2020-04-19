@@ -2,6 +2,8 @@
 
 namespace Lazzard\FtpClient;
 
+use Lazzard\FtpClient\Connection\ConnectionInterface;
+
 /**
  * Class FtpWrapper
  *
@@ -13,279 +15,194 @@ namespace Lazzard\FtpClient;
  */
 class FtpWrapper
 {
-    /**
-     * @link https://www.php.net/manual/en/function.ftp-connect.php
-     *
-     * @param string $host
-     * @param int    $port
-     * @param int    $timeout
-     *
-     * @return false|resource
-     */
-    public function connect($host, $port = 21, $timeout = 90)
+    /** @var ConnectionInterface */
+    private $connection;
+
+    public function __construct(ConnectionInterface $connection)
     {
-        return ftp_connect($host, $port, $timeout);
+        $this->connection = $connection;
     }
 
     /**
-     * @link https://www.php.net/manual/en/function.ftp-ssl-connect.php
-     *
-     * @param string $host
-     * @param int    $port
-     * @param int    $timeout
-     *
-     * @return false|resource
+     * @return ConnectionInterface
      */
-    public function ssl_connect($host, $port = 21, $timeout = 90)
+    public function getConnection()
     {
-        return @ftp_ssl_connect($host, $port, $timeout);
+        return $this->connection;
     }
 
     /**
-     * @link https://www.php.net/manual/en/function.ftp-login.php
-     *
-     * @param resource $ftpStream
-     * @param string   $username
-     * @param string   $password
-     *
-     * @return bool
+     * @param ConnectionInterface $connection
      */
-    public function login($ftpStream, $username, $password)
+    public function setConnection(ConnectionInterface $connection)
     {
-        return @ftp_login($ftpStream, $username, $password);
-    }
-
-    /**
-     * @link https://www.php.net/manual/en/function.ftp-close.php
-     *
-     * @param resource $ftpStream
-     *
-     * @return bool
-     */
-    public function close($ftpStream)
-    {
-        return ftp_close($ftpStream);
+        $this->connection = $connection;
     }
 
     /**
      * @link https://www.php.net/manual/en/function.ftp-pasv.php
      *
-     * @param resource $ftpStream
-     * @param bool     $pasv
+     * @param bool $pasv
      *
      * @return bool
      */
-    public function pasv($ftpStream, $pasv)
+    public function pasv($pasv)
     {
-        return ftp_pasv($ftpStream, $pasv);
+        return ftp_pasv($this->getConnection()->getStream(), $pasv);
     }
 
     /**
      * @link https://www.php.net/manual/en/function.ftp-set-option.php
      *
-     * @param resource $ftpStream
-     * @param int      $option
-     * @param mixed    $value
+     * @param int   $option
+     * @param mixed $value
      *
      * @return bool
      */
-    public function setOption($ftpStream, $option, $value)
+    public function setOption($option, $value)
     {
-        return @ftp_set_option($ftpStream, $option, $value);
+        return ftp_set_option($this->getConnection()->getStream(), $option, $value);
     }
 
     /**
      * @link https://www.php.net/manual/en/function.ftp-set-option.php
      *
-     * @param resource $ftpStream
      * @param int      $option
      *
      * @return mixed
      */
-    public function getOption($ftpStream, $option)
+    public function getOption($option)
     {
-        return @ftp_get_option($ftpStream, $option);
+        return @ftp_get_option($this->getConnection()->getStream(), $option);
     }
 
     /**
      * @link https://www.php.net/manual/en/function.ftp-chdir.php
-     *
-     * @param resource $ftpStream
-     * @param string   $directory
+
+     * @param string $directory
      *
      * @return bool
      */
-    public function chdir($ftpStream, $directory)
+    public function chdir($directory)
     {
-        return @ftp_chdir($ftpStream, $directory);
+        return @ftp_chdir($this->getConnection()->getStream(), $directory);
     }
 
     /**
      * @link https://www.php.net/manual/en/function.ftp-pwd.php
      *
-     * @param resource $ftpStream
-     *
      * @return string
      */
-    public function pwd($ftpStream)
+    public function pwd()
     {
-        return ftp_pwd($ftpStream);
+        return ftp_pwd($this->getConnection()->getStream());
     }
 
     /**
      * @link https://www.php.net/manual/en/function.ftp-nlist.php
      *
-     * @param resource $ftpStream
-     * @param string   $directory
+     * @param string $directory
      *
      * @return array|false
      */
-    public function nlist($ftpStream, $directory)
+    public function nlist($directory)
     {
-        return ftp_nlist($ftpStream, $directory);
+        return ftp_nlist($this->getConnection()->getStream(), $directory);
     }
 
     /**
      * @link https://www.php.net/manual/en/function.ftp-cdup.php
      *
-     * @param resource $ftpStream
-     *
      * @return bool
      */
-    public function cdup($ftpStream)
+    public function cdup()
     {
-        return ftp_cdup($ftpStream);
-    }
-
-    /**
-     * @link https://www.php.net/manual/en/function.ftp-raw.php
-     *
-     * @param resource $ftpStream
-     * @param string   $command
-     *
-     * @return array
-     */
-    public function raw($ftpStream, $command)
-    {
-        return ftp_raw($ftpStream, $command);
-    }
-
-    /**
-     * @link https://www.php.net/manual/en/function.ftp-exec.php
-     *
-     * @param resource $ftpStream
-     * @param string   $command
-     *
-     * @return bool
-     */
-    public function exec($ftpStream, $command)
-    {
-        return ftp_exec($ftpStream, $command);
-    }
-
-    /**
-     * @link https://www.php.net/manual/en/function.ftp-exec.php
-     *
-     * @param resource $ftpStream
-     * @param string   $command
-     *
-     * @return bool
-     */
-    public function site($ftpStream, $command)
-    {
-        return ftp_site($ftpStream, $command);
+        return ftp_cdup($this->getConnection()->getStream());
     }
 
     /**
      * @link https://www.php.net/manual/en/function.ftp-rawlist.php
      *
-     * @param resource $ftpStream
-     * @param string   $directory
-     * @param bool     $recursive
+     * @param string $directory
+     * @param bool   $recursive
      *
      * @return array
      */
-    public function rawlist($ftpStream, $directory, $recursive = false)
+    public function rawlist($directory, $recursive = false)
     {
-        return ftp_rawlist($ftpStream, $directory, $recursive);
+        return ftp_rawlist($this->getConnection()->getStream(), $directory, $recursive);
     }
 
     /**
      * @link https://www.php.net/manual/en/function.ftp-delete.php
      *
-     * @param resource $ftpStream
-     * @param string   $remoteFile
+     * @param string $remoteFile
      *
      * @return bool
      */
-    public function delete($ftpStream, $remoteFile)
+    public function delete($remoteFile)
     {
-        return ftp_delete($ftpStream, $remoteFile);
+        return ftp_delete($this->getConnection()->getStream(), $remoteFile);
     }
 
     /**
      * @link https://www.php.net/manual/en/function.ftp-mdtm.php
      *
-     * @param resource $ftpStream
-     * @param string   $remoteFile
+     * @param string $remoteFile
      *
      * @return int
      */
-    public function mdtm($ftpStream, $remoteFile)
+    public function mdtm($remoteFile)
     {
-        return ftp_mdtm($ftpStream, $remoteFile);
+        return ftp_mdtm($this->getConnection()->getStream(), $remoteFile);
     }
 
     /**
      * @link https://www.php.net/manual/en/function.ftp-rmdir.php
      *
-     * @param resource $ftpStream
-     * @param string   $directory
+     * @param string $directory
      *
      * @return bool
      */
-    public function rmdir($ftpStream, $directory)
+    public function rmdir($directory)
     {
-        return ftp_rmdir($ftpStream, $directory);
+        return ftp_rmdir($this->getConnection()->getStream(), $directory);
     }
 
     /**
      * @link https://www.php.net/manual/en/function.ftp-rmdir.php
      *
-     * @param resource $ftpStream
-     * @param string   $directory
+     * @param string $directory
      *
      * @return string|false
      */
-    public function mkdir($ftpStream, $directory)
+    public function mkdir($directory)
     {
-        return @ftp_mkdir($ftpStream, $directory);
+        return @ftp_mkdir($this->getConnection()->getStream(), $directory);
     }
 
     /**
      * @link https://www.php.net/manual/en/function.ftp-size.php
      *
-     * @param resource $ftpStream
-     * @param string   $remoteFile
+     * @param string $remoteFile
      *
      * @return int
      */
-    public function size($ftpStream, $remoteFile)
+    public function size($remoteFile)
     {
-        return ftp_size($ftpStream, $remoteFile);
+        return ftp_size($this->getConnection()->getStream(), $remoteFile);
     }
 
     /**
      * @link https://www.php.net/manual/en/function.ftp-rename.php
      *
-     * @param resource $ftpStream
-     * @param string   $oldName
-     * @param string   $newName
+     * @param string $oldName
+     * @param string $newName
      *
      * @return bool
      */
-    public function rename($ftpStream, $oldName, $newName)
+    public function rename($oldName, $newName)
     {
-        return ftp_rename($ftpStream, $oldName, $newName);
+        return ftp_rename($this->getConnection()->getStream(), $oldName, $newName);
     }
 }
