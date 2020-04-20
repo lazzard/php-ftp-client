@@ -1,14 +1,17 @@
 <?php
+
 namespace Lazzard\FtpClient\Connection;
 
-use Lazzard\FtpClient\Exception\ClientException;
+use Lazzard\FtpClient\Exception\ConnectionException;
 
 interface ConnectionInterface
 {
     /**
      * Open an FTP connection.
      *
-     * @return mixed
+     * @return bool
+     *
+     * @throws ConnectionException
      */
     public function open();
 
@@ -17,12 +20,14 @@ interface ConnectionInterface
      *
      * @return bool
      *
-     * @throws ClientException
+     * @throws ConnectionException
      */
     public function close();
 
     /**
      * @return resource
+     *
+     * @throws ConnectionException
      */
     public function getStream();
 

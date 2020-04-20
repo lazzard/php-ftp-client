@@ -2,13 +2,13 @@
 
 namespace Lazzard\FtpClient\Config;
 
-use Lazzard\FtpClient\Exception\ConfigException;
+use Lazzard\FtpClient\Exception\ConfigurationException;
 
 /**
  * Interface Configurable
  *
  * @since 1.0
- * @package Lazzard\FtpClient\Configuration
+ * @package Lazzard\FtpClient\FtpConfiguration
  * @author EL AMRANI CHAKIR <elamrani.sv.laza@gmail.com>
  */
 interface Configurable
@@ -26,7 +26,7 @@ interface Configurable
      *
      * @param int $timeout
      *
-     * @throws ConfigException
+     * @throws ConfigurationException
      */
     public function setTimeout($timeout);
 
@@ -38,7 +38,7 @@ interface Configurable
     /**
      * @param bool $passive
      *
-     * @throws ConfigException
+     * @throws ConfigurationException
      */
     public function setPassive($passive);
 
@@ -50,7 +50,7 @@ interface Configurable
     /**
      * @param bool $autoSeek
      *
-     * @throws ConfigException
+     * @throws ConfigurationException
      */
     public function setAutoSeek($autoSeek);
 
@@ -67,7 +67,7 @@ interface Configurable
      *
      * @param $usePassiveAddress
      *
-     * @throws ConfigException
+     * @throws ConfigurationException
      */
     public function setUsePassiveAddress($usePassiveAddress);
 
@@ -83,7 +83,7 @@ interface Configurable
      *
      * @param $initialDirectory
      *
-     * @throws ConfigException
+     * @throws ConfigurationException
      */
     public function setinitialDirectory($initialDirectory);
 }

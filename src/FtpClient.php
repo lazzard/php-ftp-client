@@ -2,12 +2,13 @@
 
 namespace Lazzard\FtpClient;
 
-use Lazzard\FtpClient\Command\Command;
+use Lazzard\FtpClient\Command\FtpCommand;
 use Lazzard\FtpClient\Config\Configurable;
-use Lazzard\FtpClient\Config\Configuration;
-use Lazzard\FtpClient\Connection\Connection;
+use Lazzard\FtpClient\Config\FtpConfiguration;
+use Lazzard\FtpClient\Connection\FtpConnection;
 use Lazzard\FtpClient\Connection\ConnectionInterface;
 use Lazzard\FtpClient\Exception\ClientException;
+use Lazzard\FtpClient\Exception\ConfigurationException;
 
 /**
  * Class FtpClient
@@ -30,14 +31,14 @@ class FtpClient
     const AUTOSEEK       = FTP_AUTOSEEK;
     const USEPASVADDRESS = FTP_USEPASVADDRESS;
 
-    /** @var Connection */
+    /** @var FtpConnection */
     protected $connection;
 
-    /** @var Configuration */
+    /** @var FtpConfiguration */
     protected $configuration;
 
-    /** @var Command */
-    protected $ftpCommand;
+    /** @var FtpCommand */
+    protected $command;
 
     /** @var FtpWrapper */
     protected $wrapper;
@@ -48,18 +49,18 @@ class FtpClient
      * @param ConnectionInterface $connection
      * @param Configurable|null   $configuration
      *
-     * @throws Exception\ConfigException
+     * @throws ConfigurationException
      */
     public function __construct(ConnectionInterface $connection, Configurable $configuration =
     null)
     {
         if (is_null($configuration)) {
-            $this->configuration = new Configuration();
+            $this->configuration = new FtpConfiguration();
         } else {
             $this->configuration = $configuration;
         }
 
-        $this->ftpCommand = new Command($connection);
+        $this->command = new FtpCommand($connection);
         $this->wrapper = new FtpWrapper($connection);
 
         $this->applyConfiguration();
@@ -92,7 +93,7 @@ class FtpClient
     }
 
     /**
-     * @return Connection
+     * @return FtpConnection
      */
     public function getConnection()
     {
@@ -100,7 +101,7 @@ class FtpClient
     }
 
     /**
-     * @param Connection $connection
+     * @param FtpConnection $connection
      */
     public function setConnection($connection)
     {
@@ -148,7 +149,7 @@ class FtpClient
     }
 
     /**
-     * Set client ftp configuration.
+     * Sets client ftp configuration.
      */
     public function applyConfiguration()
     {
@@ -308,6 +309,12 @@ class FtpClient
                     }
                 }
 
+                if ($pathTmp) {
+                    $path = $pathTmp . '/' . $chunks[8] ;
+                } else {
+                    $path = $directory !== '/' ? $directory . '/' . $chunks[8] : $chunks[8];
+                }
+
                 $info[] = [
                     'name'  => $chunks[8],
                     'chmod' => $chunks[0],
@@ -319,7 +326,7 @@ class FtpClient
                     'day'   => $chunks[6],
                     'time'  => $chunks[7],
                     'type'  => $this->_chmodToFileType($chunks[0]),
-                    'path'  => $pathTmp ? $pathTmp . '/' . $chunks[8] : $directory . '/' . $chunks[8]
+                    'path'  => $path
                 ];
             }
         }
@@ -352,17 +359,17 @@ class FtpClient
      *
      * @return array
      *
-     * @see Command::rawRequest()
+     * @see FtpCommand::rawRequest()
      *
      * @throws ClientException
      */
     public function getFeatures()
     {
-        if (!$this->ftpCommand->rawRequest("FEAT")->isSucceeded()) {
+        if (!$this->command->rawRequest("FEAT")->isSucceeded()) {
             throw new ClientException("Cannot get remote server features.");
         }
 
-        return array_map('ltrim', $this->ftpCommand->getResponseBody());
+        return array_map('ltrim', $this->command->getResponseBody());
     }
 
     /**
@@ -385,37 +392,37 @@ class FtpClient
     /**
      * Get remote server system name.
      *
-     * @see Command::rawRequest()
-     *
      * @return string
+     *
+     * @see FtpCommand::rawRequest()
      *
      * @throws ClientException
      */
     public function getSystem()
     {
-        if (!$this->ftpCommand->rawRequest("SYST")->isSucceeded()) {
+        if (!$this->command->rawRequest("SYST")->isSucceeded()) {
             throw new ClientException("Cannot get remote server features.");
         }
 
-        return $this->ftpCommand->getResponseMessage();
+        return $this->command->getResponseMessage();
     }
 
     /**
      * Get supported SITE commands by the remote server.
      *
-     * @see Command::rawRequest()
-     *
      * @return array Return array of SITE available commands in success.
+     *
+     * @see FtpCommand::rawRequest()
      *
      * @throws ClientException
      */
     public function getSupportedSiteCommands()
     {
-        if ( ! $this->ftpCommand->rawRequest("HELP")->isSucceeded()) {
+        if ( ! $this->command->rawRequest("HELP")->isSucceeded()) {
             throw new ClientException("Cannot getting available site commands from the FTP server.");
         }
 
-        return array_map('ltrim', $this->ftpCommand->getResponseBody());
+        return array_map('ltrim', $this->command->getResponseBody());
     }
 
 
@@ -688,7 +695,7 @@ class FtpClient
      */
     public function isServerAlive()
     {
-        return ($this->ftpCommand->rawRequest("NOOP")->getResponseCode() === 200);
+        return $this->command->rawRequest("NOOP")->isSucceeded();
     }
 
     /**
@@ -752,11 +759,13 @@ class FtpClient
      */
     public function setPassive($bool)
     {
+        // TODO
+        /*
         if ($this->isFeatureSupported("EPSV")) {
-            if ($this->ftpCommand->rawRequest("EPSV")->isSucceeded()) {
+            if ($this->command->rawRequest("EPSV")->isSucceeded()) {
                 return true;
             }
-        }
+        }*/
 
         if ( ! $this->wrapper->pasv($bool)) {
             throw new ClientException("Unable to switch FTP mode.");

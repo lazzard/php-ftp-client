@@ -3,11 +3,9 @@
 
 namespace Lazzard\FtpClient\Connection;
 
-
-use Lazzard\FtpClient\Exception\ClientException;
 use Lazzard\FtpClient\Exception\ConnectionException;
 
-class Connection implements ConnectionInterface
+class FtpConnection implements ConnectionInterface
 {
     /** @var resource */
     protected $stream;
@@ -28,7 +26,7 @@ class Connection implements ConnectionInterface
     protected $timeout;
 
     /**
-     * Connection constructor.
+     * FtpConnection constructor.
      *
      * @param string $host
      * @param string $username
@@ -83,7 +81,7 @@ class Connection implements ConnectionInterface
     public function close()
     {
         if ( ! ftp_close($this->getStream())) {
-            throw new ClientException("Failed to closing FTP connection.");
+            throw new ConnectionException("Failed to closing FTP connection.");
         }
 
         return true;
@@ -95,7 +93,7 @@ class Connection implements ConnectionInterface
     public function getStream()
     {
         if ( ! is_resource($this->stream)) {
-            throw new ClientException("Invalid FTP stream resource, try to reconnect to the server.");
+            throw new ConnectionException("Invalid FTP stream resource, try to reconnect to the server.");
         }
 
         return $this->stream;

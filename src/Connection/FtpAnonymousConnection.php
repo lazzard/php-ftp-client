@@ -4,7 +4,7 @@
 namespace Lazzard\FtpClient\Connection;
 
 
-class AnonymousConnection extends Connection
+class FtpAnonymousConnection extends FtpConnection
 {
 
     public function __construct(

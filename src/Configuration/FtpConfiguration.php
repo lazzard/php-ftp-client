@@ -3,16 +3,19 @@
 
 namespace Lazzard\FtpClient\Config;
 
-use Lazzard\FtpClient\Exception\ConfigException;
+use Lazzard\FtpClient\Connection\ConnectionInterface;
+use Lazzard\FtpClient\Exception\ConfigurationException;
+use Lazzard\FtpClient\FtpClient;
+use Lazzard\FtpClient\FtpWrapper;
 
 /**
- * Class Configuration
+ * Class FtpConfiguration
  *
  * @since 1.0
- * @package Lazzard\FtpClient\Configuration
+ * @package Lazzard\FtpClient\FtpConfiguration
  * @author EL AMRANI CHAKIR <elamrani.sv.laza@gmail.com>
  */
-class Configuration implements Configurable
+class FtpConfiguration implements Configurable
 {
     /** @var int */
     private $timeout;
@@ -31,16 +34,16 @@ class Configuration implements Configurable
 
 
     /**
-     * Configuration constructor.
+     * FtpConfiguration constructor.
      *
      * @param array|null $settings
      *
-     * @throws ConfigException
+     * @throws ConfigurationException
      */
     public function __construct($settings = null)
     {
         if (!extension_loaded("ftp")) {
-            throw new ConfigException("FTP extension not loaded.");
+            throw new ConfigurationException("FTP extension not loaded.");
         }
 
         if ($settings) {
@@ -51,7 +54,7 @@ class Configuration implements Configurable
                     $this->$setter($optionValue);
                     continue;
                 } else {
-                    throw new ConfigException("[{$optionKey}] is invalid FTP setting.");
+                    throw new ConfigurationException("[{$optionKey}] is invalid FTP setting.");
                 }
             }
         } else {
@@ -63,6 +66,7 @@ class Configuration implements Configurable
             }
         }
     }
+
 
     /**
      * @inheritDoc
@@ -77,11 +81,8 @@ class Configuration implements Configurable
      */
     public function setTimeout($timeout)
     {
-        if (Config::SETTINGS['timeout']['type'] !== gettype($timeout)) {
-            throw ConfigException::InvalidFtpConfigurationSetting(
-                'timeout',
-                Config::SETTINGS['timeout']['type']
-            );
+        if ( ! is_int($timeout) || $timeout <= 0) {
+            throw new ConfigurationException("[{$timeout}] Timeout option value must be an integer and greater than 0.");
         }
 
         $this->timeout = $timeout;
@@ -100,11 +101,8 @@ class Configuration implements Configurable
      */
     public function setPassive($passive)
     {
-        if (Config::SETTINGS['passive']['type'] !== gettype($passive)) {
-            throw ConfigException::InvalidFtpConfigurationSetting(
-                'passive',
-                Config::SETTINGS['passive']['type']
-            );
+        if ( ! is_bool($passive)) {
+            throw new ConfigurationException("[{$passive}] must be a boolean value.");
         }
 
         $this->passive = $passive;
@@ -123,11 +121,8 @@ class Configuration implements Configurable
      */
     public function setAutoSeek($autoSeek)
     {
-        if (Config::SETTINGS['autoSeek']['type'] !== gettype($autoSeek)) {
-            throw ConfigException::InvalidFtpConfigurationSetting(
-                'autoSeek',
-                Config::SETTINGS['autoSeek']['type']
-            );
+        if ( ! is_bool($autoSeek)) {
+            throw new ConfigurationException("[{$autoSeek}] must be a boolean value.");
         }
 
         $this->autoSeek = $autoSeek;
@@ -146,11 +141,8 @@ class Configuration implements Configurable
      */
     public function setUsePassiveAddress($usePassiveAddress)
     {
-        if (Config::SETTINGS['usePassiveAddress']['type'] !== gettype($usePassiveAddress)) {
-            throw ConfigException::InvalidFtpConfigurationSetting(
-                'usePassiveAddress',
-                Config::SETTINGS['usePassiveAddress']['type']
-            );
+        if ( ! is_bool($usePassiveAddress)) {
+            throw new ConfigurationException("[{$usePassiveAddress}] must be a boolean value.");
         }
 
         $this->usePassiveAddress = $usePassiveAddress;
@@ -159,7 +151,7 @@ class Configuration implements Configurable
     /**
      * @inheritDoc
      */
-    public function getinitialDirectory()
+    public function getInitialDirectory()
     {
         return $this->initialDirectory;
     }
@@ -167,13 +159,10 @@ class Configuration implements Configurable
     /**
      * @inheritDoc
      */
-    public function setinitialDirectory($initialDirectory)
+    public function setInitialDirectory($initialDirectory)
     {
-        if (Config::SETTINGS['initialDirectory']['type'] !== gettype($initialDirectory)) {
-            throw ConfigException::InvalidFtpConfigurationSetting(
-                'initialDirectory',
-                Config::SETTINGS['initialDirectory']['type']
-            );
+        if ( ! is_string($initialDirectory)) {
+            throw new ConfigurationException("[{$initialDirectory}] must be a string value.");
         }
 
         $this->initialDirectory = $initialDirectory;

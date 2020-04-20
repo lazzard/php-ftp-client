@@ -2,21 +2,25 @@
 
 namespace Lazzard\FtpClient\Command;
 
-use Lazzard\FtpClient\Connection\Connection;
+use Lazzard\FtpClient\Connection\FtpConnection;
 use Lazzard\FtpClient\Connection\ConnectionInterface;
 use Lazzard\FtpClient\Exception\CommandException;
+use Lazzard\FtpClient\FtpWrapper;
 
 /**
  * Class CommandException
  *
  * @since 1.0
- * @package Lazzard\FtpClient\Command
+ * @package Lazzard\FtpClient\FtpCommand
  * @author EL AMRANI CHAKIR <elamrani.sv.laza@gmail.com>
  */
-class Command implements CommandInterface
+class FtpCommand implements CommandInterface
 {
-    /** @var Connection */
+    /** @var FtpConnection */
     private $connection;
+
+    /** @var FtpWrapper */
+    private $wrapper;
 
     /** @var mixed */
     private $response;
@@ -41,10 +45,11 @@ class Command implements CommandInterface
     public function __construct(ConnectionInterface $connection)
     {
         $this->connection = $connection;
+        $this->wrapper    = new FtpWrapper($connection);
     }
 
     /**
-     * @return Connection
+     * @return FtpConnection
      */
     public function getConnection()
     {
@@ -134,12 +139,35 @@ class Command implements CommandInterface
     }
 
     /**
+     * @param string     $command
+     * @param array|null $options[optional]
+     *
+     * @return string
+     */
+    private function _prepareCommand($command, $options = null)
+    {
+        $command = explode(" ", trim($command));
+
+        $fileName = @$command[1];
+
+        $command = $command[0];
+
+        if ( ! is_null($options)) {
+            foreach ($options as $op) {
+                $command .= ' ' . $op;
+            }
+        }
+
+        return rtrim(sprintf("%s %s", $command, $fileName));
+    }
+
+    /**
      * @inheritDoc
      */
-    public function rawRequest($command)
+    public function rawRequest($command, $options = null)
     {
-        $this->response        = ftp_raw($this->getConnection()->getStream(), ltrim($command));
-        $this->responseCode    = intval(substr($this->getResponse()[0], 0, 3));
+        $this->response = $this->wrapper->raw($this->_prepareCommand($command, $options));
+        $this->responseCode = intval(substr($this->getResponse()[0], 0, 3));
         $this->responseMessage = ltrim(substr($this->getResponse()[0], 3));
 
         if ($this->isSucceeded()) {
@@ -157,11 +185,11 @@ class Command implements CommandInterface
     }
 
     /**
-     * @see Command::_responseFormatter()
+     * @see FtpCommand::_responseFormatter()
      *
      * {@inheritDoc}
      */
-    public function siteRequest($command)
+    public function siteRequest($command, $options = null)
     {
         $siteCommand = strtolower(explode(' ', trim($command))[0]);
 
@@ -169,7 +197,7 @@ class Command implements CommandInterface
             throw new CommandException("{$siteCommand} SITE command not supported by the remote server.");
         }
 
-        if ( ! ftp_site($this->getConnection()->getStream(), trim($command))) {
+        if ( ! $this->wrapper->site($this->_prepareCommand($command, $options))) {
             $this->_responseFormatter(500, '[FtpClient] SITE command was failed.');
         } else {
             $this->_responseFormatter(200, '[FtpClient] SITE command succeeded.');
@@ -179,17 +207,17 @@ class Command implements CommandInterface
     }
 
     /**
-     * @see Command::_responseFormatter()
+     * @see FtpCommand::_responseFormatter()
      *
      * {@inheritDoc}
      */
-    public function execRequest($command)
+    public function execRequest($command, $options = null)
     {
         if ( ! in_array('exec', $this->_supportedSiteCommands())) {
             throw new CommandException("SITE EXEC command not provided by the FTP server.");
         }
 
-        if ( ! ftp_exec($this->getConnection()->getStream(), trim($command))) {
+        if ( ! $this->wrapper->exec($this->_prepareCommand($command, $options))) {
             $this->_responseFormatter(500, '[FtpClient] SITE EXEC command was failed.');
         } else {
             $this->_responseFormatter(200, '[FtpClient] SITE EXEC command succeeded.');

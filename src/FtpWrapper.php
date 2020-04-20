@@ -40,6 +40,42 @@ class FtpWrapper
     }
 
     /**
+     * @link https://www.php.net/manual/en/function.ftp-raw.php
+     *
+     * @param string $command
+     *
+     * @return array
+     */
+    public function raw($command)
+    {
+        return ftp_raw($this->getConnection()->getStream(), $command);
+    }
+
+    /**
+     * @link https://www.php.net/manual/en/function.ftp-exec.php
+     *
+     * @param string $command
+     *
+     * @return bool
+     */
+    public function exec($command)
+    {
+        return ftp_exec($this->getConnection()->getStream(), $command);
+    }
+
+    /**
+     * @link https://www.php.net/manual/en/function.ftp-exec.php
+     *
+     * @param string $command
+     *
+     * @return bool
+     */
+    public function site($command)
+    {
+        return ftp_site($this->getConnection()->getStream(), $command);
+    }
+
+    /**
      * @link https://www.php.net/manual/en/function.ftp-pasv.php
      *
      * @param bool $pasv
@@ -73,7 +109,7 @@ class FtpWrapper
      */
     public function getOption($option)
     {
-        return @ftp_get_option($this->getConnection()->getStream(), $option);
+        return ftp_get_option($this->getConnection()->getStream(), $option);
     }
 
     /**

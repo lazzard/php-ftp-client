@@ -10,7 +10,7 @@ use Lazzard\FtpClient\Exception\CommandException;
  * Interface CommandInterface
  *
  * @since 1.0
- * @package Lazzard\FtpClient\Command
+ * @package Lazzard\FtpClient\FtpCommand
  * @author EL AMRANI CHAKIR <elamrani.sv.laza@gmail.com>
  */
 interface CommandInterface
@@ -63,7 +63,7 @@ interface CommandInterface
      *
      * @param string $command
      *
-     * @return Command Return CommandException Instance
+     * @return FtpCommand Return CommandException Instance
      */
     public function rawRequest($command);
 
@@ -72,7 +72,7 @@ interface CommandInterface
      *
      * @param string $command
      *
-     * @return Command Return CommandException Instance
+     * @return FtpCommand Return CommandException Instance
      *
      * @throws CommandException
      */
@@ -83,7 +83,7 @@ interface CommandInterface
      *
      * @param string $command
      *
-     * @return Command Return CommandException Instance
+     * @return FtpCommand Return CommandException Instance
      *
      * @throws CommandException
      */
