@@ -1,12 +1,9 @@
 <?php
 
 
-namespace Lazzard\FtpClient\Config;
+namespace Lazzard\FtpClient\Configuration;
 
-use Lazzard\FtpClient\Connection\ConnectionInterface;
 use Lazzard\FtpClient\Exception\ConfigurationException;
-use Lazzard\FtpClient\FtpClient;
-use Lazzard\FtpClient\FtpWrapper;
 
 /**
  * Class FtpConfiguration
@@ -32,37 +29,43 @@ class FtpConfiguration implements Configurable
     /** @var string */
     private $initialDirectory;
 
-
     /**
      * FtpConfiguration constructor.
      *
-     * @param array|null $settings
+     * @param array|string $config
      *
      * @throws ConfigurationException
      */
-    public function __construct($settings = null)
+    public function __construct($config)
     {
-        if (!extension_loaded("ftp")) {
+        if ( ! extension_loaded("ftp")) {
             throw new ConfigurationException("FTP extension not loaded.");
         }
 
-        if ($settings) {
-            # Client settings
-            foreach ($settings as $optionKey => $optionValue) {
-                if (key_exists($optionKey, Config::SETTINGS)) {
-                    $setter = "set" . ucfirst($optionKey);
-                    $this->$setter($optionValue);
-                    continue;
-                } else {
-                    throw new ConfigurationException("[{$optionKey}] is invalid FTP setting.");
-                }
+        $importedConfig = include(__DIR__ . DIRECTORY_SEPARATOR . "Config.php");
+
+        if (is_string($config)) {
+            if ( ! key_exists($config, $importedConfig)) {
+                throw new ConfigurationException(
+                    "Cannot find configuration [{$config}] in the config file.");
             }
-        } else {
-            # Default settings
-            foreach (Config::SETTINGS as $optionKey => $optionValue) {
-                $defaultValue = Config::SETTINGS[$optionKey]['value'];
-                $setter = "set" . ucfirst($optionKey);
-                $this->$setter($defaultValue);
+        }
+
+        $config = is_string($config) ? $importedConfig[$config] : $config;
+        foreach ($config as $optionKey => $optionValue) {
+            switch ($optionKey) {
+
+                case "timeout": $this->setTimeout($optionValue); break;
+
+                case "passive": $this->setPassive($optionValue); break;
+
+                case "usePassiveAddress": $this->setUsePassiveAddress($optionValue); break;
+
+                case "autoSeek": $this->setAutoSeek($optionValue); break;
+
+                case "initialDirectory": $this->setInitialDirectory($optionValue); break;
+
+                default: throw new ConfigurationException("[{$optionKey}] invalid configuration setting.");
             }
         }
     }

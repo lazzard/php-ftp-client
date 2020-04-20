@@ -3,8 +3,8 @@
 namespace Lazzard\FtpClient;
 
 use Lazzard\FtpClient\Command\FtpCommand;
-use Lazzard\FtpClient\Config\Configurable;
-use Lazzard\FtpClient\Config\FtpConfiguration;
+use Lazzard\FtpClient\Configuration\Configurable;
+use Lazzard\FtpClient\Configuration\FtpConfiguration;
 use Lazzard\FtpClient\Connection\FtpConnection;
 use Lazzard\FtpClient\Connection\ConnectionInterface;
 use Lazzard\FtpClient\Exception\ClientException;
@@ -54,15 +54,9 @@ class FtpClient
     public function __construct(ConnectionInterface $connection, Configurable $configuration =
     null)
     {
-        if (is_null($configuration)) {
-            $this->configuration = new FtpConfiguration();
-        } else {
-            $this->configuration = $configuration;
-        }
-
+        $this->configuration = $configuration ?: new FtpConfiguration("default");
         $this->command = new FtpCommand($connection);
         $this->wrapper = new FtpWrapper($connection);
-
         $this->applyConfiguration();
     }
 
@@ -123,7 +117,7 @@ class FtpClient
      */
     public function setConfiguration(Configurable $configuration)
     {
-        $this->ftpConfiguration = $configuration;
+        $this->configuration = $configuration;
     }
 
     /**

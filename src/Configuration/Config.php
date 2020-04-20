@@ -2,10 +2,14 @@
 
 return [
 
-    "timeout"           => 90,
-    "passive"           => false,
-    "autoSeek"          => true,
-    "usePassiveAddress" => false,
-    "initialDirectory"  => '.'
+    "default" => [
+
+        "timeout"           => 90,
+        "passive"           => false,
+        "autoSeek"          => true,
+        "usePassiveAddress" => false,
+        "initialDirectory"  => '.'
+
+    ]
 
 ];
