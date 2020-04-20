@@ -48,7 +48,12 @@ class FtpConnection implements ConnectionInterface
      */
     protected function _connect()
     {
-        return ftp_connect($this->getHost(), $this->getPort(), $this->getTimeout());
+        if ( ! ($connection = @ftp_connect($this->getHost(), $this->getPort(),
+            $this->getTimeout()))) {
+            throw new ConnectionException("Connection failed to remote server.");
+        }
+
+        return $connection;
     }
 
     /**
@@ -56,7 +61,7 @@ class FtpConnection implements ConnectionInterface
      */
     protected function _login()
     {
-        return ftp_login($this->getStream(), $this->getUsername(), $this->getPassword());
+        return @ftp_login($this->getStream(), $this->getUsername(), $this->getPassword());
     }
 
     /**
@@ -97,6 +102,14 @@ class FtpConnection implements ConnectionInterface
         }
 
         return $this->stream;
+    }
+
+    /**
+     * @param resource $stream
+     */
+    public function setStream($stream)
+    {
+        $this->stream = $stream;
     }
 
     /**

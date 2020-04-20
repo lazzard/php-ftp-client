@@ -22,7 +22,9 @@ class FtpClient
     /**
      * FtpClient predefined constants
      */
-    const DOTS = ['.', '..'];
+    const LIST_ALL        = 0;
+    const LIST_DIRS_ONLY  = 1;
+    const LIST_FILES_ONLY = 2;
 
     /**
      * Php FTP predefined constants aliases
@@ -43,6 +45,9 @@ class FtpClient
     /** @var FtpWrapper */
     protected $wrapper;
 
+    /** @var string */
+    protected $currentDir;
+
     /**
      * FtpManager constructor.
      *
@@ -55,6 +60,7 @@ class FtpClient
     null)
     {
         $this->configuration = $configuration ?: new FtpConfiguration("default");
+        $this->connection = $connection;
         $this->command = new FtpCommand($connection);
         $this->wrapper = new FtpWrapper($connection);
         $this->applyConfiguration();
@@ -65,7 +71,7 @@ class FtpClient
      * FtpClient __call.
      *
      * Handle unsupportable FTP functions by FtpClient,
-     * And call the alternative function if exists.
+     * and call the alternative function if exists.
      *
      * @param string $name
      * @param array $arguments
@@ -147,14 +153,11 @@ class FtpClient
      */
     public function applyConfiguration()
     {
-        $this->setOption(self::TIMEOUT_SEC, $this->getConfiguration()->getTimeout());
-        $this->setOption(self::AUTOSEEK, $this->getConfiguration()->isAutoSeek());
-        $this->setOption(self::USEPASVADDRESS, $this->getConfiguration()->isUsePassiveAddress());
-
-        $this->setPassive($this->getConfiguration()->isPassive());
-
-        // TODO setCurrentDir
-        //$this->setCurrentDir($this->getFtpConfiguration()->getinitialDirectory());
+        $this->setOption(self::TIMEOUT_SEC, $this->getConfiguration()->getConfig()['timeout']);
+        $this->setOption(self::AUTOSEEK, $this->getConfiguration()->getConfig()['autoSeek']);
+        $this->setOption(self::USEPASVADDRESS, $this->getConfiguration()->getConfig()['usePassiveAddress']);
+        $this->setPassive($this->getConfiguration()->getConfig()['passive']);
+        $this->setCurrentDir($this->getConfiguration()->getConfig()['initialDirectory']);
     }
 
     /**
@@ -204,73 +207,37 @@ class FtpClient
     /**
      * Get list of files names in giving directory.
      *
-     * @param string   $directory             Target directory
-     * @param bool     $ignoreDotes[optional] Ignore dots files items '.' and '..',
+     * @param string $directory               Target directory
+     * @param int    $filter
+     * @param bool   $ignoreDots             [optional] Ignore dots files items '.' and '..',
      *                                        default sets to false.
      *
      * @return array
      */
-    public function listDirectory($directory, $ignoreDotes = true)
+    public function listDirectory($directory, $filter = self::LIST_ALL, $ignoreDots = true)
     {
         if ( ! $files = $this->wrapper->nlist($directory)) {
             throw new ClientException("Failed to get files list.");
         }
 
-        return $ignoreDotes ? array_slice($files, 2) : $files;
-    }
-
-    /**
-     * Get files only from the giving directory.
-     *
-     * @see FtpClient::listDirectory()
-     *
-     * @param string   $directory             Target directory
-     * @param bool     $ignoreDotes[optional] Ignore dots files items '.' and '..',
-     *                                        default sets to false.
-     *
-     * @return array
-     */
-    public function getFilesOnly($directory, $ignoreDotes = true)
-    {
-        $files = $this->listDirectory(
-            $directory,
-            $ignoreDotes
-        );
-
-        $filesOnly = [];
-        foreach ($files as $file) {
-            if ($this->isDirectory(sprintf('%s/%s', $directory, $file))) {
-                $filesOnly[] = $file;
-            }
+        if ($ignoreDots) {
+            $files = array_slice($files, 2);
         }
 
-        return $filesOnly;
-    }
+        switch ($filter) {
 
+            case self::LIST_DIRS_ONLY:
+                return array_filter($files, function ($file){
+                   return $this->isDirectory($file);
+                });
 
-    /**
-     * Get only the directories from the giving directory.
-     *
-     * @see FtpClient::listDirectory()
-     *
-     * @param string   $directory             Target directory
-     * @param bool     $ignoreDotes[optional] Ignore dots files items '.' and '..',
-     *                                        default sets to false
-     *
-     * @return array
-     */
-    public function getDirsOnly($directory, $ignoreDotes = true)
-    {
-        $files = $this->listDirectory($directory, $ignoreDotes);
+            case self::LIST_FILES_ONLY:
+                return array_filter($files, function ($file){
+                    return ! $this->isDirectory($file);
+                });
 
-        $dirsOnly = [];
-        foreach ($files as $file) {
-            if ($this->isDirectory(sprintf('%s/%s', $directory, $file))) {
-                $dirsOnly[] = $file;
-            }
+            default: return $files;
         }
-
-        return $dirsOnly;
     }
 
     /**
@@ -298,7 +265,7 @@ class FtpClient
 
             if (count($chunks) === 9) {
                 if ($ignoreDots) {
-                    if (in_array($chunks[8], self::DOTS)) {
+                    if (in_array($chunks[8], ['.', '..'])) {
                         continue;
                     }
                 }
@@ -483,7 +450,7 @@ class FtpClient
             foreach ($list as $file) {
                 $path = $directory . '/' . $file;
 
-                if (in_array(basename($path), self::DOTS)) continue;
+                if (in_array(basename($path), ['.', '..'])) continue;
 
                 if ($this->wrapper->size($path) !== -1) {
                     $this->wrapper->delete($path);
@@ -630,6 +597,7 @@ class FtpClient
     public function isEmpty($remoteFile)
     {
         if ($this->isDirectory($remoteFile)) {
+            // TODO total 0
             return empty($this->listDirectory($remoteFile, true));
         }
 
@@ -704,15 +672,12 @@ class FtpClient
      */
     public function setOption($option, $value)
     {
-        $settings = [
-            self::TIMEOUT_SEC,
-            self::AUTOSEEK,
-            self::USEPASVADDRESS
-        ];
-
-        if ( ! in_array($option, $settings)) {
-            // TODO constant name
-            throw new ClientException("{$option} is invalid FTP runtime option.");
+        if ( ! in_array($option, [
+                self::TIMEOUT_SEC,
+                self::AUTOSEEK,
+                self::USEPASVADDRESS
+            ],true)) {
+            throw new ClientException("[{$option}] is invalid FTP runtime option.");
         }
 
         if ( ! $this->wrapper->setOption($option, $value)) {
@@ -733,11 +698,19 @@ class FtpClient
      */
     public function getOption($option)
     {
-        if ( ! ($value = $this->wrapper->getOption($option))) {
+        if ( ! in_array($option, [
+                self::TIMEOUT_SEC,
+                self::AUTOSEEK,
+                self::USEPASVADDRESS
+            ],true)) {
+            throw new ClientException("[{$option}] is invalid FTP runtime option.");
+        }
+
+        if ( ! ($optionValue = $this->wrapper->getOption($option))) {
             throw new ClientException("Cannot get FTP runtime option value.");
         }
 
-        return $value;
+        return $optionValue;
     }
 
     /**
@@ -753,14 +726,6 @@ class FtpClient
      */
     public function setPassive($bool)
     {
-        // TODO
-        /*
-        if ($this->isFeatureSupported("EPSV")) {
-            if ($this->command->rawRequest("EPSV")->isSucceeded()) {
-                return true;
-            }
-        }*/
-
         if ( ! $this->wrapper->pasv($bool)) {
             throw new ClientException("Unable to switch FTP mode.");
         }

@@ -14,20 +14,8 @@ use Lazzard\FtpClient\Exception\ConfigurationException;
  */
 class FtpConfiguration implements Configurable
 {
-    /** @var int */
-    private $timeout;
-
-    /** @var bool */
-    private $passive;
-
-    /** @var bool */
-    private $autoSeek;
-
-    /** @var bool */
-    private $usePassiveAddress;
-
-    /** @var string */
-    private $initialDirectory;
+    /** @var array */
+    private $config;
 
     /**
      * FtpConfiguration constructor.
@@ -42,6 +30,22 @@ class FtpConfiguration implements Configurable
             throw new ConfigurationException("FTP extension not loaded.");
         }
 
+        $this->setConfig($config);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getConfig()
+    {
+        return $this->config;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setConfig($config)
+    {
         $importedConfig = include(__DIR__ . DIRECTORY_SEPARATOR . "Config.php");
 
         if (is_string($config)) {
@@ -51,124 +55,31 @@ class FtpConfiguration implements Configurable
             }
         }
 
-        $config = is_string($config) ? $importedConfig[$config] : $config;
-        foreach ($config as $optionKey => $optionValue) {
+        $this->config = is_string($config) ? $importedConfig[$config] : $config;
+        foreach ($this->config as $optionKey => $optionValue) {
             switch ($optionKey) {
 
-                case "timeout": $this->setTimeout($optionValue); break;
+                case "timeout":
+                    if ( ! is_int($optionValue) || $optionValue <= 0) {
+                        throw new ConfigurationException("[{$optionValue}] Timeout option value must be an integer and greater than 0.");
+                    }
+                    break;
 
-                case "passive": $this->setPassive($optionValue); break;
+                case "passive": case "usePassiveAddress": case "autoSeek":
+                if ( ! is_bool($optionValue)) {
+                    throw new ConfigurationException("[{$optionKey}] option must have a boolean value.");
+                }
+                break;
 
-                case "usePassiveAddress": $this->setUsePassiveAddress($optionValue); break;
+                case "initialDirectory":
+                    if ( ! is_string($optionValue)) {
+                        throw new ConfigurationException("[{$optionKey}] option must have a string value.");
+                    }
+                    break;
 
-                case "autoSeek": $this->setAutoSeek($optionValue); break;
-
-                case "initialDirectory": $this->setInitialDirectory($optionValue); break;
-
-                default: throw new ConfigurationException("[{$optionKey}] invalid configuration setting.");
+                default: throw new ConfigurationException("[{$optionKey}] is invalid configuration option.");
             }
         }
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function getTimeout()
-    {
-        return $this->timeout;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setTimeout($timeout)
-    {
-        if ( ! is_int($timeout) || $timeout <= 0) {
-            throw new ConfigurationException("[{$timeout}] Timeout option value must be an integer and greater than 0.");
-        }
-
-        $this->timeout = $timeout;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function isPassive()
-    {
-        return $this->passive;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setPassive($passive)
-    {
-        if ( ! is_bool($passive)) {
-            throw new ConfigurationException("[{$passive}] must be a boolean value.");
-        }
-
-        $this->passive = $passive;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function isAutoSeek()
-    {
-        return $this->autoSeek;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setAutoSeek($autoSeek)
-    {
-        if ( ! is_bool($autoSeek)) {
-            throw new ConfigurationException("[{$autoSeek}] must be a boolean value.");
-        }
-
-        $this->autoSeek = $autoSeek;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function isUsePassiveAddress()
-    {
-        return $this->usePassiveAddress;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setUsePassiveAddress($usePassiveAddress)
-    {
-        if ( ! is_bool($usePassiveAddress)) {
-            throw new ConfigurationException("[{$usePassiveAddress}] must be a boolean value.");
-        }
-
-        $this->usePassiveAddress = $usePassiveAddress;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getInitialDirectory()
-    {
-        return $this->initialDirectory;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setInitialDirectory($initialDirectory)
-    {
-        if ( ! is_string($initialDirectory)) {
-            throw new ConfigurationException("[{$initialDirectory}] must be a string value.");
-        }
-
-        $this->initialDirectory = $initialDirectory;
     }
 
 }

@@ -97,7 +97,7 @@ class FtpWrapper
      */
     public function setOption($option, $value)
     {
-        return ftp_set_option($this->getConnection()->getStream(), $option, $value);
+        return @ftp_set_option($this->getConnection()->getStream(), $option, $value);
     }
 
     /**
@@ -109,7 +109,7 @@ class FtpWrapper
      */
     public function getOption($option)
     {
-        return ftp_get_option($this->getConnection()->getStream(), $option);
+        return @ftp_get_option($this->getConnection()->getStream(), $option);
     }
 
     /**
@@ -121,6 +121,7 @@ class FtpWrapper
      */
     public function chdir($directory)
     {
+        // TODO Error handling issue
         return @ftp_chdir($this->getConnection()->getStream(), $directory);
     }
 
@@ -214,6 +215,7 @@ class FtpWrapper
      */
     public function mkdir($directory)
     {
+        // TODO
         return @ftp_mkdir($this->getConnection()->getStream(), $directory);
     }
 
