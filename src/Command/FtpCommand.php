@@ -107,9 +107,9 @@ class FtpCommand implements CommandInterface
     /**
      * @inheritDoc
      */
-    public function rawRequest($command, $options = null)
+    public function rawRequest($command)
     {
-        $this->response = $this->wrapper->raw($this->_prepareCommand($command, $options));
+        $this->response = $this->wrapper->raw(trim($command));
         $this->responseCode = intval(substr($this->response[0], 0, 3));
         $this->responseMessage = ltrim(substr($this->response[0], 3));
 
@@ -129,7 +129,7 @@ class FtpCommand implements CommandInterface
      *
      * {@inheritDoc}
      */
-    public function siteRequest($command, $options = null)
+    public function siteRequest($command)
     {
         $siteCommand = strtolower(explode(' ', trim($command))[0]);
 
@@ -137,7 +137,7 @@ class FtpCommand implements CommandInterface
             throw new CommandException("{$siteCommand} SITE command not supported by the remote server.");
         }
 
-        if ( ! $this->wrapper->site($this->_prepareCommand($command, $options))) {
+        if ( ! $this->wrapper->site(trim($command))) {
             $this->_responseFormatter(500, '[FtpClient] SITE command was failed.');
         } else {
             $this->_responseFormatter(200, '[FtpClient] SITE command succeeded.');
@@ -157,7 +157,7 @@ class FtpCommand implements CommandInterface
             throw new CommandException("SITE EXEC command not provided by the FTP server.");
         }
 
-        if ( ! $this->wrapper->exec($this->_prepareCommand($command, $options))) {
+        if ( ! $this->wrapper->exec(trim($command))) {
             $this->_responseFormatter(500, '[FtpClient] SITE EXEC command was failed.');
         } else {
             $this->_responseFormatter(200, '[FtpClient] SITE EXEC command succeeded.');
@@ -206,7 +206,7 @@ class FtpCommand implements CommandInterface
      *
      * @return string
      */
-    private function _prepareCommand($command, $options = null)
+    public function prepareCommand($command, $options = null)
     {
         $command = explode(" ", trim($command));
 
