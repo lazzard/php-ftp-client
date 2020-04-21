@@ -49,7 +49,7 @@ class FtpClient
     protected $currentDir;
 
     /**
-     * FtpManager constructor.
+     * FtpClient constructor.
      *
      * @param ConnectionInterface $connection
      * @param Configurable|null   $configuration
@@ -142,7 +142,7 @@ class FtpClient
     public function setCurrentDir($currentDir)
     {
         if ( ! $this->wrapper->chdir($currentDir)) {
-            throw new ClientException("Cannot change to the giving directory.");
+            throw new ClientException("Cannot change current directory to [{$currentDir}].");
         }
 
         $this->currentDir = $currentDir;

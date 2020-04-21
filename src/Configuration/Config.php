@@ -8,17 +8,17 @@ return [
         "passive"           => false,
         "autoSeek"          => true,
         "usePassiveAddress" => false,
-        "initialDirectory"  => '.'
+        "initialDirectory"  => '/'
 
     ],
 
     "recommended" => [
 
-        "timeout"           => 90,
+        "timeout"           => 300,
         "passive"           => true,
         "autoSeek"          => true,
         "usePassiveAddress" => false,
-        "initialDirectory"  => 'public_html'
+        "initialDirectory"  => '/'
 
     ],
 

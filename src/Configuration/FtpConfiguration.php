@@ -55,7 +55,11 @@ class FtpConfiguration implements Configurable
             }
         }
 
-        $this->config = is_string($config) ? $importedConfig[$config] : $config;
+        $this->config =
+            is_string($config)
+            ? $importedConfig[$config]
+            : array_merge($importedConfig["default"], $config);
+
         foreach ($this->config as $optionKey => $optionValue) {
             switch ($optionKey) {
 
@@ -66,10 +70,10 @@ class FtpConfiguration implements Configurable
                     break;
 
                 case "passive": case "usePassiveAddress": case "autoSeek":
-                if ( ! is_bool($optionValue)) {
-                    throw new ConfigurationException("[{$optionKey}] option must have a boolean value.");
-                }
-                break;
+                    if ( ! is_bool($optionValue)) {
+                        throw new ConfigurationException("[{$optionKey}] option must have a boolean value.");
+                    }
+                    break;
 
                 case "initialDirectory":
                     if ( ! is_string($optionValue)) {
