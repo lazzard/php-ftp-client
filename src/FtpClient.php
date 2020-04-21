@@ -135,17 +135,21 @@ class FtpClient
     }
 
     /**
-     * @param string $currentDir
+     * @param string $directory
      *
      * @throws ClientException
      */
-    public function setCurrentDir($currentDir)
+    public function setCurrentDir($directory)
     {
-        if ( ! $this->wrapper->chdir($currentDir)) {
-            throw new ClientException("Cannot change current directory to [{$currentDir}].");
+        if ( ! $this->isDirectory($directory)) {
+            throw new ClientException("[{$directory}] is not a directory.");
         }
 
-        $this->currentDir = $currentDir;
+        if ( ! $this->wrapper->chdir($directory)) {
+            throw new ClientException("Cannot change current directory to [{$directory}].");
+        }
+
+        $this->currentDir = $directory;
     }
 
     /**
@@ -177,6 +181,25 @@ class FtpClient
         }
 
         return false;
+    }
+
+    /**
+     * Gets parent of the current directory.
+     *
+     * @return string
+     */
+    public function getParent()
+    {
+        $originalDir = $this->getCurrentDir();
+        $this->back();
+        $parent = $this->getCurrentDir();
+        $this->setCurrentDir($originalDir);
+
+        if ($parent !== '/') {
+            return substr($parent, 1);
+        }
+        
+        return $parent;
     }
 
     /**

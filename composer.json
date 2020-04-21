@@ -14,7 +14,7 @@
             "Lazzard\\FtpClient\\": "src/"
         }
     },
-    "require": {
-        "ext-ftp": "*"
-    }
+  "require": {
+    "ext-ftp": "*"
+  }
 }
