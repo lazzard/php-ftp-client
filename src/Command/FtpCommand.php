@@ -105,6 +105,68 @@ class FtpCommand implements CommandInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function rawRequest($command, $options = null)
+    {
+        $this->response = $this->wrapper->raw($this->_prepareCommand($command, $options));
+        $this->responseCode = intval(substr($this->response[0], 0, 3));
+        $this->responseMessage = ltrim(substr($this->response[0], 3));
+
+        if ($this->isSucceeded()) {
+            $this->responseBody = array_slice($this->response, 1, -1) ?: null;
+
+            if (count($this->response) > 1) {
+                $this->responseEndMessage = $this->response[count($this->response) - 1];
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @see FtpCommand::_responseFormatter()
+     *
+     * {@inheritDoc}
+     */
+    public function siteRequest($command, $options = null)
+    {
+        $siteCommand = strtolower(explode(' ', trim($command))[0]);
+
+        if ( ! in_array($siteCommand, $this->_supportedSiteCommands())) {
+            throw new CommandException("{$siteCommand} SITE command not supported by the remote server.");
+        }
+
+        if ( ! $this->wrapper->site($this->_prepareCommand($command, $options))) {
+            $this->_responseFormatter(500, '[FtpClient] SITE command was failed.');
+        } else {
+            $this->_responseFormatter(200, '[FtpClient] SITE command succeeded.');
+        }
+
+        return $this;
+    }
+
+    /**
+     * @see FtpCommand::_responseFormatter()
+     *
+     * {@inheritDoc}
+     */
+    public function execRequest($command, $options = null)
+    {
+        if ( ! in_array('exec', $this->_supportedSiteCommands())) {
+            throw new CommandException("SITE EXEC command not provided by the FTP server.");
+        }
+
+        if ( ! $this->wrapper->exec($this->_prepareCommand($command, $options))) {
+            $this->_responseFormatter(500, '[FtpClient] SITE EXEC command was failed.');
+        } else {
+            $this->_responseFormatter(200, '[FtpClient] SITE EXEC command succeeded.');
+        }
+
+        return $this;
+    }
+
+    /**
      * @return array
      */
     private function _supportedSiteCommands()
@@ -161,68 +223,4 @@ class FtpCommand implements CommandInterface
         return rtrim(sprintf("%s %s", $command, $fileName));
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function rawRequest($command, $options = null)
-    {
-        $this->response = $this->wrapper->raw($this->_prepareCommand($command, $options));
-        $this->responseCode = intval(substr($this->getResponse()[0], 0, 3));
-        $this->responseMessage = ltrim(substr($this->getResponse()[0], 3));
-
-        if ($this->isSucceeded()) {
-            // TODO array_splice replace
-            $response = $this->getResponse();
-            $responseBody = array_splice($response, 1, -1);
-            $this->responseBody = $responseBody ?: null;
-
-            if (count($this->getResponse()) > 1) {
-                $this->responseEndMessage = $this->getResponse()[count($this->getResponse()) - 1];
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @see FtpCommand::_responseFormatter()
-     *
-     * {@inheritDoc}
-     */
-    public function siteRequest($command, $options = null)
-    {
-        $siteCommand = strtolower(explode(' ', trim($command))[0]);
-
-        if ( ! in_array($siteCommand, $this->_supportedSiteCommands())) {
-            throw new CommandException("{$siteCommand} SITE command not supported by the remote server.");
-        }
-
-        if ( ! $this->wrapper->site($this->_prepareCommand($command, $options))) {
-            $this->_responseFormatter(500, '[FtpClient] SITE command was failed.');
-        } else {
-            $this->_responseFormatter(200, '[FtpClient] SITE command succeeded.');
-        }
-
-        return $this;
-    }
-
-    /**
-     * @see FtpCommand::_responseFormatter()
-     *
-     * {@inheritDoc}
-     */
-    public function execRequest($command, $options = null)
-    {
-        if ( ! in_array('exec', $this->_supportedSiteCommands())) {
-            throw new CommandException("SITE EXEC command not provided by the FTP server.");
-        }
-
-        if ( ! $this->wrapper->exec($this->_prepareCommand($command, $options))) {
-            $this->_responseFormatter(500, '[FtpClient] SITE EXEC command was failed.');
-        } else {
-            $this->_responseFormatter(200, '[FtpClient] SITE EXEC command succeeded.');
-        }
-
-        return $this;
-    }
 }

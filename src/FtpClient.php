@@ -22,9 +22,9 @@ class FtpClient
     /**
      * FtpClient predefined constants
      */
-    const LIST_ALL        = 0;
-    const LIST_DIRS_ONLY  = 1;
-    const LIST_FILES_ONLY = 2;
+    const ALL_FILES_TYPES = 0;
+    const DIR_TYPE        = 1;
+    const FILE_TYPE       = 2;
 
     /**
      * Php FTP predefined constants aliases
@@ -180,31 +180,6 @@ class FtpClient
     }
 
     /**
-     * Extract the file type (type, dir, link) from chmod string
-     * (e.g., 'drwxr-xr-x' string will return 'dir').
-     *
-     * @param string $chmod
-     *
-     * @return string
-     */
-    protected function _chmodToFileType($chmod)
-    {
-        switch ($chmod[0])
-        {
-            case '-':
-                return 'file';
-
-            case 'd':
-                return 'dir';
-
-            case 'l':
-                return 'link';
-
-            default: return 'unknown file type.';
-        }
-    }
-
-    /**
      * Get list of files names in giving directory.
      *
      * @param string $directory               Target directory
@@ -214,7 +189,7 @@ class FtpClient
      *
      * @return array
      */
-    public function listDirectory($directory, $filter = self::LIST_ALL, $ignoreDots = true)
+    public function listDirectory($directory, $filter = self::ALL_FILES_TYPES, $ignoreDots = true)
     {
         if ( ! $files = $this->wrapper->nlist($directory)) {
             throw new ClientException("Failed to get files list.");
@@ -226,12 +201,12 @@ class FtpClient
 
         switch ($filter) {
 
-            case self::LIST_DIRS_ONLY:
+            case self::DIR_TYPE:
                 return array_filter($files, function ($file){
                    return $this->isDirectory($file);
                 });
 
-            case self::LIST_FILES_ONLY:
+            case self::FILE_TYPE:
                 return array_filter($files, function ($file){
                     return ! $this->isDirectory($file);
                 });
@@ -244,26 +219,46 @@ class FtpClient
      * Get detailed list of files in the giving directory.
      *
      * @param string $directory
-     * @param bool   $recursive[optional]
-     * @param bool   $ignoreDots[optional]
+     * @param bool   $recursive  [optional]
+     * @param int    $filter
+     * @param bool   $ignoreDots [optional]
      *
      * @return array
      */
-    public function listDirectoryDetails($directory, $recursive = false, $ignoreDots = true)
+    public function listDirectoryDetails($directory, $recursive = false, $filter = self::ALL_FILES_TYPES, $ignoreDots = true)
     {
-        $details = $this->wrapper->rawlist($directory, $recursive);
+        if ( ! $this->isDirectory($directory)) {
+            throw new ClientException("[{$directory}] is not a directory.");
+        }
+        
+        if ( ! ($details = $this->wrapper->rawlist($directory, $recursive))) {
+            throw new ClientException("Unable to get files list for [{$directory}] directory");
+        }
 
         $pathTmp = null;
         $info = [];
         foreach ($details as $detail) {
             $chunks = preg_split('/\s+/', $detail);
 
-            if (strlen($chunks[0]) !== 0 && count($chunks) !== 9) {
+            if (strlen($chunks[0]) !== 0 && count($chunks) !== 9) { // catch directory path
                 $splice = explode('/', substr($chunks[0], 0, -1));
                 $pathTmp = join('/', $splice);
             }
 
             if (count($chunks) === 9) {
+
+                $type = $this->_chmodToFileType($chunks[0]);
+
+                if ($filter === self::FILE_TYPE) {
+                    if ($type === 'dir') {
+                        continue;
+                    }
+                } elseif ($filter === self::DIR_TYPE) {
+                    if ($type === 'file' || $type === 'link') {
+                        continue;
+                    }
+                }
+
                 if ($ignoreDots) {
                     if (in_array($chunks[8], ['.', '..'])) {
                         continue;
@@ -271,7 +266,7 @@ class FtpClient
                 }
 
                 if ($pathTmp) {
-                    $path = $pathTmp . '/' . $chunks[8] ;
+                    $path = $pathTmp . '/' . $chunks[8];
                 } else {
                     $path = $directory !== '/' ? $directory . '/' . $chunks[8] : $chunks[8];
                 }
@@ -286,7 +281,7 @@ class FtpClient
                     'month' => $chunks[5],
                     'day'   => $chunks[6],
                     'time'  => $chunks[7],
-                    'type'  => $this->_chmodToFileType($chunks[0]),
+                    'type'  => $type,
                     'path'  => $path
                 ];
             }
@@ -298,25 +293,32 @@ class FtpClient
     /**
      * Get files count of the giving directory.
      *
-     * @see FtpClient::rawListDirectory()
+     * @see FtpClient::listDirectoryDetails()
      *
      * @param string $directory
-     * @param bool   $recursive[optional]
-     * @param bool   $ignoreDots[optional]
+     * @param bool   $recursive  [optional]
+     * @param int    $filter
+     * @param bool   $ignoreDots [optional]
      *
      * @return int
      */
-    public function getCount($directory, $recursive = false, $ignoreDots = false)
+    public function getCount($directory, $recursive = false, $filter = self::ALL_FILES_TYPES,
+        $ignoreDots = false)
     {
-        return count($this->listDirectoryDetails(
+        if ( ! ($list = $this->listDirectoryDetails(
             $directory,
             $recursive,
+            $filter,
             $ignoreDots
-        ));
+        ))) {
+            throw new ClientException("Unable to get files count for [{$directory}] directory.");
+        }
+
+        return count($list);
     }
 
     /**
-     * Get supported remote server commands.
+     * Get supported arbitrary command on the FTP server.
      *
      * @return array
      *
@@ -326,7 +328,7 @@ class FtpClient
      */
     public function getFeatures()
     {
-        if (!$this->command->rawRequest("FEAT")->isSucceeded()) {
+        if ( ! $this->command->rawRequest("FEAT")->isSucceeded()) {
             throw new ClientException("Cannot get remote server features.");
         }
 
@@ -335,6 +337,8 @@ class FtpClient
 
     /**
      * Determine if the giving feature is supported by the remote server or not.
+     *
+     * Note : the characters case not important.
      *
      * @see FtpClient::getFeatures()
      *
@@ -351,7 +355,7 @@ class FtpClient
     }
 
     /**
-     * Get remote server system name.
+     * Gets operating system name of the FTP server.
      *
      * @return string
      *
@@ -361,11 +365,29 @@ class FtpClient
      */
     public function getSystem()
     {
-        if (!$this->command->rawRequest("SYST")->isSucceeded()) {
+        if ( ! $this->command->rawRequest("SYST")->isSucceeded()) {
             throw new ClientException("Cannot get remote server features.");
         }
 
-        return $this->command->getResponseMessage();
+        return explode(' ', $this->command->getResponseMessage())[0];
+    }
+
+    /**
+     * Gets the default transfer type on the FTP server.
+     *
+     * @return string
+     *
+     * @see FtpCommand::rawRequest()
+     *
+     * @throws ClientException
+     */
+    public function getDefaultTransferType()
+    {
+        if ( ! $this->command->rawRequest("SYST")->isSucceeded()) {
+            throw new ClientException("Cannot get remote server features.");
+        }
+
+        return explode(' ', $this->command->getResponseMessage(), 2)[1];
     }
 
     /**
@@ -450,7 +472,9 @@ class FtpClient
             foreach ($list as $file) {
                 $path = $directory . '/' . $file;
 
-                if (in_array(basename($path), ['.', '..'])) continue;
+                if (in_array(basename($path), ['.', '..'])) {
+                    continue;
+                }
 
                 if ($this->wrapper->size($path) !== -1) {
                     $this->wrapper->delete($path);
@@ -473,8 +497,8 @@ class FtpClient
      */
     public function createDirectory($directory)
     {
-        if ($this->isDirectory($directory)) {
-            throw new ClientException("[{$directory}] already exits.");
+        if ($this->isExists($directory)) {
+            throw new ClientException("[{$directory}] already exists.");
         }
 
         $dirs = explode('/', $directory);
@@ -525,17 +549,14 @@ class FtpClient
 
         // TODO implementation for directories
         if ($this->isDirectory($remoteFile)) {
-            throw new ClientException(sprintf(
-                "%s() does not work with directories.",
-                __FUNCTION__)
-            );
+            throw new ClientException("[$remoteFile] is not a directory.");
         }
 
-        if ($format) {
-            return date($format, $this->wrapper->mdtm($remoteFile));
+        if ( ! ($time = $this->wrapper->mdtm($remoteFile))) {
+            throw new ClientException("Could not get last modified time for [{$remoteFile}].");
         }
-
-        return $this->wrapper->mdtm($remoteFile);
+        
+        return $format ? date($format, $time) : $time;
     }
 
     /**
@@ -597,7 +618,6 @@ class FtpClient
     public function isEmpty($remoteFile)
     {
         if ($this->isDirectory($remoteFile)) {
-            // TODO total 0
             return empty($this->listDirectory($remoteFile, true));
         }
 
@@ -676,7 +696,7 @@ class FtpClient
                 self::TIMEOUT_SEC,
                 self::AUTOSEEK,
                 self::USEPASVADDRESS
-            ],true)) {
+            ], true)) {
             throw new ClientException("[{$option}] is invalid FTP runtime option.");
         }
 
@@ -702,7 +722,7 @@ class FtpClient
                 self::TIMEOUT_SEC,
                 self::AUTOSEEK,
                 self::USEPASVADDRESS
-            ],true)) {
+            ], true)) {
             throw new ClientException("[{$option}] is invalid FTP runtime option.");
         }
 
@@ -731,5 +751,30 @@ class FtpClient
         }
 
         return true;
+    }
+
+    /**
+     * Extract the file type (type, dir, link) from chmod string
+     * (e.g., 'drwxr-xr-x' string will return 'dir').
+     *
+     * @param string $chmod
+     *
+     * @return string
+     */
+    protected function _chmodToFileType($chmod)
+    {
+        switch ($chmod[0])
+        {
+            case '-':
+                return 'file';
+
+            case 'd':
+                return 'dir';
+
+            case 'l':
+                return 'link';
+
+            default: return 'unknown file type.';
+        }
     }
 }

@@ -2,6 +2,9 @@
 
 return [
 
+    /**
+     * Default FTP configuration setup.
+     */
     "default" => [
 
         "timeout"           => 90,
@@ -12,13 +15,25 @@ return [
 
     ],
 
+    /**
+     * Recommended FTP configuration setup.
+     */
     "recommended" => [
 
         "timeout"           => 300,
         "passive"           => true,
         "autoSeek"          => true,
         "usePassiveAddress" => false,
-        "initialDirectory"  => '/'
+        "initialDirectory"  => '/',
+
+        "phpLimit"          => [
+
+            "memory"           => -1,
+            "maxExecutionTime" => -1,
+            "ignoreUserAbort"  => true,
+            "loadFtpExtension" => true
+
+        ]
 
     ],
 
