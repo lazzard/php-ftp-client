@@ -22,16 +22,16 @@ class FtpClient
     /**
      * FtpClient predefined constants
      */
-    const ALL_FILES_TYPES = 0;
-    const DIR_TYPE        = 1;
-    const FILE_TYPE       = 2;
+    const FILE_DIR_TYPE = 0;
+    const FILE_TYPE     = 2;
+    const DIR_TYPE      = 1;
 
     /**
-     * Php FTP predefined constants aliases
+     * FtpWrapper constants aliases.
      */
-    const TIMEOUT_SEC    = FTP_TIMEOUT_SEC;
-    const AUTOSEEK       = FTP_AUTOSEEK;
-    const USEPASVADDRESS = FTP_USEPASVADDRESS;
+    const USEPASVADDRESS = FtpWrapper::USEPASVADDRESS;
+    const TIMEOUT_SEC    = FtpWrapper::TIMEOUT_SEC;
+    const AUTOSEEK       = FtpWrapper::AUTOSEEK;
 
     /** @var FtpConnection */
     protected $connection;
@@ -60,12 +60,14 @@ class FtpClient
     null)
     {
         $this->configuration = $configuration ?: new FtpConfiguration("default");
+
         $this->connection = $connection;
+
         $this->command = new FtpCommand($connection);
         $this->wrapper = new FtpWrapper($connection);
+
         $this->applyConfiguration();
     }
-
 
     /**
      * FtpClient __call.
@@ -141,7 +143,7 @@ class FtpClient
      */
     public function setCurrentDir($directory)
     {
-        if ( ! $this->isDirectory($directory)) {
+        if ( ! $this->isDir($directory)) {
             throw new ClientException("[{$directory}] is not a directory.");
         }
 
@@ -172,7 +174,7 @@ class FtpClient
      * @return bool Return true if the giving file is a directory,
      *              false if isn't or the file doesn't exists.
      */
-    public function isDirectory($directory)
+    public function isDir($directory)
     {
         $originalDir = $this->getCurrentDir();
         if ($this->wrapper->chdir($directory) !== false) {
@@ -182,6 +184,25 @@ class FtpClient
 
         return false;
     }
+
+    /*
+    public function isDir($directory)
+    {
+        if ( ! $this->command->rawRequest(sprintf("%s %s", "MLST", $directory))->isSucceeded()) {
+            throw new ClientException("isDir exception.");
+        }
+
+        $assoc = explode(";", $this->command->getResponseBody()[0])[0];
+
+        $type = explode("=", $assoc)[1];
+
+        return $type;
+    }
+
+    public function isDir2($directory) {
+        return $this->wrapper->size($directory) === -1 ? 'dir' : 'file';
+    }
+*/
 
     /**
      * Gets parent of the current directory.
@@ -212,7 +233,7 @@ class FtpClient
      *
      * @return array
      */
-    public function listDirectory($directory, $filter = self::ALL_FILES_TYPES, $ignoreDots = true)
+    public function listDirectory($directory, $filter = self::FILE_DIR_TYPE, $ignoreDots = true)
     {
         if ( ! $files = $this->wrapper->nlist($directory)) {
             throw new ClientException("Failed to get files list.");
@@ -226,12 +247,12 @@ class FtpClient
 
             case self::DIR_TYPE:
                 return array_filter($files, function ($file){
-                   return $this->isDirectory($file);
+                   return $this->isDir($file);
                 });
 
             case self::FILE_TYPE:
                 return array_filter($files, function ($file){
-                    return ! $this->isDirectory($file);
+                    return ! $this->isDir($file);
                 });
 
             default: return $files;
@@ -248,9 +269,9 @@ class FtpClient
      *
      * @return array
      */
-    public function listDirectoryDetails($directory, $recursive = false, $filter = self::ALL_FILES_TYPES, $ignoreDots = true)
+    public function listDirectoryDetails($directory, $recursive = false, $filter = self::FILE_DIR_TYPE, $ignoreDots = true)
     {
-        if ( ! $this->isDirectory($directory)) {
+        if ( ! $this->isDir($directory)) {
             throw new ClientException("[{$directory}] is not a directory.");
         }
         
@@ -325,19 +346,15 @@ class FtpClient
      *
      * @return int
      */
-    public function getCount($directory, $recursive = false, $filter = self::ALL_FILES_TYPES,
+    public function getCount($directory, $recursive = false, $filter = self::FILE_DIR_TYPE,
         $ignoreDots = false)
     {
-        if ( ! ($list = $this->listDirectoryDetails(
+        return count($list = $this->listDirectoryDetails(
             $directory,
             $recursive,
             $filter,
             $ignoreDots
-        ))) {
-            throw new ClientException("Unable to get files count for [{$directory}] directory.");
-        }
-
-        return count($list);
+        ));
     }
 
     /**
@@ -378,7 +395,7 @@ class FtpClient
     }
 
     /**
-     * Gets operating system name of the FTP server.
+     * Gets operating system type of the FTP server.
      *
      * @return string
      *
@@ -388,11 +405,11 @@ class FtpClient
      */
     public function getSystem()
     {
-        if ( ! $this->command->rawRequest("SYST")->isSucceeded()) {
-            throw new ClientException("Cannot get remote server features.");
+        if ( ! ($sysType = $this->wrapper->systype())) {
+            throw new ClientException("Unable to get operating system type.");
         }
 
-        return explode(' ', $this->command->getResponseMessage())[0];
+        return $sysType;
     }
 
     /**
@@ -459,7 +476,7 @@ class FtpClient
      */
     public function removeFile($remoteFile)
     {
-        if ( ! $this->isExists($remoteFile) || $this->isDirectory($remoteFile) ) {
+        if ( ! $this->isExists($remoteFile) || $this->isDir($remoteFile) ) {
             throw new ClientException("[{$remoteFile}] must be an existing file.");
         }
 
@@ -530,7 +547,7 @@ class FtpClient
         for ($i = 1; $i <= $count; $i++) {
             $path = join("/", array_slice($dirs, 0, $i));
 
-            if ( ! $this->isDirectory($path)) {
+            if ( ! $this->isDir($path)) {
                 $this->wrapper->mkdir($path);
             }
         }
@@ -539,7 +556,7 @@ class FtpClient
     }
 
     /**
-     * Check weather if the giving file is exists or not.
+     * Check weather if the giving file/directoryg is exists or not.
      *
      * @param string $remoteFile
      *
@@ -571,7 +588,7 @@ class FtpClient
         }
 
         // TODO implementation for directories
-        if ($this->isDirectory($remoteFile)) {
+        if ($this->isDir($remoteFile)) {
             throw new ClientException("[$remoteFile] is not a directory.");
         }
 
@@ -596,7 +613,7 @@ class FtpClient
             throw new ClientException("SIZE feature not provided by the remote server.");
         }
 
-        if ( ! $this->isDirectory($remoteFile)) {
+        if ( ! $this->isDir($remoteFile)) {
             throw new ClientException("[{$remoteFile}] must be an existing file.");
         }
 
@@ -617,7 +634,7 @@ class FtpClient
             throw new ClientException("SIZE feature not provided by the remote server.");
         }
 
-        if ( ! $this->isDirectory($directory)) {
+        if ( ! $this->isDir($directory)) {
             throw new ClientException("[{$directory}] must be an existing directory.");
         }
 
@@ -632,18 +649,34 @@ class FtpClient
     }
 
     /**
-     * Check weather if the giving file/directory is empty or not.
+     * Check weather if the giving directory is empty or not.
      *
-     * @param string $remoteFile
+     * @param string $directory
      *
      * @return bool
      */
-    public function isEmpty($remoteFile)
+    public function isEmptyDir($directory)
     {
-        if ($this->isDirectory($remoteFile)) {
-            return empty($this->listDirectory($remoteFile, true));
+        if ( ! $this->isDir($directory)) {
+            throw new ClientException("[{$directory}] is not directory.");
         }
 
+        return empty($this->listDirectory($directory, true));
+    }
+
+    /**
+     * Checks if the remote file is empty or not.
+     *
+     * @param $remoteFile
+     *
+     * @return bool
+     */
+    public function isEmptyFile($remoteFile) 
+    {
+        if ($this->isDir($remoteFile)) {
+            throw new ClientException("[{$remoteFile}] is a directory.");
+        }
+        
         return ($this->fileSize($remoteFile) === 0);
     }
 
@@ -686,7 +719,7 @@ class FtpClient
             throw new ClientException("[{$source}] source file does not exists.");
         }
 
-        if ( ! $this->isDirectory($destination)) {
+        if ( ! $this->isDir($destination)) {
             throw new ClientException("[{$destination}] must be an existing directory.");
         }
 

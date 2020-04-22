@@ -18,7 +18,7 @@ class FtpAnonymousConnection extends FtpConnection
     {
         if ( ! ($connection = @ftp_login($this->getStream(), $this->getUsername(),
             $this->getPassword()))) {
-            throw new ConnectionException("Could not logging into the remote server, may be the your FTP server not support anonymous FTP.");
+            throw new ConnectionException("Could not logging into the remote server, may be your FTP server not support anonymous FTP.");
         }
 
         return $connection;

@@ -105,7 +105,9 @@ class FtpCommand implements CommandInterface
     }
 
     /**
-     * @inheritDoc
+     * @see FtpCommand::isSucceeded()
+     *
+     * {@inheritDoc}
      */
     public function rawRequest($command)
     {
@@ -125,7 +127,7 @@ class FtpCommand implements CommandInterface
     }
 
     /**
-     * @see FtpCommand::_responseFormatter()
+     * @see FtpCommand::_supportedSiteCommands()
      *
      * {@inheritDoc}
      */
@@ -146,12 +148,12 @@ class FtpCommand implements CommandInterface
         return $this;
     }
 
-    /**
-     * @see FtpCommand::_responseFormatter()
+    /***
+     * @see FtpCommand::_supportedSiteCommands()
      *
      * {@inheritDoc}
      */
-    public function execRequest($command, $options = null)
+    public function execRequest($command)
     {
         if ( ! in_array('exec', $this->_supportedSiteCommands())) {
             throw new CommandException("SITE EXEC command not provided by the FTP server.");
@@ -175,7 +177,7 @@ class FtpCommand implements CommandInterface
             function ($item) {
                 return ltrim(strtolower($item));
             },
-            $this->rawRequest("HELP")->getResponseBody()
+            $this->rawRequest("SITE HELP")->getResponseBody()
         );
     }
 

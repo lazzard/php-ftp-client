@@ -13,6 +13,12 @@ class ConnectionException extends \RuntimeException implements FtpClientExceptio
 {
     public function __construct($message)
     {
-        parent::__construct("[ConnectionException] - " . $message);
+        parent::__construct(sprintf(
+            "[FtpClient ERROR] - %s => %s:%s()\n<br>[FTP Server ERROR] - %s",
+            $message,
+            basename(debug_backtrace()[count(debug_backtrace()) - 1]['class']),
+            debug_backtrace()[count(debug_backtrace()) - 1]['function'],
+            error_get_last()['message']
+        ));
     }
 }

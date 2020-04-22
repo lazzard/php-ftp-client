@@ -7,7 +7,7 @@ use Lazzard\FtpClient\Connection\ConnectionInterface;
 /**
  * Class FtpWrapper
  *
- * Wrapper class for php FTP functions & constants.
+ * Wrapper class for php FTP extension functions & constants.
  *
  * @since 1.0
  * @package Lazzard\FtpClient
@@ -15,9 +15,21 @@ use Lazzard\FtpClient\Connection\ConnectionInterface;
  */
 class FtpWrapper
 {
+    /**
+     * Php FTP predefined constants aliases
+     */
+    const TIMEOUT_SEC    = FTP_TIMEOUT_SEC;
+    const AUTOSEEK       = FTP_AUTOSEEK;
+    const USEPASVADDRESS = FTP_USEPASVADDRESS;
+
     /** @var ConnectionInterface */
     private $connection;
 
+    /**
+     * FtpWrapper constructor.
+     *
+     * @param ConnectionInterface $connection
+     */
     public function __construct(ConnectionInterface $connection)
     {
         $this->connection = $connection;
@@ -48,7 +60,7 @@ class FtpWrapper
      */
     public function raw($command)
     {
-        return ftp_raw($this->getConnection()->getStream(), $command);
+        return ftp_raw($this->connection->getStream(), $command);
     }
 
     /**
@@ -60,7 +72,7 @@ class FtpWrapper
      */
     public function exec($command)
     {
-        return ftp_exec($this->getConnection()->getStream(), $command);
+        return ftp_exec($this->connection->getStream(), $command);
     }
 
     /**
@@ -72,7 +84,7 @@ class FtpWrapper
      */
     public function site($command)
     {
-        return ftp_site($this->getConnection()->getStream(), $command);
+        return ftp_site($this->connection->getStream(), $command);
     }
 
     /**
@@ -84,7 +96,7 @@ class FtpWrapper
      */
     public function pasv($pasv)
     {
-        return ftp_pasv($this->getConnection()->getStream(), $pasv);
+        return ftp_pasv($this->connection->getStream(), $pasv);
     }
 
     /**
@@ -97,7 +109,7 @@ class FtpWrapper
      */
     public function setOption($option, $value)
     {
-        return @ftp_set_option($this->getConnection()->getStream(), $option, $value);
+        return @ftp_set_option($this->connection->getStream(), $option, $value);
     }
 
     /**
@@ -109,7 +121,7 @@ class FtpWrapper
      */
     public function getOption($option)
     {
-        return @ftp_get_option($this->getConnection()->getStream(), $option);
+        return @ftp_get_option($this->connection->getStream(), $option);
     }
 
     /**
@@ -122,7 +134,7 @@ class FtpWrapper
     public function chdir($directory)
     {
         // TODO Error handling issue
-        return @ftp_chdir($this->getConnection()->getStream(), $directory);
+        return @ftp_chdir($this->connection->getStream(), $directory);
     }
 
     /**
@@ -132,7 +144,7 @@ class FtpWrapper
      */
     public function pwd()
     {
-        return ftp_pwd($this->getConnection()->getStream());
+        return ftp_pwd($this->connection->getStream());
     }
 
     /**
@@ -144,7 +156,7 @@ class FtpWrapper
      */
     public function nlist($directory)
     {
-        return ftp_nlist($this->getConnection()->getStream(), $directory);
+        return ftp_nlist($this->connection->getStream(), $directory);
     }
 
     /**
@@ -154,7 +166,7 @@ class FtpWrapper
      */
     public function cdup()
     {
-        return ftp_cdup($this->getConnection()->getStream());
+        return ftp_cdup($this->connection->getStream());
     }
 
     /**
@@ -167,7 +179,7 @@ class FtpWrapper
      */
     public function rawlist($directory, $recursive = false)
     {
-        return ftp_rawlist($this->getConnection()->getStream(), $directory, $recursive);
+        return ftp_rawlist($this->connection->getStream(), $directory, $recursive);
     }
 
     /**
@@ -179,7 +191,7 @@ class FtpWrapper
      */
     public function delete($remoteFile)
     {
-        return ftp_delete($this->getConnection()->getStream(), $remoteFile);
+        return ftp_delete($this->connection->getStream(), $remoteFile);
     }
 
     /**
@@ -191,7 +203,7 @@ class FtpWrapper
      */
     public function mdtm($remoteFile)
     {
-        return ftp_mdtm($this->getConnection()->getStream(), $remoteFile);
+        return ftp_mdtm($this->connection->getStream(), $remoteFile);
     }
 
     /**
@@ -203,7 +215,7 @@ class FtpWrapper
      */
     public function rmdir($directory)
     {
-        return ftp_rmdir($this->getConnection()->getStream(), $directory);
+        return ftp_rmdir($this->connection->getStream(), $directory);
     }
 
     /**
@@ -216,7 +228,7 @@ class FtpWrapper
     public function mkdir($directory)
     {
         // TODO
-        return @ftp_mkdir($this->getConnection()->getStream(), $directory);
+        return @ftp_mkdir($this->connection->getStream(), $directory);
     }
 
     /**
@@ -228,7 +240,7 @@ class FtpWrapper
      */
     public function size($remoteFile)
     {
-        return ftp_size($this->getConnection()->getStream(), $remoteFile);
+        return ftp_size($this->connection->getStream(), $remoteFile);
     }
 
     /**
@@ -241,6 +253,16 @@ class FtpWrapper
      */
     public function rename($oldName, $newName)
     {
-        return ftp_rename($this->getConnection()->getStream(), $oldName, $newName);
+        return ftp_rename($this->connection->getStream(), $oldName, $newName);
+    }
+
+    /**
+     * @link https://www.php.net/manual/en/function.ftp-systype.php
+     *
+     * @return string|bool
+     */
+    public function systype()
+    {
+        return ftp_systype($this->connection->getStream());
     }
 }
