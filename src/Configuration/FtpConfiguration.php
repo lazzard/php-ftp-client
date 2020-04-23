@@ -20,7 +20,11 @@ class FtpConfiguration implements Configurable
     const RECOMMENDED_CONF = 'recommended';
 
     /** @var array */
+    protected static $configFile;
+
+    /** @var array */
     protected $config;
+
 
     /**
      * FtpConfiguration constructor.
@@ -31,7 +35,28 @@ class FtpConfiguration implements Configurable
      */
     public function __construct($config)
     {
+        self::$configFile = include(__DIR__ . DIRECTORY_SEPARATOR . "Config.php");
         $this->setConfig($config);
+    }
+
+    /**
+     * Gets default configuration.
+     *
+     * @return array
+     */
+    public function getDefaultConfiguration()
+    {
+        return self::$configFile[self::DEFAULT_CONF];
+    }
+
+    /**
+     * Gets recommanded configuration.
+     *
+     * @return array
+     */
+    public function getRecommendedConfiguration()
+    {
+        return self::$configFile[self::RECOMMENDED_CONF];
     }
 
     /**
@@ -47,10 +72,8 @@ class FtpConfiguration implements Configurable
      */
     public function setConfig($config)
     {
-        $importedConfig = include(__DIR__ . DIRECTORY_SEPARATOR . "Config.php");
-
         if (is_string($config)) {
-            if ( ! key_exists($config, $importedConfig)) {
+            if ( ! key_exists($config, self::$configFile)) {
                 throw new ConfigurationException(
                     "Cannot find configuration [{$config}] in the config file.");
             }
@@ -58,8 +81,8 @@ class FtpConfiguration implements Configurable
 
         $this->config = $this->_validateTypeConstraints(
             is_string($config)
-                ? $importedConfig[$config]
-                : array_merge($importedConfig["default"], $config)
+                ? self::$configFile[$config]
+                : array_merge(self::$configFile["default"], $config)
         );
 
         $this->_setPhpLimit($this->config['phpLimit']);
@@ -72,7 +95,6 @@ class FtpConfiguration implements Configurable
      */
     public function setMaxExecutionTime($integer)
     {
-        var_dump($integer);
         return set_time_limit($integer);
     }
 
@@ -108,13 +130,13 @@ class FtpConfiguration implements Configurable
 
                 case "passive": case "usePassiveAddress": case "autoSeek":
                     if ( ! is_bool($optionValue)) {
-                        throw new ConfigurationException("[{$optionKey}] option must have a boolean value.");
+                        throw new ConfigurationException("[{$optionKey}] option value must be of type boolean.");
                     }
                     break;
 
                 case "initialDirectory":
                     if ( ! is_string($optionValue)) {
-                        throw new ConfigurationException("[{$optionKey}] option must have a string value.");
+                        throw new ConfigurationException("[{$optionKey}] option value must be of type string.");
                     }
                     break;
 

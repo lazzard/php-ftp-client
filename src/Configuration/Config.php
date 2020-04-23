@@ -28,7 +28,6 @@ return [
          *
          * https://www.php.net/manual/en/function.ftp-set-option.php
          */
-
         "timeout"           => 90,
         "autoSeek"          => true,
         "usePassiveAddress" => true,
@@ -43,10 +42,13 @@ return [
          */
         "phpLimit"          => [
 
-            "maxExecutionTime" => 54,
+            "maxExecutionTime" => 55,
 
         ]
-
     ],
+
+    "recommended" => [
+
+    ]
 
 ];
