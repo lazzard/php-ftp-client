@@ -14,6 +14,12 @@ use Lazzard\FtpClient\Exception\ConfigurationException;
  */
 class FtpConfiguration implements Configurable
 {
+    /**
+     * Predefined configurations by the ftp client.
+     */
+    const DEFAULT_CONF     = 'default';
+    const RECOMMENDED_CONF = 'recommended';
+
     /** @var array */
     private $config;
 

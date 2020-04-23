@@ -101,7 +101,7 @@ class FtpCommand implements CommandInterface
      */
     public function isSucceeded()
     {
-        return ($this->getResponseCode() >= 200 && $this->getResponseCode() <= 257);
+        return ($this->responseCode >= 200 && $this->responseCode <= 257);
     }
 
     /**

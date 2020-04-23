@@ -27,7 +27,7 @@ class FtpClient
     const DIR_TYPE      = 1;
 
     /**
-     * FtpWrapper constants aliases.
+     * FtpWrapper constants.
      */
     const USEPASVADDRESS = FtpWrapper::USEPASVADDRESS;
     const TIMEOUT_SEC    = FtpWrapper::TIMEOUT_SEC;
@@ -160,25 +160,6 @@ class FtpClient
         return false;
     }
 
-    /*
-    public function isDir($directory)
-    {
-        if ( ! $this->command->rawRequest(sprintf("%s %s", "MLST", $directory))->isSucceeded()) {
-            throw new ClientException("isDir exception.");
-        }
-
-        $assoc = explode(";", $this->command->getResponseBody()[0])[0];
-
-        $type = explode("=", $assoc)[1];
-
-        return $type;
-    }
-
-    public function isDir2($directory) {
-        return $this->wrapper->size($directory) === -1 ? 'dir' : 'file';
-    }
-*/
-
     /**
      * Gets parent of the current directory.
      *
@@ -265,7 +246,6 @@ class FtpClient
             }
 
             if (count($chunks) === 9) {
-
                 $type = $this->_chmodToFileType($chunks[0]);
 
                 if ($filter === self::FILE_TYPE) {
@@ -284,10 +264,10 @@ class FtpClient
                     }
                 }
 
-                if ($pathTmp) {
-                    $path = $pathTmp . '/' . $chunks[8];
-                } else {
+                if ( ! $pathTmp) {
                     $path = $directory !== '/' ? $directory . '/' . $chunks[8] : $chunks[8];
+                } else {
+                    $path = $pathTmp . '/' . $chunks[8];
                 }
 
                 $info[] = [
@@ -324,7 +304,7 @@ class FtpClient
     public function getCount($directory, $recursive = false, $filter = self::FILE_DIR_TYPE,
         $ignoreDots = false)
     {
-        return count($list = $this->listDirectoryDetails(
+        return count($this->listDirectoryDetails(
             $directory,
             $recursive,
             $filter,
@@ -475,6 +455,7 @@ class FtpClient
      */
     public function removeDirectory($directory)
     {
+        // TODO replace size
         if ($this->wrapper->size($directory) !== -1) {
             throw new ClientException("[{$directory}] must be an existing directory.");
         }
@@ -485,12 +466,13 @@ class FtpClient
 
         if ( ! empty($list)) {
             foreach ($list as $file) {
-                $path = $directory . '/' . $file;
+                $path = "$directory/$file";
 
                 if (in_array(basename($path), ['.', '..'])) {
                     continue;
                 }
-
+                
+                // TODO replace size
                 if ($this->wrapper->size($path) !== -1) {
                     $this->wrapper->delete($path);
                 } elseif ($this->wrapper->rmdir($path) !== true) {
@@ -520,10 +502,10 @@ class FtpClient
         $count = count($dirs);
 
         for ($i = 1; $i <= $count; $i++) {
-            $path = join("/", array_slice($dirs, 0, $i));
+            $dir = join("/", array_slice($dirs, 0, $i));
 
-            if ( ! $this->isDir($path)) {
-                $this->wrapper->mkdir($path);
+            if ( ! $this->isDir($dir)) {
+                $this->wrapper->mkdir($dir);
             }
         }
 
@@ -531,7 +513,7 @@ class FtpClient
     }
 
     /**
-     * Check weather if the giving file/directoryg is exists or not.
+     * Check weather if the giving file/directory is exists or not.
      *
      * @param string $remoteFile
      *
@@ -558,6 +540,7 @@ class FtpClient
      */
     public function lastMTime($remoteFile, $format = null)
     {
+        // TODO consider to remove this check
         if ( ! $this->isFeatureSupported('MDTM')) {
             throw new ClientException("This feature not supported by the remote server.");
         }
@@ -584,6 +567,7 @@ class FtpClient
      * @throws ClientException
      */
     public function fileSize($remoteFile) {
+        // TODO consider to remove this
         if ( ! $this->isFeatureSupported("SIZE")) {
             throw new ClientException("SIZE feature not provided by the remote server.");
         }
@@ -605,6 +589,7 @@ class FtpClient
      * @throws ClientException
      */
     public function dirSize($directory) {
+        // TODO consider to remove this
         if ( ! $this->isFeatureSupported("SIZE")) {
             throw new ClientException("SIZE feature not provided by the remote server.");
         }
@@ -786,7 +771,7 @@ class FtpClient
 
     /**
      * Extract the file type (type, dir, link) from chmod string
-     * (e.g., 'drwxr-xr-x' string will return 'dir').
+     * (e.g., 'drwxr-xr-x' will return 'dir').
      *
      * @param string $chmod
      *
