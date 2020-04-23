@@ -89,16 +89,6 @@ class FtpConfiguration implements Configurable
     }
 
     /**
-     * @param int $integer
-     *
-     * @return bool
-     */
-    public function setMaxExecutionTime($integer)
-    {
-        return set_time_limit($integer);
-    }
-
-    /**
      * Returns the maximum execution time of the "current" script.
      *
      * @return int
@@ -148,8 +138,10 @@ class FtpConfiguration implements Configurable
 
                             case "maxExecutionTime":
 
-                                if ( ! is_int($limitValue) && $limitValue !== NOT_CHANGE) {
-                                    throw new ConfigurationException("[{$optionValue}] value must be of type integer.");
+                                if ( ! is_int($limitValue) &&
+                                    $limitValue !== NOT_CHANGE &&
+                                    $limitValue !== UNLIMITED) {
+                                    throw new ConfigurationException("[{$limitKey}] value must be of type integer.");
                                 }
                                 break;
 
@@ -176,8 +168,10 @@ class FtpConfiguration implements Configurable
      */
     protected function _setPhpLimit($config)
     {
-        if ( ! $this->setMaxExecutionTime($config['maxExecutionTime'])) {
-            throw new ConfigurationException("Failed to set maximum execution time.");
+        if ($config['maxExecutionTime'] !== NOT_CHANGE ) {
+            if ( ! set_time_limit($config['maxExecutionTime'] === UNLIMITED ? 0 : $config['maxExecutionTime'])) {
+                throw new ConfigurationException("Failed to set maximum execution time.");
+            }
         }
     }
 }

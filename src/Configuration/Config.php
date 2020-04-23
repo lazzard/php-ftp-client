@@ -9,6 +9,12 @@ namespace Lazzard\FtpClient\Configuration;
  */
 define(__NAMESPACE__ . '\NOT_CHANGE', 'directive_value_will_not_be_changed');
 
+/**
+ * Use this constant with the appropriate directive
+ * to indicate an unlimited value.
+ */
+define(__NAMESPACE__. '\UNLIMITED', 'unlimited_value');
+
 return [
 
     /**
@@ -42,7 +48,7 @@ return [
          */
         "phpLimit"          => [
 
-            "maxExecutionTime" => 55,
+            "maxExecutionTime" => UNLIMITED,
 
         ]
     ],
