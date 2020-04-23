@@ -23,7 +23,7 @@ class FtpWrapper
     const USEPASVADDRESS = FTP_USEPASVADDRESS;
 
     /** @var ConnectionInterface */
-    private $connection;
+    protected $connection;
 
     /**
      * FtpWrapper constructor.
@@ -49,6 +49,43 @@ class FtpWrapper
     public function setConnection(ConnectionInterface $connection)
     {
         $this->connection = $connection;
+    }
+
+    /**
+     * @link https://www.php.net/manual/en/function.ftp-connect.php
+     *
+     * @param string $host
+     * @param int    $port
+     * @param int    $timeout
+     *
+     * @return false|resource
+     */
+    public function connect($host, $port = 21, $timeout = 90)
+    {
+        return @ftp_connect($host, $port, $timeout);
+    }
+
+    /**
+     * @link https://www.php.net/manual/en/function.ftp-login.php
+     *
+     * @param string   $username
+     * @param string   $password
+     *
+     * @return bool
+     */
+    public function login($username, $password)
+    {
+        return @ftp_login($this->connection->getStream(), $username, $password);
+    }
+
+    /**
+     * @link https://www.php.net/manual/en/function.ftp-close.php
+     *
+     * @return bool
+     */
+    public function close()
+    {
+        return ftp_close($this->connection->getStream());
     }
 
     /**
@@ -90,13 +127,13 @@ class FtpWrapper
     /**
      * @link https://www.php.net/manual/en/function.ftp-pasv.php
      *
-     * @param bool $pasv
+     * @param bool $bool
      *
      * @return bool
      */
-    public function pasv($pasv)
+    public function pasv($bool)
     {
-        return ftp_pasv($this->connection->getStream(), $pasv);
+        return ftp_pasv($this->connection->getStream(), $bool);
     }
 
     /**

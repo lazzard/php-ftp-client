@@ -4,9 +4,13 @@
 namespace Lazzard\FtpClient\Connection;
 
 use Lazzard\FtpClient\Exception\ConnectionException;
+use Lazzard\FtpClient\FtpWrapper;
 
 class FtpConnection implements ConnectionInterface
 {
+    /** @var FtpWrapper */
+    protected $wrapper;
+
     /** @var resource */
     protected $stream;
 
@@ -41,6 +45,8 @@ class FtpConnection implements ConnectionInterface
         $this->password = $password;
         $this->port     = $port;
         $this->timeout  = $timeout;
+
+        $this->wrapper = new FtpWrapper($this);
     }
 
     /**
@@ -48,10 +54,12 @@ class FtpConnection implements ConnectionInterface
      */
     protected function _connect()
     {
-        if ( ! ($connection = @ftp_connect($this->getHost(), $this->getPort(),
+        if ( ! ($connection = $this->wrapper->connect($this->getHost(), $this->getPort(),
             $this->getTimeout()))) {
             throw new ConnectionException("Connection failed to remote server.");
         }
+
+        $this->wrapper->setConnection($this);
 
         return $connection;
     }
@@ -61,7 +69,10 @@ class FtpConnection implements ConnectionInterface
      */
     protected function _login()
     {
-        return @ftp_login($this->getStream(), $this->getUsername(), $this->getPassword());
+        return $this->wrapper->login(
+            $this->getUsername(),
+            $this->getPassword()
+        );
     }
 
     /**
@@ -76,7 +87,7 @@ class FtpConnection implements ConnectionInterface
         if ( ! ($this->_login())) {
             throw new ConnectionException("Could not logging into the FTP server.");
         }
-        
+
         return true;
     }
 
@@ -85,7 +96,7 @@ class FtpConnection implements ConnectionInterface
      */
     public function close()
     {
-        if ( ! ftp_close($this->getStream())) {
+        if ( ! $this->wrapper->close()) {
             throw new ConnectionException("Failed to closing FTP connection.");
         }
 

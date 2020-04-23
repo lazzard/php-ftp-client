@@ -70,31 +70,6 @@ class FtpClient
     }
 
     /**
-     * FtpClient __call.
-     *
-     * Handle unsupportable FTP functions by FtpClient,
-     * and call the alternative function if exists.
-     *
-     * @param string $name
-     * @param array $arguments
-     *
-     * @return mixed
-     *
-     * @throws ClientException
-     */
-    public function __call($name, $arguments)
-    {
-        $ftpFunction = "ftp_" . $name;
-
-        if (function_exists($ftpFunction)) {
-            array_unshift($arguments, $this->getConnection()->getStream());
-            return call_user_func_array($ftpFunction, $arguments);
-        }
-
-        throw new ClientException("{$ftpFunction} is invalid FTP function.");
-    }
-
-    /**
      * @return FtpConnection
      */
     public function getConnection()
