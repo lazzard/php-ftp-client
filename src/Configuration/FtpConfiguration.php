@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Lazzard\FtpClient\Configuration;
 
 use Lazzard\FtpClient\Exception\ConfigurationException;
@@ -21,7 +20,7 @@ class FtpConfiguration implements Configurable
     const RECOMMENDED_CONF = 'recommended';
 
     /** @var array */
-    private $config;
+    protected $config;
 
     /**
      * FtpConfiguration constructor.
@@ -32,10 +31,6 @@ class FtpConfiguration implements Configurable
      */
     public function __construct($config)
     {
-        if ( ! extension_loaded("ftp")) {
-            throw new ConfigurationException("FTP extension not loaded.");
-        }
-
         $this->setConfig($config);
     }
 
@@ -61,12 +56,48 @@ class FtpConfiguration implements Configurable
             }
         }
 
-        $this->config =
+        $this->config = $this->_validateTypeConstraints(
             is_string($config)
-            ? $importedConfig[$config]
-            : array_merge($importedConfig["default"], $config);
+                ? $importedConfig[$config]
+                : array_merge($importedConfig["default"], $config)
+        );
 
-        foreach ($this->config as $optionKey => $optionValue) {
+        $this->_setPhpLimit($this->config['phpLimit']);
+    }
+
+    /**
+     * @param int $integer
+     *
+     * @return bool
+     */
+    public function setMaxExecutionTime($integer)
+    {
+        var_dump($integer);
+        return set_time_limit($integer);
+    }
+
+    /**
+     * Returns the maximum execution time of the "current" script.
+     *
+     * @return int
+     */
+    public function getMaxExecutionTime()
+    {
+        return intval(ini_get('max_execution_time'));
+    }
+
+    /**
+     * Validate config values types constraints.
+     *
+     * @param array $config
+     *
+     * @return array
+     *
+     * @throws ConfigurationException
+     */
+    protected function _validateTypeConstraints($config)
+    {
+        foreach ($config as $optionKey => $optionValue) {
             switch ($optionKey) {
 
                 case "timeout":
@@ -87,9 +118,44 @@ class FtpConfiguration implements Configurable
                     }
                     break;
 
+                case "phpLimit":
+
+                    foreach ($config['phpLimit'] as $limitKey => $limitValue) {
+
+                        switch ($limitKey) {
+
+                            case "maxExecutionTime":
+
+                                if ( ! is_int($limitValue) && $limitValue !== NOT_CHANGE) {
+                                    throw new ConfigurationException("[{$optionValue}] value must be of type integer.");
+                                }
+                                break;
+
+                            default: throw new ConfigurationException("[{$limitKey}] is invalid php limit configuration option.");
+
+                        }
+
+                    }
+                    break;
+
                 default: throw new ConfigurationException("[{$optionKey}] is invalid configuration option.");
             }
         }
+
+        return $config;
     }
 
+    /**
+     * Sets the config php limitations resources values.
+     * 
+     * @param $config
+     *
+     * @throws ConfigurationException
+     */
+    protected function _setPhpLimit($config)
+    {
+        if ( ! $this->setMaxExecutionTime($config['maxExecutionTime'])) {
+            throw new ConfigurationException("Failed to set maximum execution time.");
+        }
+    }
 }
