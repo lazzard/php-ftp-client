@@ -14,7 +14,7 @@ use Lazzard\FtpClient\FtpWrapper;
  * @package Lazzard\FtpClient\FtpCommand
  * @author EL AMRANI CHAKIR <elamrani.sv.laza@gmail.com>
  */
-class FtpCommand implements CommandInterface
+class FtpCommand
 {
     /** @var FtpConnection */
     private $connection;
@@ -57,7 +57,9 @@ class FtpCommand implements CommandInterface
     }
 
     /**
-     * @inheritDoc
+     * Get server response for the previous command request.
+     *
+     * @return mixed
      */
     public function getResponse()
     {
@@ -65,7 +67,9 @@ class FtpCommand implements CommandInterface
     }
 
     /**
-     * @inheritDoc
+     * Get server response status code for the previous command request.
+     *
+     * @return int
      */
     public function getResponseCode()
     {
@@ -73,7 +77,9 @@ class FtpCommand implements CommandInterface
     }
 
     /**
-     * @inheritDoc
+     * Get server response status message for the previous command request.
+     *
+     * @return string
      */
     public function getResponseMessage()
     {
@@ -81,7 +87,9 @@ class FtpCommand implements CommandInterface
     }
 
     /**
-     * @return string
+     * Get server the end status response message for the previous (raw command) request.
+     *
+     * @return string|null
      */
     public function getResponseEndMessage()
     {
@@ -89,7 +97,9 @@ class FtpCommand implements CommandInterface
     }
 
     /**
-     * @inheritDoc
+     * Get server response body for the previous (raw command) request.
+     *
+     * @return array|null
      */
     public function getResponseBody()
     {
@@ -97,7 +107,9 @@ class FtpCommand implements CommandInterface
     }
 
     /**
-     * @inheritDoc
+     * Check weather if the previous command request was succeeded or not.
+     *
+     * @return bool
      */
     public function isSucceeded()
     {
@@ -105,9 +117,13 @@ class FtpCommand implements CommandInterface
     }
 
     /**
+     * Send a request to FTP server for execution an arbitrary command.
+     *
      * @see FtpCommand::isSucceeded()
      *
-     * {@inheritDoc}
+     * @param string $command
+     *
+     * @return FtpCommand Return $this
      */
     public function rawRequest($command)
     {
@@ -127,9 +143,15 @@ class FtpCommand implements CommandInterface
     }
 
     /**
+     * Send a request to FTP server for execution a SITE command.
+     *
      * @see FtpCommand::_supportedSiteCommands()
      *
-     * {@inheritDoc}
+     * @param string $command
+     *
+     * @return FtpCommand Return $this
+     *
+     * @throws CommandException
      */
     public function siteRequest($command)
     {
@@ -148,10 +170,16 @@ class FtpCommand implements CommandInterface
         return $this;
     }
 
-    /***
+    /**
+     * Send a request to FTP server for execution a SITE EXEC command.
+     *
      * @see FtpCommand::_supportedSiteCommands()
      *
-     * {@inheritDoc}
+     * @param string $command
+     *
+     * @return FtpCommand Return $this
+     *
+     * @throws CommandException
      */
     public function execRequest($command)
     {
@@ -166,6 +194,29 @@ class FtpCommand implements CommandInterface
         }
 
         return $this;
+    }
+
+    /**
+     * @param string     $command
+     * @param array|null $options[optional]
+     *
+     * @return string
+     */
+    public function prepareCommand($command, $options = null)
+    {
+        $command = explode(" ", trim($command));
+
+        $fileName = @$command[1];
+
+        $command = $command[0];
+
+        if ( ! is_null($options)) {
+            foreach ($options as $op) {
+                $command .= ' ' . $op;
+            }
+        }
+
+        return rtrim(sprintf("%s %s", $command, $fileName));
     }
 
     /**
@@ -200,29 +251,6 @@ class FtpCommand implements CommandInterface
             $responseCode,
             $responseMessage
         );
-    }
-
-    /**
-     * @param string     $command
-     * @param array|null $options[optional]
-     *
-     * @return string
-     */
-    public function prepareCommand($command, $options = null)
-    {
-        $command = explode(" ", trim($command));
-
-        $fileName = @$command[1];
-
-        $command = $command[0];
-
-        if ( ! is_null($options)) {
-            foreach ($options as $op) {
-                $command .= ' ' . $op;
-            }
-        }
-
-        return rtrim(sprintf("%s %s", $command, $fileName));
     }
 
 }

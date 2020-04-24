@@ -3,12 +3,10 @@
 namespace Lazzard\FtpClient;
 
 use Lazzard\FtpClient\Command\FtpCommand;
-use Lazzard\FtpClient\Configuration\Configurable;
 use Lazzard\FtpClient\Configuration\FtpConfiguration;
 use Lazzard\FtpClient\Connection\FtpConnection;
 use Lazzard\FtpClient\Connection\ConnectionInterface;
 use Lazzard\FtpClient\Exception\ClientException;
-use Lazzard\FtpClient\Exception\ConfigurationException;
 
 /**
  * Class FtpClient
@@ -25,13 +23,6 @@ class FtpClient
     const FILE_DIR_TYPE = 0;
     const FILE_TYPE     = 2;
     const DIR_TYPE      = 1;
-
-    /**
-     * FtpWrapper constants.
-     */
-    const USEPASVADDRESS = FtpWrapper::USEPASVADDRESS;
-    const TIMEOUT_SEC    = FtpWrapper::TIMEOUT_SEC;
-    const AUTOSEEK       = FtpWrapper::AUTOSEEK;
 
     /** @var FtpConnection */
     protected $connection;
@@ -52,21 +43,13 @@ class FtpClient
      * FtpClient constructor.
      *
      * @param ConnectionInterface $connection
-     * @param Configurable|null   $configuration
-     *
-     * @throws ConfigurationException
      */
-    public function __construct(ConnectionInterface $connection, Configurable $configuration =
-    null)
+    public function __construct(ConnectionInterface $connection)
     {
-        $this->configuration = $configuration ?: new FtpConfiguration("default");
-
         $this->connection = $connection;
 
         $this->command = new FtpCommand($connection);
         $this->wrapper = new FtpWrapper($connection);
-
-        $this->applyConfiguration();
     }
 
     /**
@@ -86,9 +69,7 @@ class FtpClient
     }
 
     /**
-     * Get current FTP configuration.
-     *
-     * @return Configurable
+     * @return FtpConfiguration
      */
     public function getConfiguration()
     {
@@ -96,9 +77,9 @@ class FtpClient
     }
 
     /**
-     * @param Configurable $configuration
+     * @param FtpConfiguration $configuration
      */
-    public function setConfiguration(Configurable $configuration)
+    public function setConfiguration($configuration)
     {
         $this->configuration = $configuration;
     }
@@ -127,18 +108,6 @@ class FtpClient
         }
 
         $this->currentDir = $directory;
-    }
-
-    /**
-     * Sets client ftp configuration.
-     */
-    public function applyConfiguration()
-    {
-        $this->setOption(self::TIMEOUT_SEC, $this->getConfiguration()->getConfig()['timeout']);
-        $this->setOption(self::AUTOSEEK, $this->getConfiguration()->getConfig()['autoSeek']);
-        $this->setOption(self::USEPASVADDRESS, $this->getConfiguration()->getConfig()['usePassiveAddress']);
-        $this->setPassive($this->getConfiguration()->getConfig()['passive']);
-        $this->setCurrentDir($this->getConfiguration()->getConfig()['initialDirectory']);
     }
 
     /**
@@ -694,79 +663,6 @@ class FtpClient
     public function isServerAlive()
     {
         return $this->command->rawRequest("NOOP")->isSucceeded();
-    }
-
-    /**
-     * Set FTP runtime options.
-     *
-     * @param $option
-     * @param $value
-     *
-     * @return bool
-     *
-     * @throws ClientException
-     */
-    public function setOption($option, $value)
-    {
-        if ( ! in_array($option, [
-                self::TIMEOUT_SEC,
-                self::AUTOSEEK,
-                self::USEPASVADDRESS
-            ], true)) {
-            throw new ClientException("[{$option}] is invalid FTP runtime option.");
-        }
-
-        if ( ! $this->wrapper->setOption($option, $value)) {
-            throw new ClientException("Unable to set FTP option.");
-        }
-
-        return true;
-    }
-
-    /**
-     * Gets an FTP runtime option value.
-     *
-     * @param string $option
-     *
-     * @return mixed
-     *
-     * @throws ClientException
-     */
-    public function getOption($option)
-    {
-        if ( ! in_array($option, [
-                self::TIMEOUT_SEC,
-                self::AUTOSEEK,
-                self::USEPASVADDRESS
-            ], true)) {
-            throw new ClientException("[{$option}] is invalid FTP runtime option.");
-        }
-
-        if ( ! ($optionValue = $this->wrapper->getOption($option))) {
-            throw new ClientException("Cannot get FTP runtime option value.");
-        }
-
-        return $optionValue;
-    }
-
-    /**
-     * Turn the passive mode on or off.
-     *
-     * Notice that the active mode is the default mode.
-     *
-     * @param $bool
-     *
-     * @return bool
-     *
-     * @throws ClientException
-     */
-    public function setPassive($bool)
-    {
-        if ( ! $this->wrapper->pasv($bool)) {
-            throw new ClientException("Unable to switch FTP mode.");
-        }
-
-        return true;
     }
 
     /**

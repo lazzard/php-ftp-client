@@ -7,7 +7,7 @@ namespace Lazzard\FtpClient\Configuration;
  * your php.ini file will not be overrated, use this constant if you
  * want to use default directives values in your php.ini file.
  */
-define(__NAMESPACE__ . '\NOT_CHANGE', 'directive_value_will_not_be_changed');
+define(__NAMESPACE__ . '\NOT_CHANGE', 'not_overwrite');
 
 /**
  * Use this constant with the appropriate directive
@@ -48,7 +48,8 @@ return [
          */
         "phpLimit"          => [
 
-            "maxExecutionTime" => UNLIMITED,
+            "maxExecutionTime" => NOT_CHANGE,
+            "ignoreUserAbort"  => NOT_CHANGE
 
         ]
     ],

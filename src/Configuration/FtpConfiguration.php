@@ -2,7 +2,10 @@
 
 namespace Lazzard\FtpClient\Configuration;
 
+use Lazzard\FtpClient\Connection\ConnectionInterface;
+use Lazzard\FtpClient\Exception\ClientException;
 use Lazzard\FtpClient\Exception\ConfigurationException;
+use Lazzard\FtpClient\FtpWrapper;
 
 /**
  * Class FtpConfiguration
@@ -11,7 +14,7 @@ use Lazzard\FtpClient\Exception\ConfigurationException;
  * @package Lazzard\FtpClient\FtpConfiguration
  * @author EL AMRANI CHAKIR <elamrani.sv.laza@gmail.com>
  */
-class FtpConfiguration implements Configurable
+class FtpConfiguration
 {
     /**
      * Predefined configurations by the ftp client.
@@ -19,48 +22,62 @@ class FtpConfiguration implements Configurable
     const DEFAULT_CONF     = 'default';
     const RECOMMENDED_CONF = 'recommended';
 
-    /** @var array */
-    protected static $configFile;
+    /**
+     * FtpWrapper constants.
+     */
+    const USEPASVADDRESS = FtpWrapper::USEPASVADDRESS;
+    const TIMEOUT_SEC    = FtpWrapper::TIMEOUT_SEC;
+    const AUTOSEEK       = FtpWrapper::AUTOSEEK;
+
+    /** @var ConnectionInterface */
+    private $connection;
+
+    /** @var FtpWrapper */
+    private $wrapper;
 
     /** @var array */
-    protected $config;
+    private static $configFile;
 
+    /** @var array */
+    private $config;
 
     /**
      * FtpConfiguration constructor.
      *
-     * @param array|string $config
+     * @param ConnectionInterface $connection
+     * @param array|string        $config
      *
      * @throws ConfigurationException
      */
-    public function __construct($config)
+    public function __construct(ConnectionInterface $connection, $config)
     {
-        self::$configFile = include(__DIR__ . DIRECTORY_SEPARATOR . "Config.php");
+        $this->connection = $connection;
+
+        $this->wrapper = new FtpWrapper($connection);
+
+        self::$configFile = self::$configFile ?: include(__DIR__ . DIRECTORY_SEPARATOR . "Config.php");
+
         $this->setConfig($config);
     }
 
     /**
-     * Gets default configuration.
-     *
-     * @return array
+     * @return ConnectionInterface
      */
-    public function getDefaultConfiguration()
+    public function getConnection()
     {
-        return self::$configFile[self::DEFAULT_CONF];
+        return $this->connection;
     }
 
     /**
-     * Gets recommanded configuration.
-     *
-     * @return array
+     * @param ConnectionInterface $connection
      */
-    public function getRecommendedConfiguration()
+    public function setConnection($connection)
     {
-        return self::$configFile[self::RECOMMENDED_CONF];
+        $this->connection = $connection;
     }
 
     /**
-     * @inheritDoc
+     * @return array
      */
     public function getConfig()
     {
@@ -68,7 +85,9 @@ class FtpConfiguration implements Configurable
     }
 
     /**
-     * @inheritDoc
+     * @param $config
+     *
+     * @throws ConfigurationException
      */
     public function setConfig($config)
     {
@@ -85,7 +104,33 @@ class FtpConfiguration implements Configurable
                 : array_merge(self::$configFile["default"], $config)
         );
 
+        $this->setPassive($this->config['passive']);
+        $this->setOption(self::TIMEOUT_SEC, $this->config['timeout']);
+        $this->setOption(self::AUTOSEEK, $this->config['autoSeek']);
+        $this->setOption(self::USEPASVADDRESS, $this->config['usePassiveAddress']);
+        $this->wrapper->chdir($this->config['initialDirectory']);
+
         $this->_setPhpLimit($this->config['phpLimit']);
+    }
+
+    /**
+     * Gets default configuration.
+     *
+     * @return array
+     */
+    public function getDefaultConfiguration()
+    {
+        return self::$configFile[self::DEFAULT_CONF];
+    }
+
+    /**
+     * Gets recommended configuration.
+     *
+     * @return array
+     */
+    public function getRecommendedConfiguration()
+    {
+        return self::$configFile[self::RECOMMENDED_CONF];
     }
 
     /**
@@ -99,6 +144,79 @@ class FtpConfiguration implements Configurable
     }
 
     /**
+     * Turn the passive mode on or off.
+     *
+     * Notice that the active mode is the default mode.
+     *
+     * @param $bool
+     *
+     * @return bool
+     *
+     * @throws ClientException
+     */
+    public function setPassive($bool)
+    {
+        if ( ! $this->wrapper->pasv($bool)) {
+            throw new ClientException("Unable to switch FTP mode.");
+        }
+
+        return true;
+    }
+    /**
+     * Set FTP runtime options.
+     *
+     * @param $option
+     * @param $value
+     *
+     * @return bool
+     *
+     * @throws ClientException
+     */
+    public function setOption($option, $value)
+    {
+        if ( ! in_array($option, [
+            self::TIMEOUT_SEC,
+            self::AUTOSEEK,
+            self::USEPASVADDRESS
+        ], true)) {
+            throw new ClientException("[{$option}] is invalid FTP runtime option.");
+        }
+
+        if ( ! $this->wrapper->setOption($option, $value)) {
+            throw new ClientException("Unable to set FTP option.");
+        }
+
+        return true;
+    }
+
+    /**
+     * Gets an FTP runtime option value.
+     *
+     * @param string $option
+     *
+     * @return mixed
+     *
+     * @throws ClientException
+     */
+    public function getOption($option)
+    {
+        if ( ! in_array($option, [
+            self::TIMEOUT_SEC,
+            self::AUTOSEEK,
+            self::USEPASVADDRESS
+        ], true)) {
+            throw new ClientException("[{$option}] is invalid FTP runtime option.");
+        }
+
+        if ( ! ($optionValue = $this->wrapper->getOption($option))) {
+            throw new ClientException("Cannot get FTP runtime option value.");
+        }
+
+        return $optionValue;
+    }
+
+
+    /**
      * Validate config values types constraints.
      *
      * @param array $config
@@ -107,7 +225,7 @@ class FtpConfiguration implements Configurable
      *
      * @throws ConfigurationException
      */
-    protected function _validateTypeConstraints($config)
+    private function _validateTypeConstraints($config)
     {
         foreach ($config as $optionKey => $optionValue) {
             switch ($optionKey) {
@@ -145,6 +263,14 @@ class FtpConfiguration implements Configurable
                                 }
                                 break;
 
+                            case "ignoreUserAbort":
+
+                                if ( ! is_bool($limitValue) &&
+                                    $limitValue !== NOT_CHANGE) {
+                                    throw new ConfigurationException("[{$limitKey}] value must be of boolean type.");
+                                }
+                                break;
+
                             default: throw new ConfigurationException("[{$limitKey}] is invalid php limit configuration option.");
 
                         }
@@ -166,11 +292,18 @@ class FtpConfiguration implements Configurable
      *
      * @throws ConfigurationException
      */
-    protected function _setPhpLimit($config)
+    private function _setPhpLimit($config)
     {
         if ($config['maxExecutionTime'] !== NOT_CHANGE ) {
             if ( ! set_time_limit($config['maxExecutionTime'] === UNLIMITED ? 0 : $config['maxExecutionTime'])) {
-                throw new ConfigurationException("Failed to set maximum execution time.");
+                throw new ConfigurationException("Failed to set max_execution_time directive value.");
+            }
+        }
+
+        if ($config['ignoreUserAbort'] !== NOT_CHANGE) {
+            ignore_user_abort($config['ignoreUserAbort']);
+            if ((bool)ini_get('ignore_user_abort') !== $config['ignoreUserAbort']) {
+                throw new ConfigurationException("Unable to set ignore_user_abort directive value.");
             }
         }
     }
