@@ -54,8 +54,5 @@ return [
         ]
     ],
 
-    "recommended" => [
-
-    ]
 
 ];

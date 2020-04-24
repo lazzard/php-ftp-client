@@ -19,8 +19,7 @@ class FtpConfiguration
     /**
      * Predefined configurations by the ftp client.
      */
-    const DEFAULT_CONF     = 'default';
-    const RECOMMENDED_CONF = 'recommended';
+    const DEFAULT_CONF = 'default';
 
     /**
      * FtpWrapper constants.
@@ -121,26 +120,6 @@ class FtpConfiguration
     public function getDefaultConfiguration()
     {
         return self::$configFile[self::DEFAULT_CONF];
-    }
-
-    /**
-     * Gets recommended configuration.
-     *
-     * @return array
-     */
-    public function getRecommendedConfiguration()
-    {
-        return self::$configFile[self::RECOMMENDED_CONF];
-    }
-
-    /**
-     * Returns the maximum execution time of the "current" script.
-     *
-     * @return int
-     */
-    public function getMaxExecutionTime()
-    {
-        return intval(ini_get('max_execution_time'));
     }
 
     /**

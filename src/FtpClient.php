@@ -3,8 +3,6 @@
 namespace Lazzard\FtpClient;
 
 use Lazzard\FtpClient\Command\FtpCommand;
-use Lazzard\FtpClient\Configuration\FtpConfiguration;
-use Lazzard\FtpClient\Connection\FtpConnection;
 use Lazzard\FtpClient\Connection\ConnectionInterface;
 use Lazzard\FtpClient\Exception\ClientException;
 
@@ -24,11 +22,8 @@ class FtpClient
     const FILE_TYPE     = 2;
     const DIR_TYPE      = 1;
 
-    /** @var FtpConnection */
+    /** @var ConnectionInterface */
     protected $connection;
-
-    /** @var FtpConfiguration */
-    protected $configuration;
 
     /** @var FtpCommand */
     protected $command;
@@ -53,7 +48,7 @@ class FtpClient
     }
 
     /**
-     * @return FtpConnection
+     * @return ConnectionInterface
      */
     public function getConnection()
     {
@@ -61,27 +56,11 @@ class FtpClient
     }
 
     /**
-     * @param FtpConnection $connection
+     * @param ConnectionInterface $connection
      */
     public function setConnection($connection)
     {
         $this->connection = $connection;
-    }
-
-    /**
-     * @return FtpConfiguration
-     */
-    public function getConfiguration()
-    {
-        return $this->configuration;
-    }
-
-    /**
-     * @param FtpConfiguration $configuration
-     */
-    public function setConfiguration($configuration)
-    {
-        $this->configuration = $configuration;
     }
 
     /**
