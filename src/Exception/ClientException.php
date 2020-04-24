@@ -9,7 +9,7 @@ namespace Lazzard\FtpClient\Exception;
  * @package Lazzard\FtpClient\Exception
  * @author EL AMRANI CHAKIR <elamrani.sv.laza@gmail.com>
  */
-class ClientException extends \RuntimeException implements FtpClientException
+class ClientException extends \Exception implements FtpClientException
 {
     public function __construct($message)
     {

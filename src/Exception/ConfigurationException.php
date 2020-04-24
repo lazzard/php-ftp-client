@@ -10,20 +10,11 @@ namespace Lazzard\FtpClient\Exception;
  * @package Lazzard\FtpClient\Exception
  * @author EL AMRANI CHAKIR <elamrani.sv.laza@gmail.com>
  */
-class ConfigurationException extends \Exception implements FtpClientException
+class ConfigurationException extends ClientException
 {
     public function __construct($message)
     {
-        parent::__construct("[FtpConfiguration Exception] - " . $message);
-    }
-
-    public static function InvalidFtpConfigurationSetting($setting, $type)
-    {
-        return new \InvalidArgumentException(sprintf(
-            "%s setting accept value of type %s",
-            $setting,
-            $type
-        ));
+        parent::__construct("[ConfigurationException] - " . $message);
     }
 
 }

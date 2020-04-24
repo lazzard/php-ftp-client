@@ -26,8 +26,6 @@ interface ConnectionInterface
 
     /**
      * @return resource
-     *
-     * @throws ConnectionException
      */
     public function getStream();
 

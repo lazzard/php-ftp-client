@@ -112,6 +112,8 @@ class FtpClient
      * Gets parent of the current directory.
      *
      * @return string
+     *
+     * @throws ClientException
      */
     public function getParent()
     {
@@ -123,7 +125,7 @@ class FtpClient
         if ($parent !== '/') {
             return substr($parent, 1);
         }
-        
+
         return $parent;
     }
 
@@ -136,6 +138,8 @@ class FtpClient
      *                                        default sets to false.
      *
      * @return array
+     *
+     * @throws ClientException
      */
     public function listDirectory($directory, $filter = self::FILE_DIR_TYPE, $ignoreDots = true)
     {
@@ -151,7 +155,7 @@ class FtpClient
 
             case self::DIR_TYPE:
                 return array_filter($files, function ($file){
-                   return $this->isDir($file);
+                    return $this->isDir($file);
                 });
 
             case self::FILE_TYPE:
@@ -172,13 +176,15 @@ class FtpClient
      * @param bool   $ignoreDots [optional]
      *
      * @return array
+     *
+     * @throws ClientException
      */
     public function listDirectoryDetails($directory, $recursive = false, $filter = self::FILE_DIR_TYPE, $ignoreDots = true)
     {
         if ( ! $this->isDir($directory)) {
             throw new ClientException("[{$directory}] is not a directory.");
         }
-        
+
         if ( ! ($details = $this->wrapper->rawlist($directory, $recursive))) {
             throw new ClientException("Unable to get files list for [{$directory}] directory");
         }
@@ -248,6 +254,8 @@ class FtpClient
      * @param bool   $ignoreDots [optional]
      *
      * @return int
+     *
+     * @throws ClientException
      */
     public function getCount($directory, $recursive = false, $filter = self::FILE_DIR_TYPE,
         $ignoreDots = false)
@@ -288,6 +296,8 @@ class FtpClient
      * @param string $feature
      *
      * @return bool
+     *
+     * @throws ClientException
      */
     public function isFeatureSupported($feature)
     {
@@ -419,7 +429,7 @@ class FtpClient
                 if (in_array(basename($path), ['.', '..'])) {
                     continue;
                 }
-                
+
                 // TODO replace size
                 if ($this->wrapper->size($path) !== -1) {
                     $this->wrapper->delete($path);
@@ -439,6 +449,8 @@ class FtpClient
      * @param string $directory
      *
      * @return bool
+     *
+     * @throws ClientException
      */
     public function createDirectory($directory)
     {
@@ -501,7 +513,7 @@ class FtpClient
         if ( ! ($time = $this->wrapper->mdtm($remoteFile))) {
             throw new ClientException("Could not get last modified time for [{$remoteFile}].");
         }
-        
+
         return $format ? date($format, $time) : $time;
     }
 
@@ -562,6 +574,8 @@ class FtpClient
      * @param string $directory
      *
      * @return bool
+     *
+     * @throws ClientException
      */
     public function isEmptyDir($directory)
     {
@@ -578,13 +592,15 @@ class FtpClient
      * @param $remoteFile
      *
      * @return bool
+     *
+     * @throws ClientException
      */
-    public function isEmptyFile($remoteFile) 
+    public function isEmptyFile($remoteFile)
     {
         if ($this->isDir($remoteFile)) {
             throw new ClientException("[{$remoteFile}] is a directory.");
         }
-        
+
         return ($this->fileSize($remoteFile) === 0);
     }
 
@@ -595,6 +611,8 @@ class FtpClient
      * @param string $newName
      *
      * @return bool
+     *
+     * @throws ClientException
      */
     public function rename($oldName, $newName)
     {
@@ -620,6 +638,8 @@ class FtpClient
      * @param string $destination Destination directory
      *
      * @return bool
+     *
+     * @throws ClientException
      */
     public function move($source, $destination)
     {

@@ -68,8 +68,8 @@ class FtpWrapper
     /**
      * @link https://www.php.net/manual/en/function.ftp-login.php
      *
-     * @param string   $username
-     * @param string   $password
+     * @param string $username
+     * @param string $password
      *
      * @return bool
      */
@@ -228,7 +228,7 @@ class FtpWrapper
      */
     public function delete($remoteFile)
     {
-        return ftp_delete($this->connection->getStream(), $remoteFile);
+        return @ftp_delete($this->connection->getStream(), $remoteFile);
     }
 
     /**

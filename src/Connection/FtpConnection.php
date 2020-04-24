@@ -51,6 +51,8 @@ class FtpConnection implements ConnectionInterface
 
     /**
      * @return bool|resource
+     *
+     * @throws ConnectionException
      */
     protected function _connect()
     {
@@ -104,7 +106,9 @@ class FtpConnection implements ConnectionInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
+     *
+     * @throws ConnectionException
      */
     public function getStream()
     {
