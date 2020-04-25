@@ -152,13 +152,13 @@ class FtpWrapper
     /**
      * @link https://www.php.net/manual/en/function.ftp-set-option.php
      *
-     * @param int      $option
+     * @param int $option
      *
      * @return mixed
      */
     public function getOption($option)
     {
-        return @ftp_get_option($this->connection->getStream(), $option);
+        return ftp_get_option($this->connection->getStream(), $option);
     }
 
     /**

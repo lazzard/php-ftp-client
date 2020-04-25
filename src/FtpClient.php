@@ -22,6 +22,13 @@ class FtpClient
     const FILE_TYPE     = 2;
     const DIR_TYPE      = 1;
 
+    /**
+     * FtpWrapper constants.
+     */
+    const USEPASVADDRESS = FtpWrapper::USEPASVADDRESS;
+    const TIMEOUT_SEC    = FtpWrapper::TIMEOUT_SEC;
+    const AUTOSEEK       = FtpWrapper::AUTOSEEK;
+
     /** @var ConnectionInterface */
     protected $connection;
 
@@ -100,7 +107,7 @@ class FtpClient
     public function isDir($directory)
     {
         $originalDir = $this->getCurrentDir();
-        if ($this->wrapper->chdir($directory) !== false) {
+        if ( ! $this->wrapper->chdir($directory)) {
             $this->wrapper->chdir($originalDir);
             return true;
         }
@@ -132,9 +139,9 @@ class FtpClient
     /**
      * Get list of files names in giving directory.
      *
-     * @param string $directory               Target directory
+     * @param string $directory  arget directory
      * @param int    $filter
-     * @param bool   $ignoreDots             [optional] Ignore dots files items '.' and '..',
+     * @param bool   $ignoreDots [optional] Ignore dots files items '.' and '..',
      *                                        default sets to false.
      *
      * @return array

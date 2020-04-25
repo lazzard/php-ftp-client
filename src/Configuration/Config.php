@@ -18,6 +18,16 @@ define(__NAMESPACE__. '\UNLIMITED', 'unlimited_value');
 return [
 
     /**
+     * Php resources limits.
+     */
+    "phpLimit"          => [
+
+        "maxExecutionTime" => NOT_CHANGE,
+        "ignoreUserAbort"  => NOT_CHANGE
+
+    ],
+
+    /**
      * Default FTP configuration setup.
      */
     "default" => [
@@ -43,16 +53,6 @@ return [
          */
         "initialDirectory"  => '/',
 
-        /**
-         * Php resources limits.
-         */
-        "phpLimit"          => [
-
-            "maxExecutionTime" => NOT_CHANGE,
-            "ignoreUserAbort"  => NOT_CHANGE
-
-        ]
     ],
-
 
 ];

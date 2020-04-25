@@ -3,7 +3,6 @@
 
 namespace Lazzard\FtpClient\Connection;
 
-
 use Lazzard\FtpClient\Exception\ConnectionException;
 
 class FtpAnonymousConnection extends FtpConnection
@@ -14,6 +13,11 @@ class FtpAnonymousConnection extends FtpConnection
         parent::__construct($host, $username, $password, $port, $timeout);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @throws ConnectionException
+     */
     protected function _login()
     {
         if ( ! ($connection = @ftp_login($this->getStream(), $this->getUsername(),

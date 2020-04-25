@@ -14,31 +14,18 @@ use Lazzard\FtpClient\FtpWrapper;
  * @package Lazzard\FtpClient\FtpConfiguration
  * @author EL AMRANI CHAKIR <elamrani.sv.laza@gmail.com>
  */
-class FtpConfiguration
+class FtpConfiguration extends FileConfiguration
 {
     /**
      * Predefined configurations by the ftp client.
      */
     const DEFAULT_CONF = 'default';
 
-    /**
-     * FtpWrapper constants.
-     */
-    const USEPASVADDRESS = FtpWrapper::USEPASVADDRESS;
-    const TIMEOUT_SEC    = FtpWrapper::TIMEOUT_SEC;
-    const AUTOSEEK       = FtpWrapper::AUTOSEEK;
-
-    /** @var ConnectionInterface */
-    private $connection;
+    /** @var array */
+    protected $config;
 
     /** @var FtpWrapper */
-    private $wrapper;
-
-    /** @var array */
-    private static $configFile;
-
-    /** @var array */
-    private $config;
+    protected $wrapper;
 
     /**
      * FtpConfiguration constructor.
@@ -50,46 +37,11 @@ class FtpConfiguration
      */
     public function __construct(ConnectionInterface $connection, $config)
     {
+        parent::__construct();
+
         $this->connection = $connection;
+        $this->wrapper    = new FtpWrapper($connection);
 
-        $this->wrapper = new FtpWrapper($connection);
-
-        self::$configFile = self::$configFile ?: include(__DIR__ . DIRECTORY_SEPARATOR . "Config.php");
-
-        $this->setConfig($config);
-    }
-
-    /**
-     * @return ConnectionInterface
-     */
-    public function getConnection()
-    {
-        return $this->connection;
-    }
-
-    /**
-     * @param ConnectionInterface $connection
-     */
-    public function setConnection($connection)
-    {
-        $this->connection = $connection;
-    }
-
-    /**
-     * @return array
-     */
-    public function getConfig()
-    {
-        return $this->config;
-    }
-
-    /**
-     * @param $config
-     *
-     * @throws ConfigurationException
-     */
-    public function setConfig($config)
-    {
         if (is_string($config)) {
             if ( ! key_exists($config, self::$configFile)) {
                 throw new ConfigurationException(
@@ -97,29 +49,41 @@ class FtpConfiguration
             }
         }
 
-        $this->config = $this->_validateTypeConstraints(
-            is_string($config)
-                ? self::$configFile[$config]
-                : array_merge(self::$configFile["default"], $config)
-        );
-
-        $this->setPassive($this->config['passive']);
-        $this->setOption(self::TIMEOUT_SEC, $this->config['timeout']);
-        $this->setOption(self::AUTOSEEK, $this->config['autoSeek']);
-        $this->setOption(self::USEPASVADDRESS, $this->config['usePassiveAddress']);
-        $this->wrapper->chdir($this->config['initialDirectory']);
-
-        $this->_setPhpLimit($this->config['phpLimit']);
+        $this->setConfig($config);
+        $this->_validateTypeConstraints();
     }
 
     /**
-     * Gets default configuration.
-     *
-     * @return array
+     * {@inheritdoc}
      */
-    public function getDefaultConfiguration()
+    public function getConfig()
     {
-        return self::$configFile[self::DEFAULT_CONF];
+        return $this->config;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setConfig($config)
+    {
+        $this->config =
+            is_string($config)
+                ? self::$configFile[$config]
+                : array_merge(self::$configFile[self::DEFAULT_CONF], $config);
+    }
+
+    /**
+     * Sets the FTP configuration options retrieved from the config file.
+     *
+     * @throws ClientException
+     */
+    public function apply()
+    {
+        $this->setPassive($this->config['passive']);
+        $this->setRuntimeOption(FtpWrapper::TIMEOUT_SEC, $this->config['timeout']);
+        $this->setRuntimeOption(FtpWrapper::AUTOSEEK, $this->config['autoSeek']);
+        $this->setRuntimeOption(FtpWrapper::USEPASVADDRESS, $this->config['usePassiveAddress']);
+        $this->wrapper->chdir($this->config['initialDirectory']);
     }
 
     /**
@@ -151,12 +115,12 @@ class FtpConfiguration
      *
      * @throws ClientException
      */
-    public function setOption($option, $value)
+    public function setRuntimeOption($option, $value)
     {
         if ( ! in_array($option, [
-            self::TIMEOUT_SEC,
-            self::AUTOSEEK,
-            self::USEPASVADDRESS
+            FtpWrapper::TIMEOUT_SEC,
+            FtpWrapper::AUTOSEEK,
+            FtpWrapper::USEPASVADDRESS
         ], true)) {
             throw new ClientException("[{$option}] is invalid FTP runtime option.");
         }
@@ -177,12 +141,12 @@ class FtpConfiguration
      *
      * @throws ClientException
      */
-    public function getOption($option)
+    public function getRuntimeOption($option)
     {
         if ( ! in_array($option, [
-            self::TIMEOUT_SEC,
-            self::AUTOSEEK,
-            self::USEPASVADDRESS
+            FtpWrapper::TIMEOUT_SEC,
+            FtpWrapper::AUTOSEEK,
+            FtpWrapper::USEPASVADDRESS
         ], true)) {
             throw new ClientException("[{$option}] is invalid FTP runtime option.");
         }
@@ -194,19 +158,16 @@ class FtpConfiguration
         return $optionValue;
     }
 
-
     /**
-     * Validate config values types constraints.
-     *
-     * @param array $config
+     * Validate the option values types constraints in the config file.
      *
      * @return array
      *
      * @throws ConfigurationException
      */
-    private function _validateTypeConstraints($config)
+    protected function _validateTypeConstraints()
     {
-        foreach ($config as $optionKey => $optionValue) {
+        foreach ($this->config as $optionKey => $optionValue) {
             switch ($optionKey) {
 
                 case "timeout":
@@ -227,63 +188,11 @@ class FtpConfiguration
                     }
                     break;
 
-                case "phpLimit":
-
-                    foreach ($config['phpLimit'] as $limitKey => $limitValue) {
-
-                        switch ($limitKey) {
-
-                            case "maxExecutionTime":
-
-                                if ( ! is_int($limitValue) &&
-                                    $limitValue !== NOT_CHANGE &&
-                                    $limitValue !== UNLIMITED) {
-                                    throw new ConfigurationException("[{$limitKey}] value must be of type integer.");
-                                }
-                                break;
-
-                            case "ignoreUserAbort":
-
-                                if ( ! is_bool($limitValue) &&
-                                    $limitValue !== NOT_CHANGE) {
-                                    throw new ConfigurationException("[{$limitKey}] value must be of boolean type.");
-                                }
-                                break;
-
-                            default: throw new ConfigurationException("[{$limitKey}] is invalid php limit configuration option.");
-
-                        }
-
-                    }
-                    break;
-
                 default: throw new ConfigurationException("[{$optionKey}] is invalid configuration option.");
             }
         }
 
-        return $config;
+        return $this->config;
     }
 
-    /**
-     * Sets the config php limitations resources values.
-     * 
-     * @param $config
-     *
-     * @throws ConfigurationException
-     */
-    private function _setPhpLimit($config)
-    {
-        if ($config['maxExecutionTime'] !== NOT_CHANGE ) {
-            if ( ! set_time_limit($config['maxExecutionTime'] === UNLIMITED ? 0 : $config['maxExecutionTime'])) {
-                throw new ConfigurationException("Failed to set max_execution_time directive value.");
-            }
-        }
-
-        if ($config['ignoreUserAbort'] !== NOT_CHANGE) {
-            ignore_user_abort($config['ignoreUserAbort']);
-            if ((bool)ini_get('ignore_user_abort') !== $config['ignoreUserAbort']) {
-                throw new ConfigurationException("Unable to set ignore_user_abort directive value.");
-            }
-        }
-    }
 }
