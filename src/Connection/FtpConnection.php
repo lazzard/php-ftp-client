@@ -50,62 +50,6 @@ class FtpConnection implements ConnectionInterface
     }
 
     /**
-     * @return bool|resource
-     *
-     * @throws ConnectionException
-     */
-    protected function _connect()
-    {
-        if ( ! ($connection = $this->wrapper->connect($this->getHost(), $this->getPort(),
-            $this->getTimeout()))) {
-            throw new ConnectionException("Connection failed to remote server.");
-        }
-
-        $this->wrapper->setConnection($this);
-
-        return $connection;
-    }
-
-    /**
-     * @return bool
-     */
-    protected function _login()
-    {
-        return $this->wrapper->login(
-            $this->getUsername(),
-            $this->getPassword()
-        );
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function open()
-    {
-        if ( ! ($this->stream = $this->_connect())) {
-            throw new ConnectionException("Failed to connect to FTP server.");
-        }
-
-        if ( ! ($this->_login())) {
-            throw new ConnectionException("Could not logging into the FTP server.");
-        }
-
-        return true;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function close()
-    {
-        if ( ! $this->wrapper->close()) {
-            throw new ConnectionException("Failed to closing FTP connection.");
-        }
-
-        return true;
-    }
-
-    /**
      * {@inheritDoc}
      *
      * @throws ConnectionException
@@ -205,6 +149,73 @@ class FtpConnection implements ConnectionInterface
     public function setPassword($password)
     {
         $this->password = $password;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function open()
+    {
+        $this->_connect();
+        $this->_login();
+
+        return true;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function close()
+    {
+        if ( ! $this->wrapper->close()) {
+            throw new ConnectionException(
+                ConnectionException::getFtpServerError(),
+                "Failed to closing FTP connection."
+            );
+        }
+
+        return true;
+    }
+
+    /**
+     * @return bool|resource
+     *
+     * @throws ConnectionException
+     */
+    protected function _connect()
+    {
+        if ( ! ($stream = $this->wrapper->connect($this->getHost(), $this->getPort(),
+            $this->getTimeout()))) {
+            throw new ConnectionException(
+                ConnectionException::getFtpServerError()
+                ?: "Connection failed to remote server."
+            );
+        }
+
+        $this->stream = $stream;
+        $this->wrapper->setConnection($this);
+
+        return $stream;
+    }
+
+    /**
+     * @return bool
+     * 
+     * @throws ConnectionException
+     */
+    protected function _login()
+    {
+        if ( ! $this->wrapper->login(
+            $this->getUsername(),
+            $this->getPassword()
+        )) {
+            throw new ConnectionException(
+                ConnectionException::getFtpServerError(),
+                "Login into the FTP server was failed."
+            );
+        }
+
+        return true;
     }
 
 }

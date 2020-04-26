@@ -84,7 +84,7 @@ class FtpClient
 
         if ( ! $this->wrapper->chdir($directory)) {
             throw new ClientException(
-                ClientException::getFtpServerResponse() 
+                ClientException::getFtpServerError() 
                 ?: "Unable to change the current directory to [{$directory}]."
             );  
         }
