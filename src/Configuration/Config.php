@@ -22,7 +22,7 @@ return [
      */
     "phpLimit"          => [
 
-        "maxExecutionTime" => NOT_CHANGE,
+        "maxExecutionTime" => UNLIMITED,
         "ignoreUserAbort"  => NOT_CHANGE
 
     ],
@@ -33,8 +33,8 @@ return [
     "default" => [
 
         /**
-         * The active mode it the default mode when connecting to
-         * the ftp server using ftp_connect.
+         * The active mode is the default mode when connecting to
+         * the ftp server for the first time.
          */
         "passive"           => false,
 
@@ -42,7 +42,7 @@ return [
          * Ftp runtime options default values was mentioned in
          * the php manual.
          *
-         * https://www.php.net/manual/en/function.ftp-set-option.php
+         * @link https://www.php.net/manual/en/function.ftp-set-option.php
          */
         "timeout"           => 90,
         "autoSeek"          => true,

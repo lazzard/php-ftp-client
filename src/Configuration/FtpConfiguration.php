@@ -28,7 +28,6 @@ class FtpConfiguration extends FileConfiguration
     const TIMEOUT_SEC    = FtpWrapper::TIMEOUT_SEC;
     const AUTOSEEK       = FtpWrapper::AUTOSEEK;
 
-
     /** @var ConnectionInterface */
     protected $connection;
 
@@ -48,14 +47,7 @@ class FtpConfiguration extends FileConfiguration
         parent::__construct();
 
         $this->connection = $connection;
-        $this->wrapper    = new FtpWrapper($connection);
-
-        if (is_string($config)) {
-            if ( ! key_exists($config, self::$configFile) || $config === 'phpLimit') {
-                throw new ConfigurationException(
-                    "Cannot find configuration [{$config}] in the config file.");
-            }
-        }
+        $this->wrapper = new FtpWrapper($connection);
 
         $this->setConfig($config);
         $this->_validateConfiguration();
@@ -74,10 +66,16 @@ class FtpConfiguration extends FileConfiguration
      */
     public function setConfig($config)
     {
-        $this->config =
-            is_string($config)
-                ? self::$configFile[$config]
-                : array_merge(self::$configFile[self::DEFAULT_CONF], $config);
+        if (is_string($config)) {
+            if ( ! $this->getConfigByName($config) || $config === PhpIniConfig::CONFIG_NAME) {
+                throw new ConfigurationException(
+                    "Cannot find configuration [{$config}] in the config file."
+                );
+            }
+            $this->config = $this->getConfigByName(self::DEFAULT_CONF);
+        } else {
+            $this->config = $this->merge($config);
+        }
     }
 
     /**
@@ -103,12 +101,15 @@ class FtpConfiguration extends FileConfiguration
      *
      * @return bool
      *
-     * @throws ClientException
+     * @throws ConfigurationException
      */
     public function setPassive($bool)
     {
         if ( ! $this->wrapper->pasv($bool)) {
-            throw new ClientException("Unable to switch FTP mode.");
+            throw new ConfigurationException(
+                ConfigurationException::getFtpServerError()
+                ?: "Unable to switch FTP mode."
+            );
         }
 
         return true;
@@ -121,20 +122,23 @@ class FtpConfiguration extends FileConfiguration
      *
      * @return bool
      *
-     * @throws ClientException
+     * @throws ConfigurationException
      */
     public function setRuntimeOption($option, $value)
     {
         if ( ! in_array($option, [
-            FtpWrapper::TIMEOUT_SEC,
-            FtpWrapper::AUTOSEEK,
-            FtpWrapper::USEPASVADDRESS
+            self::TIMEOUT_SEC,
+            self::AUTOSEEK,
+            self::USEPASVADDRESS
         ], true)) {
-            throw new ClientException("[{$option}] is invalid FTP runtime option.");
+            throw new ConfigurationException("[{$option}] is invalid FTP runtime option.");
         }
 
         if ( ! $this->wrapper->setOption($option, $value)) {
-            throw new ClientException("Unable to set FTP option.");
+            throw new ConfigurationException(
+                ConfigurationException::getFtpServerError()
+                ?: "Unable to set FTP option."
+            );
         }
 
         return true;
@@ -148,27 +152,46 @@ class FtpConfiguration extends FileConfiguration
      *
      * @return mixed
      *
-     * @throws ClientException
+     * @throws ConfigurationException
      */
     public function getRuntimeOption($option)
     {
         if ( ! in_array($option, [
-            FtpWrapper::TIMEOUT_SEC,
-            FtpWrapper::AUTOSEEK,
-            FtpWrapper::USEPASVADDRESS
+            self::TIMEOUT_SEC,
+            self::AUTOSEEK,
+            self::USEPASVADDRESS
         ], true)) {
-            throw new ClientException("[{$option}] is invalid FTP runtime option.");
+            throw new ConfigurationException("[{$option}] is invalid FTP runtime option.");
         }
 
         if ( ! ($optionValue = $this->wrapper->getOption($option))) {
-            throw new ClientException("Cannot get FTP runtime option value.");
+            throw new ConfigurationException(
+                ConfigurationException::getFtpServerError()
+                ?: "Cannot get FTP runtime option value."
+            );
         }
 
         return $optionValue;
     }
+
+    /**
+     * @inheritDoc
+     */
+    protected function merge($config)
+    {
+        return array_merge($this->getConfigByName(self::DEFAULT_CONF), $config);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function init()
+    {
+        $this->config = $this->getConfigByName(self::DEFAULT_CONF);
+    }
     
     /**
-     * @inheritDocg
+     * @inheritDoc
      */
     protected function _validateConfiguration()
     {

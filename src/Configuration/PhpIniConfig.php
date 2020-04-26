@@ -14,6 +14,11 @@ use Lazzard\FtpClient\Exception\ConfigurationException;
 class PhpIniConfig extends FileConfiguration
 {
     /**
+     * Default configuration name.
+     */
+    const CONFIG_NAME = "phpLimit";
+
+    /**
      * PhpIniConfig constructor.
      *
      * @param array|null $config
@@ -24,7 +29,7 @@ class PhpIniConfig extends FileConfiguration
     {
         parent::__construct();
 
-        $this->setConfig($config);
+        $config ? $this->setConfig($config) : $this->init();
         $this->_validateConfiguration();
     }
 
@@ -37,13 +42,11 @@ class PhpIniConfig extends FileConfiguration
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function setConfig($config)
     {
-        $this->config = $config
-            ? array_merge(self::$configFile['phpLimit'], $config)
-            : self::$configFile['phpLimit'];
+        $this->config = !$config ?: $this->merge($config);
     }
 
     /**
@@ -55,16 +58,36 @@ class PhpIniConfig extends FileConfiguration
     {
         if ($this->config['maxExecutionTime'] !== NOT_CHANGE ) {
             if ( ! set_time_limit($this->config['maxExecutionTime'] === UNLIMITED ? 0 : $this->config['maxExecutionTime'])) {
-                throw new ConfigurationException("Failed to set max_execution_time directive value.");
+                throw new ConfigurationException(
+                    "Failed to set max_execution_time directive value to [{$this->config['maxExecutionTime']}]."
+                );
             }
         }
 
         if ($this->config['ignoreUserAbort'] !== NOT_CHANGE) {
             ignore_user_abort($this->config['ignoreUserAbort']);
             if ((bool)ini_get('ignore_user_abort') !== $this->config['ignoreUserAbort']) {
-                throw new ConfigurationException("Unable to set ignore_user_abort directive value.");
+                throw new ConfigurationException(
+                    "Unable to set ignore_user_abort directive value to [{$this->config['ignoreUserAbort']}]."
+                );
             }
         }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function merge($config)
+    {
+        return array_merge($this->getConfigByName(self::CONFIG_NAME), $config);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function init()
+    {
+        $this->config = $this->getConfigByName(self::CONFIG_NAME);
     }
 
     /**

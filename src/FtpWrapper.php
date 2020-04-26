@@ -277,7 +277,7 @@ class FtpWrapper
      */
     public function size($remoteFile)
     {
-        return ftp_size($this->connection->getStream(), $remoteFile);
+        return @ftp_size($this->connection->getStream(), $remoteFile);
     }
 
     /**

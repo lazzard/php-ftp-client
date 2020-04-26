@@ -51,12 +51,39 @@ abstract class FileConfiguration
     abstract public function apply();
 
     /**
-     * Validate configuration options values.
+     * Merge the provided configuration with the appropriate 
+     * configuration in the config file.
+     * 
+     * @return array
+     */
+    abstract protected function merge($config);
+
+    /**
+     * Sets default configuration.
+     * 
+     * @return void
+     */
+    abstract protected function init();
+
+    /**
+     * Validate configuration options.
      *
      * @return bool
      *
      * @throws ConfigurationException
      */
     abstract protected function _validateConfiguration();
+    
+    /**
+     * @return array|false
+     */
+    protected function getConfigByName($name)
+    {
+        if ( ! array_key_exists($name, self::$configFile)) {
+            return false;
+        }
 
+        return self::$configFile[$name];
+    }
+    
 }

@@ -102,13 +102,7 @@ class FtpClient
      */
     public function isDir($directory)
     {
-        $originalDir = $this->getCurrentDir();
-        if ( ! $this->wrapper->chdir($directory)) {
-            $this->wrapper->chdir($originalDir);
-            return true;
-        }
-
-        return false;
+        return ($this->wrapper->size($directory) === -1);
     }
 
     /**
@@ -147,7 +141,9 @@ class FtpClient
     public function listDirectory($directory, $filter = self::FILE_DIR_TYPE, $ignoreDots = true)
     {
         if ( ! $files = $this->wrapper->nlist($directory)) {
-            throw new ClientException("Failed to get files list.");
+            throw new ClientException(ClientException::getFtpServerError()
+                ?: "Failed to get files list."
+            );
         }
 
         if ($ignoreDots) {
@@ -189,7 +185,9 @@ class FtpClient
         }
 
         if ( ! ($details = $this->wrapper->rawlist($directory, $recursive))) {
-            throw new ClientException("Unable to get files list for [{$directory}] directory");
+            throw new ClientException(ClientException::getFtpServerError()
+                ?: "Unable to get files list for [{$directory}] directory."
+            );
         }
 
         $pathTmp = null;
@@ -283,7 +281,7 @@ class FtpClient
     public function getFeatures()
     {
         if ( ! $this->command->rawRequest("FEAT")->isSucceeded()) {
-            throw new ClientException("Cannot get remote server features.");
+            throw new ClientException($this->command->getResponseMessage());
         }
 
         return array_map('ltrim', $this->command->getResponseBody());
@@ -322,7 +320,9 @@ class FtpClient
     public function getSystem()
     {
         if ( ! ($sysType = $this->wrapper->systype())) {
-            throw new ClientException("Unable to get operating system type.");
+            throw new ClientException(ClientException::getFtpServerError()
+                ?: "Unable to get FTP server operating system type."
+            );
         }
 
         return $sysType;
@@ -340,7 +340,7 @@ class FtpClient
     public function getDefaultTransferType()
     {
         if ( ! $this->command->rawRequest("SYST")->isSucceeded()) {
-            throw new ClientException("Cannot get remote server features.");
+            throw new ClientException($this->command->getResponseMessage());
         }
 
         return explode(' ', $this->command->getResponseMessage(), 2)[1];
@@ -358,7 +358,7 @@ class FtpClient
     public function getSupportedSiteCommands()
     {
         if ( ! $this->command->rawRequest("HELP")->isSucceeded()) {
-            throw new ClientException("Cannot getting available site commands from the FTP server.");
+            throw new ClientException($this->command->getResponseMessage());
         }
 
         return array_map('ltrim', $this->command->getResponseBody());
@@ -375,7 +375,9 @@ class FtpClient
     public function back()
     {
         if ( ! $this->wrapper->cdup()) {
-            throw new ClientException("Unable to change to the parent directory.");
+            throw new ClientException(ClientException::getFtpServerError() 
+                ?: "Unable to change to the parent directory."
+            );
         }
 
         return true;
@@ -397,7 +399,9 @@ class FtpClient
         }
 
         if ( ! $this->wrapper->delete($remoteFile)) {
-            throw new ClientException("Unable to delete the file [{$remoteFile}].");
+            throw new ClientException(ClientException::getFtpServerError() 
+                ?: "Unable to delete the file [{$remoteFile}]."
+            );
         }
 
         return true;
@@ -514,7 +518,9 @@ class FtpClient
         }
 
         if ( ! ($time = $this->wrapper->mdtm($remoteFile))) {
-            throw new ClientException("Could not get last modified time for [{$remoteFile}].");
+            throw new ClientException(ClientException::getFtpServerError() 
+                ?: "Could not get last modified time for [{$remoteFile}]."
+            );
         }
 
         return $format ? date($format, $time) : $time;
@@ -535,7 +541,7 @@ class FtpClient
             throw new ClientException("SIZE feature not provided by the remote server.");
         }
 
-        if ( ! $this->isDir($remoteFile)) {
+        if ($this->isDir($remoteFile)) {
             throw new ClientException("[{$remoteFile}] must be an existing file.");
         }
 
@@ -556,19 +562,18 @@ class FtpClient
         if ( ! $this->isFeatureSupported("SIZE")) {
             throw new ClientException("SIZE feature not provided by the remote server.");
         }
-
+        
         if ( ! $this->isDir($directory)) {
             throw new ClientException("[{$directory}] must be an existing directory.");
         }
-
-        $list = $this->listDirectoryDetails($directory, true);
-
-        $size = 0;
-        foreach ($list as $fileInfo) {
-            $size += $this->wrapper->size($fileInfo['path']);
-        }
-
-        return $size;
+        
+        return array_sum(
+            array_column($this->listDirectoryDetails(
+                $directory,
+                true,
+                self::DIR_TYPE
+            ), 'size')
+        );
     }
 
     /**
@@ -628,7 +633,9 @@ class FtpClient
         }
 
         if ( ! $this->wrapper->rename($oldName, $newName)) {
-            throw new ClientException(sprintf(
+            throw new ClientException(
+                ClientException::getFtpServerError()
+                ?: sprintf(
                 "Unable to rename %s to %s",
                 $oldName,
                 $newName
@@ -688,7 +695,10 @@ class FtpClient
         
         // TODO ftp_alloc warning problem
         if ( ! $this->wrapper->alloc($bytes)) {
-            throw new ClientException("Can't allocate [{$bytes}] bytes.");
+            throw new ClientException(
+                ClientException::getFtpServerError() 
+                ?: "Can't allocate [{$bytes}] bytes."
+            );
         }
 
         return true;
