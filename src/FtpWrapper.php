@@ -302,4 +302,14 @@ class FtpWrapper
     {
         return ftp_systype($this->connection->getStream());
     }
+
+    /**
+     * @link https://www.php.net/manual/en/function.ftp-alloc.php
+     *
+     * @return string|bool
+     */
+    public function alloc($size, $result = null)
+    {
+        return ftp_alloc($this->connection->getStream(), $size, $result);
+    }
 }

@@ -21,8 +21,16 @@ class FtpConfiguration extends FileConfiguration
      */
     const DEFAULT_CONF = 'default';
 
-    /** @var array */
-    protected $config;
+    /**
+     * FtpWrapper constants.
+     */
+    const USEPASVADDRESS = FtpWrapper::USEPASVADDRESS;
+    const TIMEOUT_SEC    = FtpWrapper::TIMEOUT_SEC;
+    const AUTOSEEK       = FtpWrapper::AUTOSEEK;
+
+
+    /** @var ConnectionInterface */
+    protected $connection;
 
     /** @var FtpWrapper */
     protected $wrapper;
@@ -43,14 +51,14 @@ class FtpConfiguration extends FileConfiguration
         $this->wrapper    = new FtpWrapper($connection);
 
         if (is_string($config)) {
-            if ( ! key_exists($config, self::$configFile)) {
+            if ( ! key_exists($config, self::$configFile) || $config === 'phpLimit') {
                 throw new ConfigurationException(
                     "Cannot find configuration [{$config}] in the config file.");
             }
         }
 
         $this->setConfig($config);
-        $this->_validateTypeConstraints();
+        $this->_validateConfiguration();
     }
 
     /**
@@ -132,6 +140,7 @@ class FtpConfiguration extends FileConfiguration
         return true;
     }
 
+
     /**
      * Gets an FTP runtime option value.
      *
@@ -157,42 +166,36 @@ class FtpConfiguration extends FileConfiguration
 
         return $optionValue;
     }
-
+    
     /**
-     * Validate the option values types constraints in the config file.
-     *
-     * @return array
-     *
-     * @throws ConfigurationException
+     * @inheritDocg
      */
-    protected function _validateTypeConstraints()
+    protected function _validateConfiguration()
     {
-        foreach ($this->config as $optionKey => $optionValue) {
-            switch ($optionKey) {
+        /** @var mixed $optionValue */
+        foreach ($this->config as $optionKey => $optionValue) switch ($optionKey) {
 
-                case "timeout":
-                    if ( ! is_int($optionValue) || $optionValue <= 0) {
-                        throw new ConfigurationException("[{$optionValue}] Timeout option value must be an integer and greater than 0.");
-                    }
-                    break;
+            case "timeout":
+                if ( ! is_int($optionValue) || $optionValue <= 0) {
+                    throw new ConfigurationException("[{$optionValue}] Timeout option value must be an integer and greater than 0.");
+                }
+                break;
 
-                case "passive": case "usePassiveAddress": case "autoSeek":
-                    if ( ! is_bool($optionValue)) {
-                        throw new ConfigurationException("[{$optionKey}] option value must be of type boolean.");
-                    }
-                    break;
+            case "passive": case "usePassiveAddress": case "autoSeek":
+                if ( ! is_bool($optionValue)) {
+                    throw new ConfigurationException("[{$optionKey}] option value must be of type boolean.");
+                }
+                break;
 
-                case "initialDirectory":
-                    if ( ! is_string($optionValue)) {
-                        throw new ConfigurationException("[{$optionKey}] option value must be of type string.");
-                    }
-                    break;
+            case "initialDirectory":
+                if ( ! is_string($optionValue)) {
+                    throw new ConfigurationException("[{$optionKey}] option value must be of type string.");
+                }
+                break;
 
-                default: throw new ConfigurationException("[{$optionKey}] is invalid configuration option.");
-            }
+            default: throw new ConfigurationException("[{$optionKey}] is invalid configuration option.");
         }
 
-        return $this->config;
+        return true;
     }
-
 }

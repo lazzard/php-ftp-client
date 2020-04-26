@@ -13,19 +13,19 @@ use Lazzard\FtpClient\Exception\ConfigurationException;
  */
 class PhpIniConfig extends FileConfiguration
 {
-    /** @var array */
-    protected $config;
-
     /**
      * PhpIniConfig constructor.
      *
      * @param array|null $config
+     *
+     * @throws ConfigurationException
      */
     public function __construct($config = null)
     {
         parent::__construct();
 
         $this->setConfig($config);
+        $this->_validateConfiguration();
     }
 
     /**
@@ -70,9 +70,27 @@ class PhpIniConfig extends FileConfiguration
     /**
      * @inheritDoc
      */
-    protected function _validateTypeConstraints()
+    protected function _validateConfiguration()
     {
+        /** @var mixed $optionValue */
+        foreach ($this->config as $optionKey => $optionValue) switch ($optionKey) {
 
+            case "maxExecutionTime":
+                if ( ! is_int($optionValue) && ! in_array($optionValue, [NOT_CHANGE, UNLIMITED]) ) {
+                    throw new ConfigurationException("[{$optionKey}] option value must be of type integer.");
+                }
+                break;
+
+            case "ignoreUserAbort":
+                if ( ! is_bool($optionValue) && ! in_array($optionValue, [NOT_CHANGE, UNLIMITED])) {
+                    throw new ConfigurationException("[{$optionKey}] option value must be of type boolean.");
+                }
+                break;
+
+            default: throw new ConfigurationException("[{$optionKey}] is invalid configuration option.");
+        }
+
+        return true;
     }
 
 }

@@ -15,6 +15,9 @@ use Lazzard\FtpClient\Exception\ConfigurationException;
 abstract class FileConfiguration
 {
     /** @var array */
+    protected $config;
+
+    /** @var array */
     protected static $configFile;
 
     /**
@@ -25,7 +28,7 @@ abstract class FileConfiguration
     {
         self::$configFile = self::$configFile ?: include(__DIR__ . DIRECTORY_SEPARATOR . "Config.php");
     }
-
+    
     /**
      * Retrieve configuration options as an array from the config file.
      * 
@@ -48,12 +51,12 @@ abstract class FileConfiguration
     abstract public function apply();
 
     /**
-     * Validate configuration options values types.
+     * Validate configuration options values.
      *
-     * @return array
+     * @return bool
      *
      * @throws ConfigurationException
      */
-    abstract protected function _validateTypeConstraints();
+    abstract protected function _validateConfiguration();
 
 }

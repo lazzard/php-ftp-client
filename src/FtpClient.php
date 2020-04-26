@@ -22,13 +22,6 @@ class FtpClient
     const FILE_TYPE     = 2;
     const DIR_TYPE      = 1;
 
-    /**
-     * FtpWrapper constants.
-     */
-    const USEPASVADDRESS = FtpWrapper::USEPASVADDRESS;
-    const TIMEOUT_SEC    = FtpWrapper::TIMEOUT_SEC;
-    const AUTOSEEK       = FtpWrapper::AUTOSEEK;
-
     /** @var ConnectionInterface */
     protected $connection;
 
@@ -90,7 +83,10 @@ class FtpClient
         }
 
         if ( ! $this->wrapper->chdir($directory)) {
-            throw new ClientException("Cannot change current directory to [{$directory}].");
+            throw new ClientException(
+                ClientException::getFtpServerResponse() 
+                ?: "Unable to change the current directory to [{$directory}]."
+            );  
         }
 
         $this->currentDir = $directory;
@@ -139,7 +135,7 @@ class FtpClient
     /**
      * Get list of files names in giving directory.
      *
-     * @param string $directory  arget directory
+     * @param string $directory 
      * @param int    $filter
      * @param bool   $ignoreDots [optional] Ignore dots files items '.' and '..',
      *                                        default sets to false.
@@ -623,8 +619,12 @@ class FtpClient
      */
     public function rename($oldName, $newName)
     {
+        if ( ! $this->isExists($oldName)) {
+            throw new ClientException("[{$oldName}] doesn't exists.");
+        }
+
         if ($this->isExists($newName)) {
-            throw new ClientException("[{$newName}] is already exists, please choose another name.");
+            throw new ClientException("[{$newName}] is already exists.");
         }
 
         if ( ! $this->wrapper->rename($oldName, $newName)) {
@@ -669,6 +669,29 @@ class FtpClient
     public function isServerAlive()
     {
         return $this->command->rawRequest("NOOP")->isSucceeded();
+    }
+
+    /**
+     * Send a request to allocate a space. 
+     * 
+     * @param int
+     * 
+     * @return bool
+     * 
+     * @throws ClientException
+     */
+    public function allocateSpace($bytes)
+    {
+        if ( ! is_int($bytes)) {
+            throw new ClientException("[{$bytes}] must be of type integer.");
+        }
+        
+        // TODO ftp_alloc warning problem
+        if ( ! $this->wrapper->alloc($bytes)) {
+            throw new ClientException("Can't allocate [{$bytes}] bytes.");
+        }
+
+        return true;
     }
 
     /**
