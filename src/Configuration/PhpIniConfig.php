@@ -30,7 +30,7 @@ class PhpIniConfig extends FileConfiguration
         parent::__construct();
 
         $config ? $this->setConfig($config) : $this->init();
-        $this->_validateConfiguration();
+        $this->validateConfiguration();
     }
 
     /**
@@ -93,7 +93,7 @@ class PhpIniConfig extends FileConfiguration
     /**
      * @inheritDoc
      */
-    protected function _validateConfiguration()
+    protected function validateConfiguration()
     {
         /** @var mixed $optionValue */
         foreach ($this->config as $optionKey => $optionValue) switch ($optionKey) {

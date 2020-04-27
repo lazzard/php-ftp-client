@@ -22,6 +22,12 @@ class FtpClient
     const FILE_TYPE     = 2;
     const DIR_TYPE      = 1;
 
+    /**
+     * FtpWrapper constants
+     */
+    const ASCII  = FtpWrapper::ASCII;
+    const BINARY = FtpWrapper::BINARY;
+
     /** @var ConnectionInterface */
     protected $connection;
 
@@ -201,7 +207,7 @@ class FtpClient
             }
 
             if (count($chunks) === 9) {
-                $type = $this->_chmodToFileType($chunks[0]);
+                $type = $this->chmodToFileType($chunks[0]);
 
                 if ($filter === self::FILE_TYPE) {
                     if ($type === 'dir') {
@@ -689,19 +695,77 @@ class FtpClient
      */
     public function allocateSpace($bytes)
     {
-        if ( ! is_int($bytes)) {
+        if ( ! is_double($bytes)) {
             throw new ClientException("[{$bytes}] must be of type integer.");
         }
         
         // TODO ftp_alloc warning problem
         if ( ! $this->wrapper->alloc($bytes)) {
-            throw new ClientException(
-                ClientException::getFtpServerError() 
+            throw new ClientException(ClientException::getFtpServerError() 
                 ?: "Can't allocate [{$bytes}] bytes."
             );
         }
 
         return true;
+    }
+
+    /**
+     * Download remote file from the FTP server.
+     * 
+     * @param string $remoteFile
+     * @param string $saveIn[optional]
+     * @param int    $mode[optional]
+     * 
+     * @return bool
+     * 
+     * @throws ClientException
+     */
+    public function download($remoteFile, $saveIn = __DIR__, $mode = self::ASCII)
+    {
+        if ( ! $this->isExists($remoteFile)) {
+            throw new ClientException("[{$remoteFile}] does not exists.");
+        }
+
+        if ( ! $this->wrapper->get(
+            $saveIn . DIRECTORY_SEPARATOR . basename($remoteFile), 
+            $remoteFile, 
+            $mode)) {
+            throw new ClientException(ClientException::getFtpServerError()
+                ?: "Unable to retrieve [{$remoteFile}]."    
+            );
+        }
+
+        return true;
+    }
+
+    /**
+     * Read the remote file content and return the data as a string.
+     * 
+     * @param string $remoteFile
+     * 
+     * @return string
+     * 
+     * @throws ClientException
+     */
+    public function getFileContent($remoteFile)
+    {
+        if ($this->isDir($remoteFile)) {
+            throw new ClientException("[{$remoteFile}] is a directory.");
+        }
+
+        // TODO sys_get_temp_dir()
+        $tempFile = tempnam(sys_get_temp_dir(), $remoteFile);
+
+        if ( ! $this->wrapper->get($tempFile, $remoteFile, self::ASCII)) {
+            throw new ClientException(ClientException::getFtpServerError()
+                ?: "Unable to get [{$remoteFile}] content."
+            );
+        }
+        
+        $content = file_get_contents($tempFile);
+        unlink($tempFile);
+
+        return $content;
     }
 
     /**
@@ -712,7 +776,7 @@ class FtpClient
      *
      * @return string
      */
-    protected function _chmodToFileType($chmod)
+    protected function chmodToFileType($chmod)
     {
         switch ($chmod[0])
         {

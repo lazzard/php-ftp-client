@@ -10,6 +10,8 @@ interface ConnectionInterface
      * Open an FTP connection.
      *
      * @return bool
+     *
+     * @throws ConnectionException
      */
     public function open();
 

@@ -57,7 +57,9 @@ class FtpConnection implements ConnectionInterface
     public function getStream()
     {
         if ( ! is_resource($this->stream)) {
-            throw new ConnectionException("Invalid FTP stream resource, try to reconnect to the server.");
+            throw new ConnectionException(
+                "Invalid FTP stream resource, try to reconnect to the server."
+            );
         }
 
         return $this->stream;
@@ -156,8 +158,8 @@ class FtpConnection implements ConnectionInterface
      */
     public function open()
     {
-        $this->_connect();
-        $this->_login();
+        $this->connect();
+        $this->login();
 
         return true;
     }
@@ -169,8 +171,8 @@ class FtpConnection implements ConnectionInterface
     {
         if ( ! $this->wrapper->close()) {
             throw new ConnectionException(
-                ConnectionException::getFtpServerError(),
-                "Failed to closing FTP connection."
+                ConnectionException::getFtpServerError()
+                ?: "Failed to closing FTP connection."
             );
         }
 
@@ -182,7 +184,7 @@ class FtpConnection implements ConnectionInterface
      *
      * @throws ConnectionException
      */
-    protected function _connect()
+    protected function connect()
     {
         if ( ! ($stream = $this->wrapper->connect($this->getHost(), $this->getPort(),
             $this->getTimeout()))) {
@@ -203,15 +205,15 @@ class FtpConnection implements ConnectionInterface
      * 
      * @throws ConnectionException
      */
-    protected function _login()
+    protected function login()
     {
         if ( ! $this->wrapper->login(
             $this->getUsername(),
             $this->getPassword()
         )) {
             throw new ConnectionException(
-                ConnectionException::getFtpServerError(),
-                "Login into the FTP server was failed."
+                ConnectionException::getFtpServerError() 
+                ?: "Login into the FTP server was failed."
             );
         }
 

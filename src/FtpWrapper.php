@@ -21,6 +21,8 @@ class FtpWrapper
     const TIMEOUT_SEC    = FTP_TIMEOUT_SEC;
     const AUTOSEEK       = FTP_AUTOSEEK;
     const USEPASVADDRESS = FTP_USEPASVADDRESS;
+    const ASCII          = FTP_ASCII;
+    const BINARY         = FTP_BINARY;
 
     /** @var ConnectionInterface */
     protected $connection;
@@ -306,10 +308,28 @@ class FtpWrapper
     /**
      * @link https://www.php.net/manual/en/function.ftp-alloc.php
      *
+     * @param int         $size
+     * @param string|null $result
+     *
      * @return string|bool
      */
     public function alloc($size, $result = null)
     {
         return ftp_alloc($this->connection->getStream(), $size, $result);
+    }
+
+    /**
+     * @link https://www.php.net/manual/en/function.ftp-get.php
+     *
+     * @param string $localFile
+     * @param string $remoteFile
+     * @param int    $mode
+     * @param int    $resumepos[optional]
+     * 
+     * @return bool
+     */
+    public function get($localFile, $remoteFile, $mode, $resumepos = 0)
+    {
+        return @ftp_get($this->connection->getStream(), $localFile, $remoteFile, $mode, $resumepos);
     }
 }

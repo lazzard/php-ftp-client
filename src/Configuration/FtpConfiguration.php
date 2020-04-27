@@ -50,7 +50,7 @@ class FtpConfiguration extends FileConfiguration
         $this->wrapper = new FtpWrapper($connection);
 
         $this->setConfig($config);
-        $this->_validateConfiguration();
+        $this->validateConfiguration();
     }
 
     /**
@@ -63,6 +63,8 @@ class FtpConfiguration extends FileConfiguration
 
     /**
      * {@inheritdoc}
+     *
+     * @throws ConfigurationException
      */
     public function setConfig($config)
     {
@@ -193,7 +195,7 @@ class FtpConfiguration extends FileConfiguration
     /**
      * @inheritDoc
      */
-    protected function _validateConfiguration()
+    protected function validateConfiguration()
     {
         /** @var mixed $optionValue */
         foreach ($this->config as $optionKey => $optionValue) switch ($optionKey) {

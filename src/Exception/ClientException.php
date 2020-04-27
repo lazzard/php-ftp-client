@@ -14,7 +14,7 @@ class ClientException extends \Exception implements FtpClientException
     public function __construct($message)
     {
         parent::__construct(
-            self::_classBaseName(get_class($this)) === self::_classBaseName(self::class)
+            self::classBaseName(get_class($this)) === self::classBaseName(self::class)
             ? "[ClientException] - " . $message : $message
         );
     }
@@ -24,7 +24,7 @@ class ClientException extends \Exception implements FtpClientException
         return @explode(' ', error_get_last()['message'], 2)[1];
     }
 
-    private static function _classBaseName($class)
+    private static function classBaseName($class)
     {
         return basename(str_replace('\\', '/', $class), $class);
     }

@@ -137,7 +137,7 @@ class FtpCommand
     /**
      * Send a request to FTP server for execution a SITE command.
      *
-     * @see FtpCommand::_supportedSiteCommands()
+     * @see FtpCommand::supportedSiteCommands()
      *
      * @param string $command
      *
@@ -149,14 +149,14 @@ class FtpCommand
     {
         $siteCommand = strtolower(explode(' ', trim($command))[0]);
 
-        if ( ! in_array($siteCommand, $this->_supportedSiteCommands())) {
+        if ( ! in_array($siteCommand, $this->supportedSiteCommands())) {
             throw new CommandException("{$siteCommand} SITE command not supported by the remote server.");
         }
 
         if ( ! $this->wrapper->site(trim($command))) {
-            $this->_responseFormatter(500, '[FtpClient] SITE command was failed.');
+            $this->responseFormatter(500, '[FtpClient] SITE command was failed.');
         } else {
-            $this->_responseFormatter(200, '[FtpClient] SITE command succeeded.');
+            $this->responseFormatter(200, '[FtpClient] SITE command succeeded.');
         }
 
         return $this;
@@ -165,7 +165,7 @@ class FtpCommand
     /**
      * Send a request to FTP server for execution a SITE EXEC command.
      *
-     * @see FtpCommand::_supportedSiteCommands()
+     * @see FtpCommand::supportedSiteCommands()
      *
      * @param string $command
      *
@@ -175,14 +175,14 @@ class FtpCommand
      */
     public function execRequest($command)
     {
-        if ( ! in_array('exec', $this->_supportedSiteCommands())) {
+        if ( ! in_array('exec', $this->supportedSiteCommands())) {
             throw new CommandException("SITE EXEC command not provided by the FTP server.");
         }
 
         if ( ! $this->wrapper->exec(trim($command))) {
-            $this->_responseFormatter(500, '[FtpClient] SITE EXEC command was failed.');
+            $this->responseFormatter(500, '[FtpClient] SITE EXEC command was failed.');
         } else {
-            $this->_responseFormatter(200, '[FtpClient] SITE EXEC command succeeded.');
+            $this->responseFormatter(200, '[FtpClient] SITE EXEC command succeeded.');
         }
 
         return $this;
@@ -214,7 +214,7 @@ class FtpCommand
     /**
      * @return array
      */
-    private function _supportedSiteCommands()
+    private function supportedSiteCommands()
     {
         return array_map(
             function ($item) {
@@ -234,7 +234,7 @@ class FtpCommand
      * @param $responseCode
      * @param $responseMessage
      */
-    private function _responseFormatter($responseCode, $responseMessage)
+    private function responseFormatter($responseCode, $responseMessage)
     {
         $this->responseCode    = $responseCode;
         $this->responseMessage = $responseMessage;

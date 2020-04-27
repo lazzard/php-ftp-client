@@ -22,7 +22,6 @@ abstract class FileConfiguration
 
     /**
      * Configuration constructor.
-     *
      */
     public function __construct()
     {
@@ -51,9 +50,11 @@ abstract class FileConfiguration
     abstract public function apply();
 
     /**
-     * Merge the provided configuration with the appropriate 
+     * Merge the provided configuration with the appropriate
      * configuration in the config file.
-     * 
+     *
+     * @param $config
+     *
      * @return array
      */
     abstract protected function merge($config);
@@ -72,9 +73,11 @@ abstract class FileConfiguration
      *
      * @throws ConfigurationException
      */
-    abstract protected function _validateConfiguration();
-    
+    abstract protected function validateConfiguration();
+
     /**
+     * @param $name
+     *
      * @return array|false
      */
     protected function getConfigByName($name)
@@ -85,5 +88,5 @@ abstract class FileConfiguration
 
         return self::$configFile[$name];
     }
-    
+
 }
