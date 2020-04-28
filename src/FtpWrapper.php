@@ -23,6 +23,9 @@ class FtpWrapper
     const USEPASVADDRESS = FTP_USEPASVADDRESS;
     const ASCII          = FTP_ASCII;
     const BINARY         = FTP_BINARY;
+    const FAILED         = FTP_FAILED;
+    const FINISHED       = FTP_FINISHED;
+    const MOREDATA       = FTP_MOREDATA;
 
     /** @var ConnectionInterface */
     protected $connection;
@@ -331,5 +334,31 @@ class FtpWrapper
     public function get($localFile, $remoteFile, $mode, $resumepos = 0)
     {
         return @ftp_get($this->connection->getStream(), $localFile, $remoteFile, $mode, $resumepos);
+    }
+
+    /**
+     * @link https://www.php.net/manual/en/function.ftp-nb-get.php
+     *
+     * @param string $localFile
+     * @param string $remoteFile
+     * @param int    $mode
+     * @param int    $resumepos[optional]
+     * 
+     * @return int
+     */
+    public function nb_get($localFile, $remoteFile, $mode, $resumepos = 0)
+    {
+        //var_dump($localFile);
+        return ftp_nb_get($this->connection->getStream(), $localFile, $remoteFile, $mode, $resumepos);
+    }
+
+    /**
+     * @link https://www.php.net/manual/en/function.ftp-nb-continue.php
+     * 
+     * @return int
+     */
+    public function nb_continue()
+    {
+        return @ftp_nb_continue($this->connection->getStream());
     }
 }
