@@ -23,7 +23,7 @@ return [
     "phpLimit"          => [
 
         "maxExecutionTime" => UNLIMITED,
-        "ignoreUserAbort"  => NOT_CHANGE
+        "ignoreUserAbort"  => false
 
     ],
 
