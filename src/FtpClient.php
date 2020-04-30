@@ -1025,6 +1025,47 @@ class FtpClient
     }
 
     /**
+     * Inserts the giving contents to a specific FTP remote file.
+     *
+     * Note : if the file does not exists it will be created.
+     *
+     * @param string $remoteFile
+     * @param mixed  $content
+     *
+     * @return bool
+     */
+    public function setFileContent($remoteFile, $content)
+    {
+        $handle = fopen('php://temp', 'a');
+        fwrite($handle, (string)$content);
+        rewind($handle);
+
+        return $this->wrapper->fput($remoteFile, $handle, self::ASCII);
+    }
+
+    /**
+     * Create a file on the FTP server and inserting
+     * the giving content to it.
+     *
+     * @param string     $fileName
+     * @param mixed|null $content
+     *
+     * @return bool
+     *
+     * @throws ClientException
+     */
+    public function createFile($fileName, $content = null)
+    {
+        if ( ! $this->setFileContent($fileName, (string)$content)) {
+            throw new ClientException(ClientException::getFtpServerError()
+                ?: "Unable to create the file [{$fileName}]."
+            );
+        }
+
+        return true;
+    }
+
+    /**
      * @param string $localFile
      * @param string $remoteFile
      * @param int    $retries [optional]

@@ -374,6 +374,21 @@ class FtpWrapper
      */
     public function put($remoteFile, $localFile, $mode, $startpos = 0)
     {
-        return ftp_put($this->getConnection()->getStream(), $remoteFile, $localFile, $mode, $startpos);
+        return ftp_put($this->connection->getStream(), $remoteFile, $localFile, $mode, $startpos);
+    }
+
+    /**
+     * @link https://www.php.net/manual/en/function.ftp-fput.php
+     *
+     * @param string $remoteFile
+     * @param     resource   $handle
+     * @param int    $mode
+     * @param int    $startpos [optional]
+     *
+     * @return bool
+     */
+    public function fput($remoteFile, $handle, $mode, $startpos = 0)
+    {
+        return ftp_fput($this->connection->getStream(), $remoteFile, $handle, $mode, $startpos);
     }
 }
