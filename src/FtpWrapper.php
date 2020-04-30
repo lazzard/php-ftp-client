@@ -282,7 +282,7 @@ class FtpWrapper
      */
     public function size($remoteFile)
     {
-        return @ftp_size($this->connection->getStream(), $remoteFile);
+        return ftp_size($this->connection->getStream(), $remoteFile);
     }
 
     /**
@@ -318,6 +318,7 @@ class FtpWrapper
      */
     public function alloc($size, $result = null)
     {
+        // TODO reference $result testing
         return ftp_alloc($this->connection->getStream(), $size, $result);
     }
 
@@ -354,11 +355,26 @@ class FtpWrapper
 
     /**
      * @link https://www.php.net/manual/en/function.ftp-nb-continue.php
-     * 
+     *
      * @return int
      */
     public function nb_continue()
     {
         return @ftp_nb_continue($this->connection->getStream());
+    }
+
+    /**
+     * @link https://www.php.net/manual/en/function.ftp-nb-continue.php
+     *
+     * @param string $remoteFile
+     * @param string $localFile
+     * @param int    $mode
+     * @param int    $startpos[optional]
+     *
+     * @return bool
+     */
+    public function put($remoteFile, $localFile, $mode, $startpos = 0)
+    {
+        return ftp_put($this->getConnection()->getStream(), $remoteFile, $localFile, $mode, $startpos);
     }
 }

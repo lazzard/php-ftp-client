@@ -710,14 +710,18 @@ class FtpClient
      * Download remote file from the FTP server.
      *
      * @param string $remoteFile
-     * @param int    $saveIn [optional]
-     * @param int    $mode   [optional]
+     * @param int    $saveIn  [optional]
+     * @param int    $retries [optional]
+     * @param int    $mode    [optional]
+     *
+     * @param int    $startAt
      *
      * @return bool
      *
      * @throws ClientException
      */
-    public function download($remoteFile, $saveIn = self::SAVE_CURRENT_DIR, $mode = self::GET_TRANSFER_MODE)
+    public function download($remoteFile, $saveIn = self::SAVE_CURRENT_DIR, $retries = 1, $mode =
+    self::GET_TRANSFER_MODE, $startAt = 0)
     {
         if ( ! $this->isExists($remoteFile)) {
             throw new ClientException("[{$remoteFile}] does not exists.");
@@ -725,15 +729,25 @@ class FtpClient
 
         $saveIn = $saveIn === self::SAVE_CURRENT_DIR ? getcwd() : $saveIn;
 
-        if ( ! $this->wrapper->get(
-            $saveIn . DIRECTORY_SEPARATOR . basename($remoteFile),
-            $remoteFile,
-            $mode === self::GET_TRANSFER_MODE ? $this->getTransferMode($remoteFile) : $mode)
-        ) {
-            throw new ClientException(ClientException::getFtpServerError()
-                ?: "Unable to retrieve [{$remoteFile}]."
-            );
-        }
+        $i = 0;
+        do {
+            if ( ! $this->wrapper->get(
+                $saveIn . DIRECTORY_SEPARATOR . basename($remoteFile),
+                $remoteFile,
+                $mode === self::GET_TRANSFER_MODE ? $this->getTransferMode($remoteFile) : $mode,
+                $startAt
+            )
+            ) {
+                $i++;
+                if ($i >= $retries) {
+                    throw new ClientException(ClientException::getFtpServerError()
+                        ?: "Unable to retrieve [{$remoteFile}]."
+                    );
+                }
+            } else {
+                break;
+            }
+        } while ($i < $retries);
 
         return true;
     }
@@ -784,14 +798,15 @@ class FtpClient
      * @param int           $saveIn [optional]
      * @param int           $interval
      * @param int           $mode
-     * @param int           $startDownloadAt
+     * @param int           $startAt
      *
      * @return bool
      *
      * @throws ClientException
      */
-    public function asyncDownload($remoteFile, $doWhileDownloading, $saveIn = self::SAVE_CURRENT_DIR, $interval = 1, $mode = self::GET_TRANSFER_MODE, $startDownloadAt = 0
-    ) {
+    public function asyncDownload($remoteFile, $doWhileDownloading, $saveIn = self::SAVE_CURRENT_DIR,
+        $interval = 1, $mode = self::GET_TRANSFER_MODE, $startAt = 0)
+    {
         if ( ! $this->isExists($remoteFile)) {
             throw new ClientException("[{$remoteFile}] does not exists.");
         }
@@ -799,13 +814,13 @@ class FtpClient
         $saveIn    = $saveIn === self::SAVE_CURRENT_DIR ? getcwd() : $saveIn;
         $localFile = $saveIn . DIRECTORY_SEPARATOR . basename($remoteFile);
 
-        $remoteFileSize = $this->wrapper->size($remoteFile);
+        $remoteFileSize = $this->fileSize($remoteFile);
 
         $download = $this->wrapper->nb_get(
             $localFile,
             $remoteFile,
             $mode === self::GET_TRANSFER_MODE ? $this->getTransferMode($remoteFile) : $mode,
-            $startDownloadAt
+            $startAt
         );
 
         $timeStart = microtime(true);
@@ -821,7 +836,7 @@ class FtpClient
 
             $stat = [
                 'transferred' => number_format(($localFileSize - $sizeTmp) / 1000),
-                'percentage'  => number_format(($localFileSize * 100) / $remoteFileSize, 0),
+                'percentage'  => number_format(($localFileSize * 100) / $remoteFileSize),
                 'speed'       => number_format(($localFileSize / $secondsPassed) / 1000, 2),
                 'seconds'     => $secondsPassed
             ];
@@ -833,20 +848,20 @@ class FtpClient
             $sizeTmp = $localFileSize;
         }
 
-        if ($download === self::FAILED || $download === self::MOREDATA) {
+        if ($download === self::FAILED) {
             throw new ClientException(ClientException::getFtpServerError()
                 ?: "Failed to download the file [{$remoteFile}]."
             );
         }
 
-        return true;
+        return (bool)self::FINISHED;
     }
 
     /**
      * Resume downloading file asynchronously.
      *
-     * Note : the autoSeek option must be turned ON (default), if not
-     * the download will start at offset 0.
+     * Note : the autoSeek option must be turned ON (default), otherwise
+     * the download will start from the beginning.
      *
      * @param string $localFile
      * @param string $remoteFile
@@ -898,6 +913,50 @@ class FtpClient
         unlink($tempFile);
 
         return $content;
+    }
+
+    /**
+     * @param string $localFile
+     * @param string $remoteDirectory
+     * @param int    $retries
+     * @param int    $mode
+     * @param int    $startAt
+     *
+     * @return bool
+     *
+     * @throws ClientException
+     */
+    public function upload($localFile, $remoteDirectory, $retries = 1, $mode = self::GET_TRANSFER_MODE,
+        $startAt = 0)
+    {
+        if ( ! file_exists($localFile)) {
+            throw new ClientException("[{$localFile}] does not exists.");
+        }
+
+        if ( ! $this->isDir($remoteDirectory)) {
+            throw new ClientException("[{$remoteDirectory}] must be an existing directory.");
+        }
+
+        $i = 0;
+        do {
+            if ( ! $this->wrapper->put(
+                $remoteDirectory . '/' . basename($localFile),
+                $localFile,
+                $mode === self::GET_TRANSFER_MODE ? $this->getTransferMode($localFile) : $mode,
+                $startAt)
+            ) {
+                $i++;
+                if ($i >= $retries) {
+                    throw new ClientException(
+                        "Can't upload [{$localFile}] to [{$remoteDirectory}] directory."
+                    );
+                }
+            } else {
+                break;
+            }
+        } while ($i < $retries);
+
+        return true;
     }
 
     /**
