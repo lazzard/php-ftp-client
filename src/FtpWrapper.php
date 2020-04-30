@@ -349,7 +349,6 @@ class FtpWrapper
      */
     public function nb_get($localFile, $remoteFile, $mode, $resumepos = 0)
     {
-        //var_dump($localFile);
         return ftp_nb_get($this->connection->getStream(), $localFile, $remoteFile, $mode, $resumepos);
     }
 
