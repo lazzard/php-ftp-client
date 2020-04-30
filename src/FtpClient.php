@@ -260,31 +260,6 @@ class FtpClient
     }
 
     /**
-     * Extract the file type (type, dir, link) from chmod string
-     * (e.g., 'drwxr-xr-x' will return 'dir').
-     *
-     * @param string $chmod
-     *
-     * @return string
-     */
-    protected function chmodToFileType($chmod)
-    {
-        switch ($chmod[0]) {
-            case '-':
-                return 'file';
-
-            case 'd':
-                return 'dir';
-
-            case 'l':
-                return 'link';
-
-            default:
-                return 'unknown file type.';
-        }
-    }
-
-    /**
      * Gets operating system type of the FTP server.
      *
      * @return string
@@ -815,8 +790,7 @@ class FtpClient
      *
      * @throws ClientException
      */
-    public function asyncDownload($remoteFile, $doWhileDownloading, $saveIn = self::SAVE_CURRENT_DIR,
-        $interval = 1, $mode = self::GET_TRANSFER_MODE, $startDownloadAt = 0
+    public function asyncDownload($remoteFile, $doWhileDownloading, $saveIn = self::SAVE_CURRENT_DIR, $interval = 1, $mode = self::GET_TRANSFER_MODE, $startDownloadAt = 0
     ) {
         if ( ! $this->isExists($remoteFile)) {
             throw new ClientException("[{$remoteFile}] does not exists.");
@@ -838,8 +812,6 @@ class FtpClient
 
         $secondsTmp = null;
         $sizeTmp    = null;
-        ob_end_clean();
-        ob_start();
         while ($download === self::MOREDATA) {
             $download = $this->wrapper->nb_continue();
 
@@ -856,6 +828,9 @@ class FtpClient
                         / 1000, 2); // second 0 => division by 0
 
                 $progress = number_format(($localFileSize * 100) / $remoteFileSize, 0);
+
+                ob_end_clean();
+                ob_start();
 
                 $doWhileDownloading($progress, $speedAverage, $transferred, $secondsPassed);
 
@@ -879,6 +854,9 @@ class FtpClient
 
     /**
      * Resume downloading file asynchronously.
+     *
+     * Note : the autoSeek option must be turned ON (default), if not
+     * the download will start at offset 0.
      *
      * @param string $localFile
      * @param string $remoteFile
@@ -932,4 +910,28 @@ class FtpClient
         return $content;
     }
 
+    /**
+     * Extract the file type (type, dir, link) from chmod string
+     * (e.g., 'drwxr-xr-x' will return 'dir').
+     *
+     * @param string $chmod
+     *
+     * @return string
+     */
+    protected function chmodToFileType($chmod)
+    {
+        switch ($chmod[0]) {
+            case '-':
+                return 'file';
+
+            case 'd':
+                return 'dir';
+
+            case 'l':
+                return 'link';
+
+            default:
+                return 'unknown file type.';
+        }
+    }
 }
