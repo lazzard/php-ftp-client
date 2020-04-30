@@ -781,9 +781,9 @@ class FtpClient
      *
      * @param string        $remoteFile
      * @param callback|null $doWhileDownloading
-     * @param int           $saveIn   [optional]
-     * @param int           $interval [optional]
-     * @param int           $mode     [optional]
+     * @param int           $saveIn [optional]
+     * @param int           $interval
+     * @param int           $mode
      * @param int           $startDownloadAt
      *
      * @return bool
@@ -810,46 +810,36 @@ class FtpClient
 
         $timeStart = microtime(true);
 
-        $secondsTmp = null;
-        $sizeTmp    = null;
+        $sizeTmp = null;
         while ($download === self::MOREDATA) {
             $download = $this->wrapper->nb_continue();
 
-            $secondsPassed = round(microtime(true) - $timeStart);
+            clearstatcache();
+            $localFileSize = filesize($localFile);
 
-            if ($secondsPassed !== $secondsTmp && is_int(intval($secondsPassed) / $interval)) {
-                clearstatcache();
-                $localFileSize = filesize($localFile);
+            $secondsPassed = ceil(microtime(true) - $timeStart);
 
-                $transferred = number_format(($localFileSize - $sizeTmp) / 1000);
+            $stat = [
+                'transferred' => number_format(($localFileSize - $sizeTmp) / 1000),
+                'percentage'  => number_format(($localFileSize * 100) / $remoteFileSize, 0),
+                'speed'       => number_format(($localFileSize / $secondsPassed) / 1000, 2),
+                'seconds'     => $secondsPassed
+            ];
 
-                $speedAverage = ! $secondsPassed
-                    ?: number_format(($localFileSize / $secondsPassed)
-                        / 1000, 2); // second 0 => division by 0
+            $doWhileDownloading($stat);
 
-                $progress = number_format(($localFileSize * 100) / $remoteFileSize, 0);
+            sleep($interval);
 
-                ob_end_clean();
-                ob_start();
-
-                $doWhileDownloading($progress, $speedAverage, $transferred, $secondsPassed);
-
-                ob_flush();
-                flush();
-
-                $sizeTmp = $localFileSize;
-            }
-
-            $secondsTmp = $secondsPassed;
+            $sizeTmp = $localFileSize;
         }
 
-        if ($download === self::FAILED) {
+        if ($download === self::FAILED || $download === self::MOREDATA) {
             throw new ClientException(ClientException::getFtpServerError()
                 ?: "Failed to download the file [{$remoteFile}]."
             );
         }
 
-        return $download === self::FINISHED;
+        return true;
     }
 
     /**
