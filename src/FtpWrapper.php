@@ -380,15 +380,30 @@ class FtpWrapper
     /**
      * @link https://www.php.net/manual/en/function.ftp-fput.php
      *
-     * @param string $remoteFile
-     * @param     resource   $handle
-     * @param int    $mode
-     * @param int    $startpos [optional]
+     * @param string   $remoteFile
+     * @param resource $handle
+     * @param int      $mode
+     * @param int      $startpos [optional]
      *
      * @return bool
      */
     public function fput($remoteFile, $handle, $mode, $startpos = 0)
     {
         return ftp_fput($this->connection->getStream(), $remoteFile, $handle, $mode, $startpos);
+    }
+
+    /**
+     * @link https://www.php.net/manual/en/function.ftp-nb-fput.php
+     *
+     * @param string   $remoteFile
+     * @param resource $handle
+     * @param int      $mode
+     * @param int      $startpos [optional]
+     *
+     * @return int
+     */
+    public function nb_fput($remoteFile, $handle, $mode, $startpos = 0)
+    {
+        return ftp_nb_fput($this->connection->getStream(), $remoteFile, $handle, $mode, $startpos);
     }
 }

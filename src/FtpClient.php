@@ -22,7 +22,6 @@ class FtpClient
     const FILE_TYPE         = 2;
     const DIR_TYPE          = 1;
     const GET_TRANSFER_MODE = 3;
-    const SAVE_SAME_NAME    = 4;
 
     /**
      * FtpWrapper constants
@@ -719,7 +718,7 @@ class FtpClient
      *
      * @throws ClientException
      */
-    public function download($remoteFile, $saveAs = self::SAVE_SAME_NAME, $retries = 1, $mode =
+    public function download($remoteFile, $saveAs, $retries = 1, $mode =
     self::GET_TRANSFER_MODE, $startAt = 0)
     {
         if ( ! $this->isExists($remoteFile)) {
@@ -729,7 +728,7 @@ class FtpClient
         $i = 0;
         do {
             if ( ! $this->wrapper->get(
-                $saveAs === self::SAVE_SAME_NAME ? basename($remoteFile) : $saveAs,
+                $saveAs,
                 $remoteFile,
                 $mode === self::GET_TRANSFER_MODE ? $this->getTransferMode($remoteFile) : $mode,
                 $startAt
@@ -818,8 +817,8 @@ class FtpClient
      * Retrieves a remote file asynchronously (non-blocking).
      *
      * @param string   $remoteFile
+     * @param string   $saveAs
      * @param callback $doWhileDownloading
-     * @param int      $saveAs   [optional]
      * @param int      $interval [optional]
      * @param int      $mode     [optional]
      *
@@ -827,8 +826,7 @@ class FtpClient
      *
      * @throws ClientException
      */
-    public function asyncDownload($remoteFile, $doWhileDownloading, $saveAs = self::SAVE_SAME_NAME,
-        $interval = 1, $mode = self::GET_TRANSFER_MODE)
+    public function asyncDownload($remoteFile, $saveAs, $doWhileDownloading, $interval = 1, $mode = self::GET_TRANSFER_MODE)
     {
         if ( ! $this->isExists($remoteFile)) {
             throw new ClientException("[{$remoteFile}] does not exists.");
@@ -836,10 +834,8 @@ class FtpClient
 
         $remoteFileSize = $this->fileSize($remoteFile);
 
-        $localFilePath = $saveAs === self::SAVE_SAME_NAME ? basename($remoteFile) : $saveAs;
-
         $download = $this->wrapper->nb_get(
-            $localFilePath,
+            $saveAs,
             $remoteFile,
             $mode === self::GET_TRANSFER_MODE ? $this->getTransferMode($remoteFile) : $mode,
             0
@@ -847,34 +843,33 @@ class FtpClient
 
         $timeStart = microtime(true);
 
-        $sizeTmp    = null;
-        $secondsTmp = null;
+        $sizeTmp        = null;
+        $elapsedTimeTmp = null;
         while ($download === self::MOREDATA) {
             $download = $this->wrapper->nb_continue();
 
-            $secondsPassed = ceil(microtime(true) - $timeStart);
+            $elapsedTime = ceil(microtime(true) - $timeStart);
 
-            if ($secondsTmp !== $secondsPassed && is_int(intval($secondsPassed) / $interval)) {
+            if ($elapsedTimeTmp !== $elapsedTime && is_int(intval($elapsedTime) / $interval)) {
                 clearstatcache();
-                $localFileSize = filesize($localFilePath);
+                $localFileSizeSync = filesize($saveAs);
 
-                $stat = [
-                    'transferred' => number_format(($localFileSize - $sizeTmp) / 1000),
-                    'percentage'  => number_format(($localFileSize * 100) / $remoteFileSize),
-                    'speed'       => number_format(($localFileSize / $secondsPassed) / 1000, 2),
-                    'seconds'     => $secondsPassed
-                ];
+                $doWhileDownloading($this->getAsyncStat([
+                    'sizeSync'         => $localFileSizeSync,
+                    'previousSyncSize' => $sizeTmp,
+                    'sourceSize'       => $remoteFileSize,
+                    'elapsedTime'      => $elapsedTime
+                ]));
 
-                $doWhileDownloading($stat);
+                $sizeTmp = $localFileSizeSync;
             }
 
-            $secondsTmp = $secondsPassed;
-            $sizeTmp    = $localFileSize;
+            $elapsedTimeTmp = $elapsedTime;
         }
 
         if ($download === self::FAILED) {
             throw new ClientException(ClientException::getFtpServerError()
-                ?: "Failed to download the file [{$remoteFile}]."
+                ?: "Failed to download [{$remoteFile}]."
             );
         }
 
@@ -887,8 +882,8 @@ class FtpClient
      * Note : the autoSeek option must be turned ON (default), otherwise
      * the download will start from the beginning.
      *
-     * @param string $localFile
      * @param string $remoteFile
+     * @param string $localFile
      * @param string $doWhileDownloading
      * @param int    $interval [optional]
      * @param int    $mode     [optional]
@@ -897,7 +892,7 @@ class FtpClient
      *
      * @throws ClientException
      */
-    public function resumeAsyncDownload($localFile, $remoteFile, $doWhileDownloading, $interval = 1, $mode
+    public function resumeAsyncDownload($remoteFile, $localFile, $doWhileDownloading, $interval = 1, $mode
     = self::GET_TRANSFER_MODE)
     {
         if ( ! file_exists($localFile)) {
@@ -920,29 +915,29 @@ class FtpClient
 
         $timeStart = microtime(true);
 
-        $sizeTmp    = null;
-        $secondsTmp = null;
+        $sizeTmp        = null;
+        $elapsedTimeTmp = null;
         while ($download === self::MOREDATA) {
             $download = $this->wrapper->nb_continue();
 
-            $secondsPassed = ceil(microtime(true) - $timeStart);
+            $elapsedTime = ceil(microtime(true) - $timeStart);
 
-            if ($secondsTmp !== $secondsPassed && is_int(intval($secondsPassed) / $interval)) {
+            if ($elapsedTimeTmp !== $elapsedTime && is_int(intval($elapsedTime) / $interval)) {
                 clearstatcache();
                 $localFileSize = filesize($localFile) - $originSize;
 
-                $stat = [
-                    'transferred' => number_format(($localFileSize - $sizeTmp) / 1000),
-                    'percentage'  => number_format(($localFileSize * 100) / ($remoteFileSize - $originSize)),
-                    'speed'       => number_format(($localFileSize / $secondsPassed) / 1000, 2),
-                    'seconds'     => $secondsPassed
-                ];
+                $doWhileDownloading($this->getAsyncStat([
+                    'sizeSync'         => $localFileSize,
+                    'previousSyncSize' => $sizeTmp,
+                    'sourceSize'       => $remoteFileSize,
+                    'originSize'       => $originSize,
+                    'elapsedTime'      => $elapsedTime
+                ]));
 
-                $doWhileDownloading($stat);
+                $sizeTmp = $localFileSize;
             }
 
-            $secondsTmp = $secondsPassed;
-            $sizeTmp    = $localFileSize;
+            $elapsedTimeTmp = $elapsedTime;
         }
 
         if ($download === self::FAILED) {
@@ -995,7 +990,7 @@ class FtpClient
      *
      * @throws ClientException
      */
-    public function upload($localFile, $saveAs = self::SAVE_SAME_NAME, $retries = 1, $mode = self::GET_TRANSFER_MODE,
+    public function upload($localFile, $saveAs, $retries = 1, $mode = self::GET_TRANSFER_MODE,
         $startAt = 0)
     {
         if ( ! file_exists($localFile)) {
@@ -1005,7 +1000,7 @@ class FtpClient
         $i = 0;
         do {
             if ( ! $this->wrapper->put(
-                $saveAs === self::SAVE_SAME_NAME ? basename($localFile) : $saveAs,
+                $saveAs,
                 $localFile,
                 $mode === self::GET_TRANSFER_MODE ? $this->getTransferMode($localFile) : $mode,
                 $startAt)
@@ -1013,7 +1008,7 @@ class FtpClient
                 $i++;
                 if ($i >= $retries) {
                     throw new ClientException(ClientException::getFtpServerError()
-                        ?: "Can't upload [{$localFile}] to [{$saveAs}] directory."
+                        ?: "Unable to upload [{$localFile}]."
                     );
                 }
             } else {
@@ -1087,8 +1082,166 @@ class FtpClient
     }
 
     /**
+     * @param string $localFile
+     * @param string $saveAs
+     * @param string $doWhileDownloading
+     * @param int    $interval [optional]
+     * @param int    $mode     [optional]
+     *
+     * @return bool
+     *
+     * @throws ClientException
+     */
+    public function asyncUpload($localFile, $saveAs, $doWhileDownloading, $interval = 1, $mode =
+    self::GET_TRANSFER_MODE)
+    {
+        if ( ! file_exists($localFile)) {
+            throw new ClientException("[{$localFile}] does not exists.");
+        }
+
+        $localFileSize = filesize($localFile);
+
+        $handle   = fopen($localFile, 'r');
+        $download = $this->wrapper->nb_fput(
+            $saveAs,
+            $handle,
+            $mode === self::GET_TRANSFER_MODE ? $this->getTransferMode($localFile) : $mode,
+            0
+        );
+
+        $timeStart = microtime(true);
+
+        $sizeTmp        = null;
+        $elapsedTimeTmp = null;
+        while ($download === self::MOREDATA) {
+            $download = $this->wrapper->nb_continue();
+
+            $elapsedTime = ceil(microtime(true) - $timeStart);
+
+            if ($elapsedTimeTmp !== $elapsedTime && is_int(intval($elapsedTime) / $interval)) {
+
+                $localFileSizeSync = ftell($handle);
+
+                $doWhileDownloading($this->getAsyncStat([
+                    'sizeSync'         => $localFileSizeSync,
+                    'previousSyncSize' => $sizeTmp,
+                    'sourceSize'       => $localFileSize,
+                    'elapsedTime'      => $elapsedTime
+                ]));
+
+                $sizeTmp = $localFileSizeSync;
+            }
+
+            $elapsedTimeTmp = $elapsedTime;
+        }
+
+        if ($download === self::FAILED) {
+            throw new ClientException(ClientException::getFtpServerError()
+                ?: "Failed to upload the file [{$localFile}]."
+            );
+        }
+
+        return (bool)self::FINISHED;
+    }
+
+    /**
+     * @param     $localFile
+     * @param     $remoteFile
+     * @param     $doWhileDownloading
+     * @param int $interval
+     * @param int $mode
+     *
+     * @return bool
+     * @throws ClientException
+     */
+    public function resumeAsyncUpload($localFile, $remoteFile, $doWhileDownloading, $interval = 1, $mode = self::GET_TRANSFER_MODE)
+    {
+        if ( ! file_exists($localFile)) {
+            throw new ClientException("[{$localFile}] does not exists.");
+        }
+
+        $localFileSize = filesize($localFile);
+        $originSize    = $this->fileSize($remoteFile);
+
+        $handle   = fopen($localFile, 'r');
+        $download = $this->wrapper->nb_fput(
+            $remoteFile,
+            $handle,
+            $mode === self::GET_TRANSFER_MODE ? $this->getTransferMode($localFile) : $mode,
+            $originSize
+        );
+
+        $timeStart = microtime(true);
+
+        $sizeTmp        = null;
+        $elapsedTimeTmp = null;
+        while ($download === self::MOREDATA) {
+            $download = $this->wrapper->nb_continue();
+
+            $elapsedTime = ceil(microtime(true) - $timeStart);
+
+            if ($elapsedTimeTmp !== $elapsedTime && is_int(intval($elapsedTime) / $interval)) {
+
+                $sizeSync = ftell($handle) - $originSize;
+
+                $doWhileDownloading($this->getAsyncStat([
+                    'sizeSync'         => $sizeSync,
+                    'previousSyncSize' => $sizeTmp,
+                    'sourceSize'       => $localFileSize,
+                    'originSize'       => $originSize,
+                    'elapsedTime'      => $elapsedTime,
+                ], true));
+
+                $sizeTmp = $sizeSync;
+            }
+
+            $elapsedTimeTmp = $elapsedTime;
+        }
+
+        if ($download === self::FAILED) {
+            throw new ClientException(ClientException::getFtpServerError()
+                ?: "Failed to upload the file [{$localFile}]."
+            );
+        }
+
+        return (bool)self::FINISHED;
+    }
+
+    /**
+     * Gets miscellaneous information of the giving upload/download stat.
+     *
+     * @param array $currentStat
+     * @param bool  $resume
+     *
+     * @return array
+     */
+    protected function getAsyncStat($currentStat, $resume = false)
+    {
+        if ( ! $resume) {
+            $percentage = number_format(
+                ($currentStat['sizeSync'] * 100) / $currentStat['sourceSize']
+            );
+        } else {
+            $percentage = number_format(
+                ($currentStat['sizeSync'] * 100) / ($currentStat['sourceSize'] - $currentStat['originSize'])
+            );
+        }
+
+        return [
+            'transferred' => number_format(
+                ($currentStat['sizeSync'] - $currentStat['previousSyncSize']) / 1000
+            ),
+            'speed'       => number_format(
+                ($currentStat['sizeSync'] / $currentStat['elapsedTime']) / 1000, 2
+            ),
+            'percentage'  => $percentage,
+            'seconds'     => $currentStat['elapsedTime']
+        ];
+    }
+
+    /**
      * Extract the file type (type, dir, link) from chmod string
-     * (e.g., 'drwxr-xr-x' will return 'dir').
+     * (e.g., 'drwxr - xr - x' will return 'dir').
      *
      * @param string $chmod
      *
