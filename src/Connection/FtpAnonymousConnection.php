@@ -5,6 +5,14 @@ namespace Lazzard\FtpClient\Connection;
 
 use Lazzard\FtpClient\Exception\ConnectionException;
 
+/**
+ * Class FtpAnonymousConnection represents an FTP anonymous connection.
+ * 
+ * Note : not all FTP servers support this kind of connections.
+ *
+ * @since 1.0
+ * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>
+ */
 class FtpAnonymousConnection extends FtpConnection
 {
 

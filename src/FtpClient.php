@@ -10,8 +10,7 @@ use Lazzard\FtpClient\Exception\ClientException;
  * Class FtpClient
  *
  * @since   1.0
- * @package Lazzard\FtpClient
- * @author  EL AMRANI CHAKIR <elamrani.sv.laza@gmail.com>
+ * @author  El Amrani Chakir <elamrani.sv.laza@gmail.com>
  */
 class FtpClient
 {
@@ -158,7 +157,8 @@ class FtpClient
     public function getCount(
         $directory, $recursive = false, $filter = self::FILE_DIR_TYPE,
         $ignoreDots = false
-    ) {
+    )
+    {
         return count($this->listDirectoryDetails(
             $directory,
             $recursive,
@@ -246,7 +246,7 @@ class FtpClient
     }
 
     /**
-     * Check weather if a file is a directory or not.
+     * Check whether if a file is a directory or not.
      *
      * @param string $directory
      *
@@ -339,7 +339,7 @@ class FtpClient
     }
 
     /**
-     * Check weather if the giving file/directory is exists or not.
+     * Check whether if the giving file/directory is exists or not.
      *
      * @param string $remoteFile
      *
@@ -520,7 +520,7 @@ class FtpClient
     }
 
     /**
-     * Check weather if the giving directory is empty or not.
+     * Check whether if the giving directory is empty or not.
      *
      * @param string $directory
      *
@@ -718,8 +718,7 @@ class FtpClient
      *
      * @throws ClientException
      */
-    public function download($remoteFile, $saveAs, $retries = 1, $mode =
-    self::GET_TRANSFER_MODE, $startAt = 0)
+    public function download($remoteFile, $saveAs, $retries = 1, $mode = self::GET_TRANSFER_MODE, $startAt = 0)
     {
         if ( ! $this->isExists($remoteFile)) {
             throw new ClientException("[{$remoteFile}] does not exists.");
@@ -894,8 +893,7 @@ class FtpClient
      *
      * @throws ClientException
      */
-    public function resumeAsyncDownload($remoteFile, $localFile, $doWhileDownloading, $interval = 1, $mode
-    = self::GET_TRANSFER_MODE)
+    public function resumeAsyncDownload($remoteFile, $localFile, $doWhileDownloading, $interval = 1, $mode = self::GET_TRANSFER_MODE)
     {
         if ( ! file_exists($localFile)) {
             throw new ClientException("[{$localFile}] must be an existing file.");
@@ -994,8 +992,7 @@ class FtpClient
      *
      * @throws ClientException
      */
-    public function upload($localFile, $saveAs, $retries = 1, $mode = self::GET_TRANSFER_MODE,
-        $startAt = 0)
+    public function upload($localFile, $saveAs, $retries = 1, $mode = self::GET_TRANSFER_MODE, $startAt = 0)
     {
         if ( ! file_exists($localFile)) {
             throw new ClientException("[{$localFile}] does not exists.");

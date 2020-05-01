@@ -10,8 +10,7 @@ use Lazzard\FtpClient\Connection\ConnectionInterface;
  * Wrapper class for php FTP extension functions & constants.
  *
  * @since 1.0
- * @package Lazzard\FtpClient
- * @author EL AMRANI CHAKIR <elamrani.sv.laza@gmail.com>
+ * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>
  */
 class FtpWrapper
 {

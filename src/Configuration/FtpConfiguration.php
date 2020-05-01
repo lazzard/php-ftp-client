@@ -11,8 +11,7 @@ use Lazzard\FtpClient\FtpWrapper;
  * Class FtpConfiguration
  *
  * @since 1.0
- * @package Lazzard\FtpClient\FtpConfiguration
- * @author EL AMRANI CHAKIR <elamrani.sv.laza@gmail.com>
+ * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>
  */
 class FtpConfiguration extends FileConfiguration
 {
@@ -195,34 +194,63 @@ class FtpConfiguration extends FileConfiguration
 
         return true;
     }
-
+    
     /**
-     * Gets an FTP runtime option value.
-     *
-     * @param string $option
-     *
-     * @return mixed
-     *
+     * Gets the timeout option value.
+     * 
+     * @return int
+     * 
      * @throws ConfigurationException
      */
-    public function getRuntimeOption($option)
+    public function getTimeout()
     {
-        if ( ! in_array($option, [
-            self::TIMEOUT_SEC,
-            self::AUTOSEEK,
-            self::USEPASVADDRESS
-        ], true)) {
-            throw new ConfigurationException("[{$option}] is invalid FTP runtime option.");
-        }
-
-        if ( ! ($optionValue = $this->wrapper->getOption($option))) {
+        if ( ! ($optionValue = $this->wrapper->getOption(self::TIMEOUT_SEC))) {
             throw new ConfigurationException(ConfigurationException::getFtpServerError()
-                ?: "Cannot get FTP runtime option value."
+                ?: "Unable to get FTP timeout option value."
             );
         }
 
-        return $optionValue;
+        return $optionValue;   
     }
+    
+    /**
+     * Checks if the autoSeek option enabled or not.
+     * 
+     * @return bool
+     * 
+     * @throws ConfigurationException
+     */
+    public function isAutoSeek()
+    {
+        if ( ! ($optionValue = $this->wrapper->getOption(self::AUTOSEEK))) {
+            throw new ConfigurationException(ConfigurationException::getFtpServerError()
+                ?: "Unable to get FTP timeout option value."
+            );
+        }
+
+        return $optionValue;   
+    }
+
+    /**
+     * Checks if the passive address returned in the PASV response
+     * is used by the control channel or not. 
+     * 
+     * 
+     * @return bool
+     * 
+     * @throws ConfigurationException
+     */
+    public function isUsePassiveAddress()
+    {
+        if ( ! ($optionValue = $this->wrapper->getOption(self::AUTOSEEK))) {
+            throw new ConfigurationException(ConfigurationException::getFtpServerError()
+                ?: "Unable to get FTP timeout option value."
+            );
+        }
+
+        return $optionValue;  
+    }
+
 
     /**
      * @inheritDoc
@@ -232,14 +260,6 @@ class FtpConfiguration extends FileConfiguration
         return array_merge($this->getConfigByName(self::DEFAULT_CONF), $config);
     }
 
-    /**
-     * @inheritDoc
-     */
-    protected function init()
-    {
-        $this->config = $this->getConfigByName(self::DEFAULT_CONF);
-    }
-    
     /**
      * @inheritDoc
      */

@@ -6,8 +6,7 @@ namespace Lazzard\FtpClient\Exception;
  * Class ClientException
  *
  * @since 1.0
- * @package Lazzard\FtpClient\Exception
- * @author EL AMRANI CHAKIR <elamrani.sv.laza@gmail.com>
+ * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>
  */
 class ClientException extends \Exception implements FtpClientException
 {

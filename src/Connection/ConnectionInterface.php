@@ -4,6 +4,12 @@ namespace Lazzard\FtpClient\Connection;
 
 use Lazzard\FtpClient\Exception\ConnectionException;
 
+/**
+ * Interface that all FTP connections class must implements.
+ *
+ * @since 1.0
+ * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>
+ */
 interface ConnectionInterface
 {
     /**

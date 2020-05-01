@@ -8,8 +8,7 @@ use Lazzard\FtpClient\Exception\ConfigurationException;
  * Class PhpIniConfig
  *
  * @since 1.0
- * @package Lazzard\FtpClient\FtpConfiguration
- * @author EL AMRANI CHAKIR <elamrani.sv.laza@gmail.com>
+ * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>
  */
 class PhpIniConfig extends FileConfiguration
 {
@@ -29,7 +28,7 @@ class PhpIniConfig extends FileConfiguration
     {
         parent::__construct();
 
-        $config ? $this->setConfig($config) : $this->init();
+        $this->setConfig($config);
         $this->validateConfiguration();
     }
 
@@ -46,7 +45,11 @@ class PhpIniConfig extends FileConfiguration
      */
     public function setConfig($config)
     {
-        $this->config = !$config ?: $this->merge($config);
+        if ($config) {
+            $this->config = $this->merge($config);
+        } else {
+            $this->config = $this->getConfigByName(self::CONFIG_NAME);
+        }
     }
 
     /**
@@ -59,7 +62,7 @@ class PhpIniConfig extends FileConfiguration
         if ($this->config['maxExecutionTime'] !== NOT_CHANGE ) {
             if ( ! set_time_limit($this->config['maxExecutionTime'] === UNLIMITED ? 0 : $this->config['maxExecutionTime'])) {
                 throw new ConfigurationException(
-                    "Failed to set max_execution_time directive value to [{$this->config['maxExecutionTime']}]."
+                    "Failed to set max_execution_time value to [{$this->config['maxExecutionTime']}]."
                 );
             }
         }
@@ -68,7 +71,7 @@ class PhpIniConfig extends FileConfiguration
             ignore_user_abort($this->config['ignoreUserAbort']);
             if ((bool)ini_get('ignore_user_abort') !== $this->config['ignoreUserAbort']) {
                 throw new ConfigurationException(
-                    "Unable to set ignore_user_abort directive value to [{$this->config['ignoreUserAbort']}]."
+                    "Unable to set ignore_user_abort value to [{$this->config['ignoreUserAbort']}]."
                 );
             }
         }
@@ -80,14 +83,6 @@ class PhpIniConfig extends FileConfiguration
     protected function merge($config)
     {
         return array_merge($this->getConfigByName(self::CONFIG_NAME), $config);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function init()
-    {
-        $this->config = $this->getConfigByName(self::CONFIG_NAME);
     }
 
     /**

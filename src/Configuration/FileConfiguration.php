@@ -6,11 +6,10 @@ namespace Lazzard\FtpClient\Configuration;
 use Lazzard\FtpClient\Exception\ConfigurationException;
 
 /**
- * Class FileConfiguration
+ * Class FileConfiguration defines all extended configuration classes behavior.
  *
  * @since 1.0
- * @package Lazzard\FtpClient\FtpConfiguration
- * @author EL AMRANI CHAKIR <elamrani.sv.laza@gmail.com>
+ * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>
  */
 abstract class FileConfiguration
 {
@@ -58,13 +57,6 @@ abstract class FileConfiguration
      * @return array
      */
     abstract protected function merge($config);
-
-    /**
-     * Sets default configuration.
-     * 
-     * @return void
-     */
-    abstract protected function init();
 
     /**
      * Validate configuration options.

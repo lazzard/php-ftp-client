@@ -6,6 +6,12 @@ namespace Lazzard\FtpClient\Connection;
 use Lazzard\FtpClient\Exception\ConnectionException;
 use Lazzard\FtpClient\FtpWrapper;
 
+/**
+ * Class FtpConnection represents a regular FTP connection (not secure).
+ *
+ * @since 1.0
+ * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>
+ */
 class FtpConnection implements ConnectionInterface
 {
     /** @var FtpWrapper */

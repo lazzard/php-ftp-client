@@ -8,11 +8,10 @@ use Lazzard\FtpClient\Exception\CommandException;
 use Lazzard\FtpClient\FtpWrapper;
 
 /**
- * Class CommandException
+ * Class FtpCommand
  *
  * @since 1.0
- * @package Lazzard\FtpClient\FtpCommand
- * @author EL AMRANI CHAKIR <elamrani.sv.laza@gmail.com>
+ * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>
  */
 class FtpCommand
 {
@@ -99,7 +98,7 @@ class FtpCommand
     }
 
     /**
-     * Check weather if the previous command request was succeeded or not.
+     * Check whether if the previous command request was succeeded or not.
      *
      * @return bool
      */
