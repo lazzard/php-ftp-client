@@ -763,7 +763,7 @@ class FtpClient
     public function resumeDownload($localFile, $remoteFile, $retries = 1, $mode = self::GET_TRANSFER_MODE)
     {
         if ( ! file_exists($localFile)) {
-            throw new ClientException("[{$localFile}] does not exists.");
+            throw new ClientException("Cannot resume downloading [{$localFile}] because is doesn't exists.");
         }
 
         return $this->download(
@@ -776,6 +776,8 @@ class FtpClient
     }
 
     /**
+     * Gets the appropriate transfer mode for the giving file.
+     *
      * @param $fileName
      *
      * @return int
@@ -896,7 +898,7 @@ class FtpClient
     = self::GET_TRANSFER_MODE)
     {
         if ( ! file_exists($localFile)) {
-            throw new ClientException("[{$localFile}] not exists.");
+            throw new ClientException("[{$localFile}] must be an existing file.");
         }
 
         if ( ! $this->isExists($remoteFile)) {
@@ -932,7 +934,7 @@ class FtpClient
                     'sourceSize'       => $remoteFileSize,
                     'originSize'       => $originSize,
                     'elapsedTime'      => $elapsedTime
-                ]));
+                ], true));
 
                 $sizeTmp = $localFileSize;
             }
@@ -980,6 +982,8 @@ class FtpClient
     }
 
     /**
+     * Starts uploading the giving local file to the FTP server.
+     *
      * @param string     $localFile
      * @param string|int $saveAs
      * @param int        $retries
@@ -1039,8 +1043,7 @@ class FtpClient
     }
 
     /**
-     * Create a file on the FTP server and inserting
-     * the giving content to it.
+     * Create a file on the FTP server and inserting the giving content to it.
      *
      * @param string     $fileName
      * @param mixed|null $content
@@ -1061,6 +1064,8 @@ class FtpClient
     }
 
     /**
+     * Resume uploading a local file.
+     *
      * @param string $localFile
      * @param string $remoteFile
      * @param int    $retries [optional]
@@ -1072,6 +1077,12 @@ class FtpClient
      */
     public function resumeUpload($localFile, $remoteFile, $retries = 1, $mode = self::GET_TRANSFER_MODE)
     {
+        if ( ! $this->isExists($remoteFile)) {
+            throw new ClientException(
+                "Cannot resume uploading [{$localFile}] because is doesn't exists."
+            );
+        }
+
         return $this->upload(
             $localFile,
             $remoteFile,
@@ -1082,6 +1093,8 @@ class FtpClient
     }
 
     /**
+     * Uploading a local file asynchronously.
+     *
      * @param string $localFile
      * @param string $saveAs
      * @param string $doWhileDownloading
@@ -1092,8 +1105,7 @@ class FtpClient
      *
      * @throws ClientException
      */
-    public function asyncUpload($localFile, $saveAs, $doWhileDownloading, $interval = 1, $mode =
-    self::GET_TRANSFER_MODE)
+    public function asyncUpload($localFile, $saveAs, $doWhileDownloading, $interval = 1, $mode = self::GET_TRANSFER_MODE)
     {
         if ( ! file_exists($localFile)) {
             throw new ClientException("[{$localFile}] does not exists.");
@@ -1145,13 +1157,16 @@ class FtpClient
     }
 
     /**
-     * @param     $localFile
-     * @param     $remoteFile
-     * @param     $doWhileDownloading
-     * @param int $interval
-     * @param int $mode
+     * Continues uploading a remote file asynchronously.
+     *
+     * @param string $localFile
+     * @param string $remoteFile
+     * @param string $doWhileDownloading
+     * @param int    $interval [optional]
+     * @param int    $mode     [optional]
      *
      * @return bool
+     *
      * @throws ClientException
      */
     public function resumeAsyncUpload($localFile, $remoteFile, $doWhileDownloading, $interval = 1, $mode = self::GET_TRANSFER_MODE)
@@ -1208,34 +1223,34 @@ class FtpClient
     }
 
     /**
-     * Gets miscellaneous information of the giving upload/download stat.
+     * Gets miscellaneous information of the giving upload/download operation state.
      *
-     * @param array $currentStat
+     * @param array $state
      * @param bool  $resume
      *
      * @return array
      */
-    protected function getAsyncStat($currentStat, $resume = false)
+    protected function getAsyncStat($state, $resume = false)
     {
         if ( ! $resume) {
             $percentage = number_format(
-                ($currentStat['sizeSync'] * 100) / $currentStat['sourceSize']
+                ($state['sizeSync'] * 100) / $state['sourceSize']
             );
         } else {
             $percentage = number_format(
-                ($currentStat['sizeSync'] * 100) / ($currentStat['sourceSize'] - $currentStat['originSize'])
+                ($state['sizeSync'] * 100) / ($state['sourceSize'] - $state['originSize'])
             );
         }
 
         return [
             'transferred' => number_format(
-                ($currentStat['sizeSync'] - $currentStat['previousSyncSize']) / 1000
+                ($state['sizeSync'] - $state['previousSyncSize']) / 1000
             ),
             'speed'       => number_format(
-                ($currentStat['sizeSync'] / $currentStat['elapsedTime']) / 1000, 2
+                ($state['sizeSync'] / $state['elapsedTime']) / 1000, 2
             ),
             'percentage'  => $percentage,
-            'seconds'     => $currentStat['elapsedTime']
+            'seconds'     => $state['elapsedTime']
         ];
     }
 
