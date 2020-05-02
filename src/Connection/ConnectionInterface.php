@@ -5,7 +5,7 @@ namespace Lazzard\FtpClient\Connection;
 use Lazzard\FtpClient\Exception\ConnectionException;
 
 /**
- * Interface that all FTP connections class must implements.
+ * Interface that all FTP connections classes must implements.
  *
  * @since 1.0
  * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>
@@ -13,7 +13,7 @@ use Lazzard\FtpClient\Exception\ConnectionException;
 interface ConnectionInterface
 {
     /**
-     * Open an FTP connection.
+     * Opens an FTP connection.
      *
      * @return bool
      *
@@ -32,6 +32,8 @@ interface ConnectionInterface
 
     /**
      * @return resource
+     *
+     * @throws ConnectionException
      */
     public function getStream();
 
@@ -41,27 +43,13 @@ interface ConnectionInterface
     public function getHost();
 
     /**
-     * @param string $host
-     */
-    public function setHost($host);
-
-    /**
      * @return int
      */
     public function getPort();
-
-    /**
-     * @param int $port
-     */
-    public function setPort($port);
 
     /**
      * @return int
      */
     public function getTimeout();
 
-    /**
-     * @param int $timeout
-     */
-    public function setTimeout($timeout);
 }
