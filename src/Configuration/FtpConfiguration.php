@@ -102,8 +102,7 @@ class FtpConfiguration extends FileConfiguration
     public function setPassive($bool)
     {
         if ( ! $this->wrapper->pasv($bool)) {
-            throw new ConfigurationException(
-                ConfigurationException::getFtpServerError()
+            throw new ConfigurationException(ConfigurationException::getFtpServerError()
                 ?: "Unable to switch FTP mode."
             );
         }

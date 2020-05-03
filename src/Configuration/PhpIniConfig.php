@@ -45,11 +45,7 @@ class PhpIniConfig extends FileConfiguration
      */
     public function setConfig($config)
     {
-        if ($config) {
-            $this->config = $this->merge($config);
-        } else {
-            $this->config = $this->getConfigByName(self::CONFIG_NAME);
-        }
+        $this->config = $config ? $this->merge($config) : $this->getConfigByName(self::CONFIG_NAME);
     }
 
     /**
@@ -59,19 +55,30 @@ class PhpIniConfig extends FileConfiguration
      */
     public function apply()
     {
-        if ($this->config['maxExecutionTime'] !== NOT_CHANGE ) {
-            if ( ! set_time_limit($this->config['maxExecutionTime'] === UNLIMITED ? 0 : $this->config['maxExecutionTime'])) {
+        if (($value = $this->config['maxExecutionTime']) !== NOT_CHANGE ) {
+            if ( ! set_time_limit($value === UNLIMITED ? 0 : $value)) {
                 throw new ConfigurationException(
-                    "Failed to set max_execution_time value to [{$this->config['maxExecutionTime']}]."
+                    "Failed to set max_execution_time value to [{$value}]."
                 );
             }
         }
 
-        if ($this->config['ignoreUserAbort'] !== NOT_CHANGE) {
-            ignore_user_abort($this->config['ignoreUserAbort']);
-            if ((bool)ini_get('ignore_user_abort') !== $this->config['ignoreUserAbort']) {
+        if (($value = $this->config['ignoreUserAbort']) !== NOT_CHANGE) {
+            ignore_user_abort($value);
+
+            if ((bool)ini_get('ignore_user_abort') !== $value) {
                 throw new ConfigurationException(
-                    "Unable to set ignore_user_abort value to [{$this->config['ignoreUserAbort']}]."
+                    "Unable to set ignore_user_abort value to [{$value}]."
+                );
+            }
+        }
+
+        if (($value = $this->config['memoryLimit']) !== NOT_CHANGE) {
+            ini_set('memory_limit', sprintf('%sM', $value));
+
+            if ((int)ini_get('memory_limit') !== $value) {
+                throw new ConfigurationException(
+                    "Failed to set memory_limit value to [{$value}M]."
                 );
             }
         }
@@ -93,7 +100,7 @@ class PhpIniConfig extends FileConfiguration
         /** @var mixed $optionValue */
         foreach ($this->config as $optionKey => $optionValue) switch ($optionKey) {
 
-            case "maxExecutionTime":
+            case "maxExecutionTime": case "memoryLimit":
                 if ( ! is_int($optionValue) && ! in_array($optionValue, [NOT_CHANGE, UNLIMITED]) ) {
                     throw new ConfigurationException("[{$optionKey}] option value must be of type integer.");
                 }
