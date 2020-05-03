@@ -9,7 +9,7 @@ use Lazzard\FtpClient\Connection\ConnectionInterface;
  *
  * Wrapper class for php FTP extension functions & constants.
  *
- * @since 1.0
+ * @since  1.0
  * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>
  */
 class FtpWrapper
@@ -167,7 +167,7 @@ class FtpWrapper
 
     /**
      * @link https://www.php.net/manual/en/function.ftp-chdir.php
-
+     *
      * @param string $directory
      *
      * @return bool
@@ -327,8 +327,8 @@ class FtpWrapper
      * @param string $localFile
      * @param string $remoteFile
      * @param int    $mode
-     * @param int    $resumepos[optional]
-     * 
+     * @param int    $resumepos [optional]
+     *
      * @return bool
      */
     public function get($localFile, $remoteFile, $mode, $resumepos = 0)
@@ -342,8 +342,8 @@ class FtpWrapper
      * @param string $localFile
      * @param string $remoteFile
      * @param int    $mode
-     * @param int    $resumepos[optional]
-     * 
+     * @param int    $resumepos [optional]
+     *
      * @return int
      */
     public function nb_get($localFile, $remoteFile, $mode, $resumepos = 0)
@@ -367,7 +367,7 @@ class FtpWrapper
      * @param string $remoteFile
      * @param string $localFile
      * @param int    $mode
-     * @param int    $startpos[optional]
+     * @param int    $startpos [optional]
      *
      * @return bool
      */
@@ -404,5 +404,19 @@ class FtpWrapper
     public function nb_fput($remoteFile, $handle, $mode, $startpos = 0)
     {
         return ftp_nb_fput($this->connection->getStream(), $remoteFile, $handle, $mode, $startpos);
+    }
+
+    /**
+     * @link https://www.php.net/manual/en/function.ftp-nb-fput.php
+     *
+     * @param string $host
+     * @param int    $port
+     * @param int    $timeout
+     *
+     * @return false|resource
+     */
+    public function ssl_connect($host, $port = 21, $timeout = 90)
+    {
+        return @ftp_ssl_connect($host, $port, $timeout);
     }
 }

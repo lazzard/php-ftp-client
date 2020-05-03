@@ -9,7 +9,7 @@ use Lazzard\FtpClient\FtpWrapper;
 /**
  * Class FtpConnection represents a regular FTP connection (not secure).
  *
- * @since 1.0
+ * @since  1.0
  * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>
  */
 class FtpConnection implements ConnectionInterface
@@ -41,8 +41,8 @@ class FtpConnection implements ConnectionInterface
      * @param string $host
      * @param string $username
      * @param string $password
-     * @param int    $port
-     * @param int    $timeout
+     * @param int    $port    [optional]
+     * @param int    $timeout [optional]
      */
     public function __construct($host, $username, $password, $port = 21, $timeout = 90)
     {
@@ -64,19 +64,11 @@ class FtpConnection implements ConnectionInterface
     {
         if ( ! is_resource($this->stream)) {
             throw new ConnectionException(
-                "Invalid FTP stream resource, try to reconnect to the server."
+                "Invalid FTP stream resource, try to reopen the connection to FTP server."
             );
         }
 
         return $this->stream;
-    }
-
-    /**
-     * @param resource $stream
-     */
-    public function setStream($stream)
-    {
-        $this->stream = $stream;
     }
 
     /**
@@ -90,25 +82,9 @@ class FtpConnection implements ConnectionInterface
     /**
      * @inheritDoc
      */
-    public function setHost($host)
-    {
-        $this->host = $host;
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function getPort()
     {
         return $this->port;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setPort($port)
-    {
-        $this->port = $port;
     }
 
     /**
@@ -120,27 +96,11 @@ class FtpConnection implements ConnectionInterface
     }
 
     /**
-     * @inheritDoc
-     */
-    public function setTimeout($timeout)
-    {
-        $this->timeout = $timeout;
-    }
-
-    /**
      * @return string
      */
     public function getUsername()
     {
         return $this->username;
-    }
-
-    /**
-     * @param string $username
-     */
-    public function setUsername($username)
-    {
-        $this->username = $username;
     }
 
     /**
@@ -152,19 +112,11 @@ class FtpConnection implements ConnectionInterface
     }
 
     /**
-     * @param string $password
-     */
-    public function setPassword($password)
-    {
-        $this->password = $password;
-    }
-
-    /**
      * @inheritDoc
      */
-    public function open()
+    public function open($useSsl = false)
     {
-        $this->connect();
+        $this->connect($useSsl);
         $this->login();
 
         return true;
@@ -176,8 +128,7 @@ class FtpConnection implements ConnectionInterface
     public function close()
     {
         if ( ! $this->wrapper->close()) {
-            throw new ConnectionException(
-                ConnectionException::getFtpServerError()
+            throw new ConnectionException(ConnectionException::getFtpServerError()
                 ?: "Failed to closing FTP connection."
             );
         }
@@ -186,17 +137,32 @@ class FtpConnection implements ConnectionInterface
     }
 
     /**
+     * @param bool $useSsl
+     *
      * @return bool|resource
      *
      * @throws ConnectionException
      */
-    protected function connect()
+    protected function connect($useSsl = false)
     {
-        if ( ! ($stream = $this->wrapper->connect($this->getHost(), $this->getPort(),
-            $this->getTimeout()))) {
-            throw new ConnectionException(
-                ConnectionException::getFtpServerError()
-                ?: "Connection failed to remote server."
+        if ( ! $useSsl) {
+            if ( ! ($stream = $this->wrapper->connect($this->getHost(), $this->getPort(), $this->getTimeout()))
+            ) {
+                throw new ConnectionException(ConnectionException::getFtpServerError()
+                    ?: "Connection failed to remote server."
+                );
+            }
+        } elseif ( ! function_exists('ftp_ssl_connect')) {
+            throw new ConnectionException("
+                It seems that either the FTP module or openssl extension are not statically built into your PHP.
+                If you have to use an SSL-FTP connection, then you must compile your own PHP binaries using the right configuration options.
+            ");
+        } elseif ( ! extension_loaded('openssl')) {
+            throw new ConnectionException("openssl extension not loaded.");
+        } elseif ( ! $stream = $this->wrapper->ssl_connect($this->getHost(), $this->getPort(), $this->getTimeout())
+        ) {
+            throw new ConnectionException(ConnectionException::getFtpServerError()
+                ?: "SSL connection failed to FTP server."
             );
         }
 
@@ -208,17 +174,13 @@ class FtpConnection implements ConnectionInterface
 
     /**
      * @return bool
-     * 
+     *
      * @throws ConnectionException
      */
     protected function login()
     {
-        if ( ! $this->wrapper->login(
-            $this->getUsername(),
-            $this->getPassword()
-        )) {
-            throw new ConnectionException(
-                ConnectionException::getFtpServerError() 
+        if ( ! $this->wrapper->login($this->getUsername(), $this->getPassword())) {
+            throw new ConnectionException(ConnectionException::getFtpServerError()
                 ?: "Login into the FTP server was failed."
             );
         }

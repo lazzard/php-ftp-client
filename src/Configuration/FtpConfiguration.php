@@ -41,15 +41,17 @@ class FtpConfiguration extends FileConfiguration
      *
      * @throws ConfigurationException
      */
-    public function __construct(ConnectionInterface $connection, $config)
+    public function __construct(ConnectionInterface $connection, $config = null)
     {
         parent::__construct();
 
         $this->connection = $connection;
         $this->wrapper = new FtpWrapper($connection);
-
-        $this->setConfig($config);
-        $this->validateConfiguration();
+        
+        if ($config) {
+            $this->setConfig($config);
+            $this->validateConfiguration();
+        }
     }
 
     /**
