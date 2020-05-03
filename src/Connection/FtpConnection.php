@@ -1,13 +1,12 @@
 <?php
 
-
 namespace Lazzard\FtpClient\Connection;
 
 use Lazzard\FtpClient\Exception\ConnectionException;
 use Lazzard\FtpClient\FtpWrapper;
 
 /**
- * Class FtpConnection represents a regular FTP connection (not secure).
+ * Class FtpConnection represents a regular FTP/FTPS connection.
  *
  * @since  1.0
  * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>

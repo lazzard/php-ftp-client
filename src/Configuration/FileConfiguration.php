@@ -6,7 +6,7 @@ namespace Lazzard\FtpClient\Configuration;
 use Lazzard\FtpClient\Exception\ConfigurationException;
 
 /**
- * Class FileConfiguration defines all extended configuration classes behavior.
+ * FileConfiguration class defines the behavior of all extended configuration classes.
  *
  * @since 1.0
  * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>
@@ -49,8 +49,7 @@ abstract class FileConfiguration
     abstract public function apply();
 
     /**
-     * Merge the provided configuration with the appropriate
-     * configuration in the config file.
+     * Merge the provided configuration with the appropriate configuration in the config file.
      *
      * @param $config
      *

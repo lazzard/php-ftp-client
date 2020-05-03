@@ -5,7 +5,7 @@ namespace Lazzard\FtpClient\Configuration;
 use Lazzard\FtpClient\Exception\ConfigurationException;
 
 /**
- * Class PhpIniConfig
+ * Change the ini directives according to client configurations   
  *
  * @since 1.0
  * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>

@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Lazzard\FtpClient\Connection;
 
 use Lazzard\FtpClient\Exception\ConnectionException;

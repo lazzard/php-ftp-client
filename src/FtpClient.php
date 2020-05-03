@@ -22,15 +22,6 @@ class FtpClient
     const DIR_TYPE          = 1;
     const GET_TRANSFER_MODE = 3;
 
-    /**
-     * FtpWrapper constants
-     */
-    const ASCII    = FtpWrapper::ASCII;
-    const BINARY   = FtpWrapper::BINARY;
-    const FAILED   = FtpWrapper::FAILED;
-    const FINISHED = FtpWrapper::FINISHED;
-    const MOREDATA = FtpWrapper::MOREDATA;
-
     /** @var ConnectionInterface */
     protected $connection;
 
@@ -808,10 +799,10 @@ class FtpClient
             "zip", "zipx"
         ])
         ) {
-            return self::BINARY;
+            return FtpWrapper::BINARY;
         }
 
-        return self::ASCII;
+        return FtpWrapper::ASCII;
     }
 
     /**
@@ -846,7 +837,7 @@ class FtpClient
 
         $sizeTmp        = null;
         $elapsedTimeTmp = null;
-        while ($download === self::MOREDATA) {
+        while ($download === FtpWrapper::MOREDATA) {
             $download = $this->wrapper->nb_continue();
 
             $elapsedTime = ceil(microtime(true) - $timeStart);
@@ -868,13 +859,13 @@ class FtpClient
             $elapsedTimeTmp = $elapsedTime;
         }
 
-        if ($download === self::FAILED) {
+        if ($download === FtpWrapper::FAILED) {
             throw new ClientException(ClientException::getFtpServerError()
                 ?: "Failed to download [{$remoteFile}]."
             );
         }
 
-        return (bool)self::FINISHED;
+        return (bool)FtpWrapper::FINISHED;
     }
 
     /**
@@ -917,7 +908,7 @@ class FtpClient
 
         $sizeTmp        = null;
         $elapsedTimeTmp = null;
-        while ($download === self::MOREDATA) {
+        while ($download === FtpWrapper::MOREDATA) {
             $download = $this->wrapper->nb_continue();
 
             $elapsedTime = ceil(microtime(true) - $timeStart);
@@ -940,13 +931,13 @@ class FtpClient
             $elapsedTimeTmp = $elapsedTime;
         }
 
-        if ($download === self::FAILED) {
+        if ($download === FtpWrapper::FAILED) {
             throw new ClientException(ClientException::getFtpServerError()
                 ?: "Failed to download the file [{$remoteFile}]."
             );
         }
 
-        return (bool)self::FINISHED;
+        return (bool)FtpWrapper::FINISHED;
     }
 
     /**
@@ -967,7 +958,7 @@ class FtpClient
         // TODO sys_get_temp_dir()
         $tempFile = tempnam(sys_get_temp_dir(), $remoteFile);
 
-        if ( ! $this->wrapper->get($tempFile, $remoteFile, self::ASCII)) {
+        if ( ! $this->wrapper->get($tempFile, $remoteFile, FtpWrapper::ASCII)) {
             throw new ClientException(ClientException::getFtpServerError()
                 ?: "Unable to get [{$remoteFile}] content."
             );
@@ -1036,7 +1027,7 @@ class FtpClient
         fwrite($handle, (string)$content);
         rewind($handle);
 
-        return $this->wrapper->fput($remoteFile, $handle, self::ASCII);
+        return $this->wrapper->fput($remoteFile, $handle, FtpWrapper::ASCII);
     }
 
     /**
@@ -1122,7 +1113,7 @@ class FtpClient
 
         $sizeTmp        = null;
         $elapsedTimeTmp = null;
-        while ($download === self::MOREDATA) {
+        while ($download === FtpWrapper::MOREDATA) {
             $download = $this->wrapper->nb_continue();
 
             $elapsedTime = ceil(microtime(true) - $timeStart);
@@ -1144,13 +1135,13 @@ class FtpClient
             $elapsedTimeTmp = $elapsedTime;
         }
 
-        if ($download === self::FAILED) {
+        if ($download === FtpWrapper::FAILED) {
             throw new ClientException(ClientException::getFtpServerError()
                 ?: "Failed to upload the file [{$localFile}]."
             );
         }
 
-        return (bool)self::FINISHED;
+        return (bool)FtpWrapper::FINISHED;
     }
 
     /**
@@ -1187,7 +1178,7 @@ class FtpClient
 
         $sizeTmp        = null;
         $elapsedTimeTmp = null;
-        while ($download === self::MOREDATA) {
+        while ($download === FtpWrapper::MOREDATA) {
             $download = $this->wrapper->nb_continue();
 
             $elapsedTime = ceil(microtime(true) - $timeStart);
@@ -1210,13 +1201,13 @@ class FtpClient
             $elapsedTimeTmp = $elapsedTime;
         }
 
-        if ($download === self::FAILED) {
+        if ($download === FtpWrapper::FAILED) {
             throw new ClientException(ClientException::getFtpServerError()
                 ?: "Failed to upload the file [{$localFile}]."
             );
         }
 
-        return (bool)self::FINISHED;
+        return (bool)FtpWrapper::FINISHED;
     }
 
     /**

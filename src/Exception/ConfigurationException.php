@@ -2,7 +2,6 @@
 
 namespace Lazzard\FtpClient\Exception;
 
-
 /**
  * Class ConfigurationException
  *

@@ -2,20 +2,19 @@
 
 namespace Lazzard\FtpClient\Command;
 
-use Lazzard\FtpClient\Connection\FtpConnection;
 use Lazzard\FtpClient\Connection\ConnectionInterface;
 use Lazzard\FtpClient\Exception\CommandException;
 use Lazzard\FtpClient\FtpWrapper;
 
 /**
- * Class FtpCommand
+ * Normalize FTP responses following the RFC standards as defined in RFC[640], RFC[959].
  *
- * @since 1.0
+ * @since  1.0
  * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>
  */
-class FtpCommand
+final class FtpCommand
 {
-    /** @var FtpConnection */
+    /** @var ConnectionInterface */
     private $connection;
 
     /** @var FtpWrapper */
@@ -37,14 +36,14 @@ class FtpCommand
     private $responseBody;
 
     /**
-     * CommandException constructor.
+     * Command constructor.
      *
-     * @param $connection
+     * @param ConnectionInterface $connection
      */
     public function __construct(ConnectionInterface $connection)
     {
         $this->connection = $connection;
-        $this->wrapper = new FtpWrapper($connection);
+        $this->wrapper    = new FtpWrapper($connection);
     }
 
     /**
@@ -114,12 +113,12 @@ class FtpCommand
      *
      * @param string $command
      *
-     * @return FtpCommand Return $this
+     * @return $this
      */
     public function rawRequest($command)
     {
-        $this->response = $this->wrapper->raw(trim($command));
-        $this->responseCode = intval(substr($this->response[0], 0, 3));
+        $this->response        = $this->wrapper->raw(trim($command));
+        $this->responseCode    = intval(substr($this->response[0], 0, 3));
         $this->responseMessage = ltrim(substr($this->response[0], 3));
 
         if ($this->isSucceeded()) {
@@ -140,7 +139,7 @@ class FtpCommand
      *
      * @param string $command
      *
-     * @return FtpCommand Return $this
+     * @return $this
      *
      * @throws CommandException
      */
@@ -168,7 +167,7 @@ class FtpCommand
      *
      * @param string $command
      *
-     * @return FtpCommand Return $this
+     * @return $this
      *
      * @throws CommandException
      */
@@ -189,7 +188,7 @@ class FtpCommand
 
     /**
      * @param string     $command
-     * @param array|null $options[optional]
+     * @param array|null $options [optional]
      *
      * @return string
      */
@@ -226,10 +225,6 @@ class FtpCommand
     /**
      * Sets an FtpClient response (not a server response).
      *
-     * This method sets an FtpClient response, as
-     * an attempt to cover the boolean returns values of
-     * the The ftp_site and ftp_exec functions.
-     *
      * @param $responseCode
      * @param $responseMessage
      */
@@ -237,7 +232,7 @@ class FtpCommand
     {
         $this->responseCode    = $responseCode;
         $this->responseMessage = $responseMessage;
-        $this->response = sprintf(
+        $this->response        = sprintf(
             "%s - %s",
             $responseCode,
             $responseMessage

@@ -8,7 +8,7 @@ use Lazzard\FtpClient\Exception\ConfigurationException;
 use Lazzard\FtpClient\FtpWrapper;
 
 /**
- * Class FtpConfiguration
+ * Setting config file configuration options 
  *
  * @since 1.0
  * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>
@@ -20,13 +20,6 @@ class FtpConfiguration extends FileConfiguration
      */
     const DEFAULT_CONF = 'default';
 
-    /**
-     * FtpWrapper constants.
-     */
-    const USEPASVADDRESS = FtpWrapper::USEPASVADDRESS;
-    const TIMEOUT_SEC    = FtpWrapper::TIMEOUT_SEC;
-    const AUTOSEEK       = FtpWrapper::AUTOSEEK;
-
     /** @var ConnectionInterface */
     protected $connection;
 
@@ -37,7 +30,7 @@ class FtpConfiguration extends FileConfiguration
      * FtpConfiguration constructor.
      *
      * @param ConnectionInterface $connection
-     * @param array|string        $config
+     * @param array|string        $config[optional]
      *
      * @throws ConfigurationException
      */
@@ -135,7 +128,7 @@ class FtpConfiguration extends FileConfiguration
             );
         }
 
-        if ( ! $this->wrapper->setOption(self::TIMEOUT_SEC, $value)) {
+        if ( ! $this->wrapper->setOption(FtpWrapper::TIMEOUT_SEC, $value)) {
             throw new ConfigurationException(ConfigurationException::getFtpServerError()
                 ?: "Unable to set Timeout runtime option."
             );
@@ -161,7 +154,7 @@ class FtpConfiguration extends FileConfiguration
             );
         }
 
-        if ( ! $this->wrapper->setOption(self::AUTOSEEK, $value)) {
+        if ( ! $this->wrapper->setOption(FtpWrapper::AUTOSEEK, $value)) {
             throw new ConfigurationException(ConfigurationException::getFtpServerError()
                 ?: "Unable to set AutoSeek runtime option."
             );
@@ -188,7 +181,7 @@ class FtpConfiguration extends FileConfiguration
             );
         }
 
-        if ( ! $this->wrapper->setOption(self::USEPASVADDRESS, $value)) {
+        if ( ! $this->wrapper->setOption(FtpWrapper::USEPASVADDRESS, $value)) {
             throw new ConfigurationException(ConfigurationException::getFtpServerError()
                 ?: "Unable to set usePassiveAddress runtime option."
             );
@@ -206,7 +199,7 @@ class FtpConfiguration extends FileConfiguration
      */
     public function getTimeout()
     {
-        if ( ! ($optionValue = $this->wrapper->getOption(self::TIMEOUT_SEC))) {
+        if ( ! ($optionValue = $this->wrapper->getOption(FtpWrapper::TIMEOUT_SEC))) {
             throw new ConfigurationException(ConfigurationException::getFtpServerError()
                 ?: "Unable to get FTP timeout option value."
             );
@@ -224,7 +217,7 @@ class FtpConfiguration extends FileConfiguration
      */
     public function isAutoSeek()
     {
-        if ( ! ($optionValue = $this->wrapper->getOption(self::AUTOSEEK))) {
+        if ( ! ($optionValue = $this->wrapper->getOption(FtpWrapper::AUTOSEEK))) {
             throw new ConfigurationException(ConfigurationException::getFtpServerError()
                 ?: "Unable to get FTP timeout option value."
             );
@@ -236,15 +229,14 @@ class FtpConfiguration extends FileConfiguration
     /**
      * Checks if the passive address returned in the PASV response
      * is used by the control channel or not. 
-     * 
-     * 
+     *
      * @return bool
      * 
      * @throws ConfigurationException
      */
     public function isUsePassiveAddress()
     {
-        if ( ! ($optionValue = $this->wrapper->getOption(self::AUTOSEEK))) {
+        if ( ! ($optionValue = $this->wrapper->getOption(FtpWrapper::AUTOSEEK))) {
             throw new ConfigurationException(ConfigurationException::getFtpServerError()
                 ?: "Unable to get FTP timeout option value."
             );

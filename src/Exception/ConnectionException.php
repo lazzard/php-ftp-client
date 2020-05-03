@@ -3,7 +3,7 @@
 namespace Lazzard\FtpClient\Exception;
 
 /**
- * Class CommandException
+ * Class ConnectionException
  *
  * @since 1.0
  * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>
