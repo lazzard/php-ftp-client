@@ -1211,6 +1211,81 @@ class FtpClient
     }
 
     /**
+     * Sets permissions on an FTP file or directory.
+     *
+     * @param string           $filename
+     * @param array|int|string $mode
+     *
+     * @return bool
+     *
+     * @throws ClientException
+     */
+    public function setPermissions($filename, $mode)
+    {
+        if (is_array($mode)) {
+            foreach ($mode as $key => $value) {
+                if ( ! in_array($key, ['owner', 'group', 'other'])) {
+                    throw new ClientException("[{$key}] is invalid permission group.");
+                }
+            }
+
+            $o = '0'; // owner
+            $g = '0'; // group
+            $w = '0'; // world
+
+            foreach ($mode as $key => $value) {
+                switch ($key) {
+
+                    case "other":
+                        $w = $this->chmodToNumeric($value);
+                        break;
+                    case "owner":
+                        $o = $this->chmodToNumeric($value);
+                        break;
+                    case "group":
+                        $g = $this->chmodToNumeric($value);
+                        break;
+                }
+            }
+
+            $mode = sprintf("%s%s%s", $o, $g, $w);
+
+        }
+
+        $mode = octdec(str_pad($mode, 4, '0', STR_PAD_LEFT));
+
+        if ( ! $this->wrapper->chmod($mode, $filename)) {
+            throw new ClientException(ClientException::getFtpServerError()
+                ?: "Failed to set permissions to [{$filename}]"
+            );
+        }
+
+        return true;
+    }
+
+    /**
+     * @param string $chmod
+     *
+     * @return int|mixed
+     */
+    protected function chmodToNumeric($chmod)
+    {
+        $actions = [
+            'r' => 4,
+            'w' => 2,
+            'e' => 1
+        ];
+
+        $chunks  = explode('-', $chmod);
+        $numeric = 0;
+        foreach ($chunks as $per) {
+            $numeric += $actions[$per];
+        }
+
+        return $numeric;
+    }
+
+    /**
      * Gets miscellaneous information of the giving upload/download operation state.
      *
      * @param array $state

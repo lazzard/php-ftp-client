@@ -57,9 +57,7 @@ class PhpIniConfig extends FileConfiguration
     {
         if (($value = $this->config['maxExecutionTime']) !== NOT_CHANGE ) {
             if ( ! set_time_limit($value === UNLIMITED ? 0 : $value)) {
-                throw new ConfigurationException(
-                    "Failed to set max_execution_time value to [{$value}]."
-                );
+                throw new ConfigurationException("Failed to set max_execution_time value to [{$value}].");
             }
         }
 
@@ -67,9 +65,7 @@ class PhpIniConfig extends FileConfiguration
             ignore_user_abort($value);
 
             if ((bool)ini_get('ignore_user_abort') !== $value) {
-                throw new ConfigurationException(
-                    "Unable to set ignore_user_abort value to [{$value}]."
-                );
+                throw new ConfigurationException("Unable to set ignore_user_abort value to [{$value}].");
             }
         }
 
@@ -77,9 +73,7 @@ class PhpIniConfig extends FileConfiguration
             ini_set('memory_limit', sprintf('%sM', $value));
 
             if ((int)ini_get('memory_limit') !== $value) {
-                throw new ConfigurationException(
-                    "Failed to set memory_limit value to [{$value}M]."
-                );
+                throw new ConfigurationException("Failed to set memory_limit value to [{$value}M].");
             }
         }
     }

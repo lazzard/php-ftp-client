@@ -5,9 +5,7 @@ namespace Lazzard\FtpClient;
 use Lazzard\FtpClient\Connection\ConnectionInterface;
 
 /**
- * Class FtpWrapper
- *
- * Wrapper class for php FTP extension functions & constants.
+ * Wrapping the necessary FTP extension functions and constants for FTP client functionality
  *
  * @since  1.0
  * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>
@@ -418,5 +416,18 @@ class FtpWrapper
     public function ssl_connect($host, $port = 21, $timeout = 90)
     {
         return @ftp_ssl_connect($host, $port, $timeout);
+    }
+
+    /**
+     * @link https://www.php.net/manual/en/function.ftp-chmod.php
+     *
+     * @param int    $mode
+     * @param string $filename
+     *
+     * @return false|int
+     */
+    public function chmod($mode, $filename)
+    {
+        return ftp_chmod($this->connection->getStream(), $mode, $filename);
     }
 }

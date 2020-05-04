@@ -118,8 +118,8 @@ final class FtpCommand
     public function rawRequest($command)
     {
         $this->response        = $this->wrapper->raw(trim($command));
-        $this->responseCode    = intval(substr($this->response[0], 0, 3));
-        $this->responseMessage = ltrim(substr($this->response[0], 3));
+        $this->responseCode    = intval(substr(@$this->response[0], 0, 3));
+        $this->responseMessage = ltrim(substr(@$this->response[0], 3));
 
         if ($this->isSucceeded()) {
             $this->responseBody = array_slice($this->response, 1, -1) ?: null;
@@ -148,7 +148,9 @@ final class FtpCommand
         $siteCommand = strtolower(explode(' ', trim($command))[0]);
 
         if ( ! in_array($siteCommand, $this->supportedSiteCommands())) {
-            throw new CommandException("{$siteCommand} SITE command not supported by the remote server.");
+            throw new CommandException(
+                "[{$siteCommand}] SITE command not supported by the remote server."
+            );
         }
 
         if ( ! $this->wrapper->site(trim($command))) {

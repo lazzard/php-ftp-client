@@ -14,7 +14,7 @@ class ClientException extends \Exception implements FtpClientException
     {
         parent::__construct(
             self::classBaseName(get_class($this)) === self::classBaseName(self::class)
-            ? "[ClientException] - " . $message : $message
+            ? "[FtpClientException] - " . $message : $message
         );
     }
 
