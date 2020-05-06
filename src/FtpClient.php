@@ -1249,7 +1249,6 @@ class FtpClient
             }
 
             $mode = sprintf("%s%s%s", $o, $g, $w);
-
         }
 
         $mode = octdec(str_pad($mode, 4, '0', STR_PAD_LEFT));
@@ -1278,8 +1277,8 @@ class FtpClient
 
         $chunks  = explode('-', $chmod);
         $numeric = 0;
-        foreach ($chunks as $per) {
-            $numeric += $actions[$per];
+        foreach ($chunks as $action) {
+            $numeric += $actions[$action];
         }
 
         return $numeric;

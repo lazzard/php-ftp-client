@@ -15,13 +15,11 @@ interface ConnectionInterface
     /**
      * Opens an FTP connection.
      *
-     * @param bool $useSsl [optional]
-     *
      * @return bool
      *
      * @throws ConnectionException
      */
-    public function open($useSsl = false);
+    public function open();
 
     /**
      * Close the FTP connection.

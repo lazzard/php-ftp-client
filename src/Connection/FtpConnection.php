@@ -113,9 +113,9 @@ class FtpConnection implements ConnectionInterface
     /**
      * @inheritDoc
      */
-    public function open($useSsl = false)
+    public function open()
     {
-        $this->connect($useSsl);
+        $this->connect();
         $this->login();
 
         return true;
@@ -136,34 +136,19 @@ class FtpConnection implements ConnectionInterface
     }
 
     /**
-     * @param bool $useSsl
-     *
      * @return bool|resource
      *
      * @throws ConnectionException
      */
-    protected function connect($useSsl = false)
+    protected function connect()
     {
-        if ( ! $useSsl) {
-            if ( ! ($stream = $this->wrapper->connect($this->getHost(), $this->getPort(), $this->getTimeout()))
-            ) {
-                throw new ConnectionException(ConnectionException::getFtpServerError()
-                    ?: "Connection failed to remote server."
-                );
-            }
-        } elseif ( ! function_exists('ftp_ssl_connect')) {
-            throw new ConnectionException("
-                It seems that either the FTP module or openssl extension are not statically built into your PHP.
-                If you have to use an SSL-FTP connection, then you must compile your own PHP binaries using the right configuration options.
-            ");
-        } elseif ( ! extension_loaded('openssl')) {
-            throw new ConnectionException("openssl extension not loaded.");
-        } elseif ( ! $stream = $this->wrapper->ssl_connect($this->getHost(), $this->getPort(), $this->getTimeout())
+        if ( ! ($stream = $this->wrapper->connect($this->getHost(), $this->getPort(), $this->getTimeout()))
         ) {
             throw new ConnectionException(ConnectionException::getFtpServerError()
-                ?: "SSL connection failed to FTP server."
+                ?: "Connection failed to remote server."
             );
         }
+
 
         $this->stream = $stream;
         $this->wrapper->setConnection($this);
