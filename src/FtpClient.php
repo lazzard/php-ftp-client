@@ -34,7 +34,7 @@ class FtpClient
     protected $connection;
 
     /** @var FtpCommand */
-    protected $command;
+    protected $response;
 
     /** @var FtpWrapper */
     protected $wrapper;
@@ -142,14 +142,15 @@ class FtpClient
     /**
      * Get files count of the giving directory.
      *
-     * @param string $directory
+     * @see FtpClient::listDirectoryDetails()
+     *
      * @param bool   $recursive  [optional]
      * @param int    $filter
      * @param bool   $ignoreDots [optional]
      *
-     * @return int
+     * @param string $directory
      *
-     * @see FtpClient::listDirectoryDetails()
+     * @return int
      *
      * @throws ClientException
      */
@@ -262,8 +263,6 @@ class FtpClient
      *
      * @return string
      *
-     * @see FtpCommand::rawRequest()
-     *
      * @throws ClientException
      */
     public function getSystem()
@@ -280,37 +279,41 @@ class FtpClient
     /**
      * Gets the default transfer type on the FTP server.
      *
-     * @return string
+     * @see FtpCommand::raw()
      *
-     * @see FtpCommand::rawRequest()
+     * @return string
      *
      * @throws ClientException
      */
     public function getDefaultTransferType()
     {
-        if ( ! $this->command->rawRequest("SYST")->isSucceeded()) {
-            throw new ClientException($this->command->getResponseMessage());
+        $response = $this->command->raw("SYST");
+
+        if ( ! $response['success']) {
+            throw new ClientException($response['message']);
         }
 
-        return explode(' ', $this->command->getResponseMessage(), 2)[1];
+        return explode(' ', $response['message'], 2)[1];
     }
 
     /**
      * Get supported SITE commands by the remote server.
      *
-     * @return array Return array of SITE available commands in success.
+     * @see FtpCommand::raw()
      *
-     * @see FtpCommand::rawRequest()
+     * @return array Return array of SITE available commands in success.
      *
      * @throws ClientException
      */
     public function getSupportedSiteCommands()
     {
-        if ( ! $this->command->rawRequest("HELP")->isSucceeded()) {
-            throw new ClientException($this->command->getResponseMessage());
+        $response = $this->command->raw("HELP");
+
+        if ( ! $response['success']) {
+            throw new ClientException($response['message']);
         }
 
-        return array_map('ltrim', $this->command->getResponseBody());
+        return array_map('ltrim', $response['body']);
     }
 
     /**
@@ -458,13 +461,13 @@ class FtpClient
     /**
      * Determine if the giving feature is supported by the remote server or not.
      *
-     * Note : the characters case not important.
+     * Note! the characters case not important.
+     *
+     * @see FtpClient::getFeatures()
      *
      * @param string $feature
      *
      * @return bool
-     *
-     * @see FtpClient::getFeatures()
      *
      * @throws ClientException
      */
@@ -479,19 +482,21 @@ class FtpClient
     /**
      * Get supported arbitrary command on the FTP server.
      *
-     * @return array
+     * @see FtpCommand::raw()
      *
-     * @see FtpCommand::rawRequest()
+     * @return array
      *
      * @throws ClientException
      */
     public function getFeatures()
     {
-        if ( ! $this->command->rawRequest("FEAT")->isSucceeded()) {
-            throw new ClientException($this->command->getResponseMessage());
+        $response = $this->command->raw("FEAT");
+
+        if ( ! $response['success']) {
+            throw new ClientException($response['message']);
         }
 
-        return array_map('ltrim', $this->command->getResponseBody());
+        return array_map('ltrim', $response['body']);
     }
 
     /**
@@ -541,8 +546,8 @@ class FtpClient
      *
      * @param string $directory
      * @param int    $filter
-     * @param bool   $ignoreDots              [optional] Ignore dots files items '.' and '..',
-     *                                        default sets to false.
+     * @param bool   $ignoreDots [optional] Ignore dots files items '.' and '..',
+     *                           default sets to false.
      *
      * @return array
      *
@@ -672,11 +677,13 @@ class FtpClient
     /**
      * Check if the FTP server is still connected and responds for commands.
      *
+     * @see FtpCommand::raw()
+     *
      * @return bool
      */
     public function isServerAlive()
     {
-        return $this->command->rawRequest("NOOP")->isSucceeded();
+        return $this->command->raw("NOOP")['success'];
     }
 
     /**
@@ -854,7 +861,7 @@ class FtpClient
                 clearstatcache();
                 $localFileSizeSync = filesize($saveAs);
 
-                $doWhileDownloading($this->getAsyncStat([
+                $doWhileDownloading($this->getAsyncStatInfo([
                     'sizeSync'         => $localFileSizeSync,
                     'previousSyncSize' => $sizeTmp,
                     'sourceSize'       => $remoteFileSize,
@@ -925,7 +932,7 @@ class FtpClient
                 clearstatcache();
                 $localFileSize = filesize($localFile) - $originSize;
 
-                $doWhileDownloading($this->getAsyncStat([
+                $doWhileDownloading($this->getAsyncStatInfo([
                     'sizeSync'         => $localFileSize,
                     'previousSyncSize' => $sizeTmp,
                     'sourceSize'       => $remoteFileSize,
@@ -1130,7 +1137,7 @@ class FtpClient
 
                 $localFileSizeSync = ftell($handle);
 
-                $doWhileDownloading($this->getAsyncStat([
+                $doWhileDownloading($this->getAsyncStatInfo([
                     'sizeSync'         => $localFileSizeSync,
                     'previousSyncSize' => $sizeTmp,
                     'sourceSize'       => $localFileSize,
@@ -1195,7 +1202,7 @@ class FtpClient
 
                 $sizeSync = ftell($handle) - $originSize;
 
-                $doWhileDownloading($this->getAsyncStat([
+                $doWhileDownloading($this->getAsyncStatInfo([
                     'sizeSync'         => $sizeSync,
                     'previousSyncSize' => $sizeTmp,
                     'sourceSize'       => $localFileSize,
@@ -1300,7 +1307,7 @@ class FtpClient
      *
      * @return array
      */
-    protected function getAsyncStat($state, $resume = false)
+    protected function getAsyncStatInfo($state, $resume = false)
     {
         if ( ! $resume) {
             $percentage = number_format(

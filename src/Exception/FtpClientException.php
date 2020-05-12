@@ -11,7 +11,7 @@
 namespace Lazzard\FtpClient\Exception;
 
 /**
- * Base interface for all FTP client exceptions 
+ * A base interface for all FtpClient exceptions
  *
  * @since 1.0
  * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>

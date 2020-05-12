@@ -157,7 +157,6 @@ class FtpConnection implements ConnectionInterface
             );
         }
 
-
         $this->stream = $stream;
         $this->wrapper->setConnection($this);
 

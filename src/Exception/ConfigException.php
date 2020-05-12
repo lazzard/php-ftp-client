@@ -11,16 +11,16 @@
 namespace Lazzard\FtpClient\Exception;
 
 /**
- * Class ConfigurationException
+ * Class ConfigException
  *
  * @since 1.0
  * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>
  */
-class ConfigurationException extends ClientException
+class ConfigException extends ClientException
 {
     public function __construct($message)
     {
-        parent::__construct("[ConfigurationException] - " . $message);
+        parent::__construct("[ConfigException] - " . $message);
     }
 
 }

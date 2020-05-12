@@ -51,17 +51,22 @@ class FtpSSLConnection extends FtpConnection
     }
 
     /**
-     * @return bool
+     * Sends a request to the remote server to secure the data channel by
+     * setting the level protection of the data channel to level P (private),
+     * this method set also the connection buffer size to 0 before sending the 'PROT'
+     * command to the server, if fails an exception throws.
+     *
+     * @return bool Returns true in success, otherwise throws an exception
      *
      * @throws ConnectionException
      */
     public function secureDataChannel()
     {
         if ( ! $this->protectBufferSize(0)) {
-            if ($this->command->rawRequest("PROT P")->getResponseCode() !== 200) {
-                throw new ConnectionException(
-                    "Securing data channel was failed."
-                );
+            $response = $this->command->raw("PROT P");
+
+            if ($response['code'] !== 200) {
+                throw new ConnectionException("Securing data channel was failed.");
             }
         } else {
             throw new ConnectionException("Unable to set buffer connection size.");
@@ -71,7 +76,9 @@ class FtpSSLConnection extends FtpConnection
     }
 
     /**
-     * {@inheritDoc}
+     * @return bool
+     *
+     * @throws ConnectionException
      */
     protected function login()
     {
@@ -85,14 +92,17 @@ class FtpSSLConnection extends FtpConnection
     }
 
     /**
-     * @return bool|resource
+     * @return bool|false|resource
      *
      * @throws ConnectionException
      */
     protected function connect()
     {
-        if ( ! $this->stream = $this->wrapper->ssl_connect($this->getHost(), $this->getPort(), $this->getTimeout())
-        ) {
+        if ( ! $this->stream = $this->wrapper->ssl_connect(
+            $this->getHost(),
+            $this->getPort(),
+            $this->getTimeout()
+        )) {
             throw new ConnectionException(ConnectionException::getFtpServerError()
                 ?: "SSL connection failed to FTP server."
             );
@@ -111,7 +121,7 @@ class FtpSSLConnection extends FtpConnection
      */
     protected function protectBufferSize($size)
     {
-        return ($this->command->rawRequest(sprintf("PBSZ %s", $size))->getResponseCode() !== 200);
+        return ($this->command->raw(sprintf("PBSZ %s", $size))['code'] !== 200);
     }
 
     /**
@@ -119,7 +129,7 @@ class FtpSSLConnection extends FtpConnection
      */
     protected function tlsAuthentication()
     {
-        return ($this->command->rawRequest('AUTH TLS')->getResponseCode() === 234);
+        return ($this->command->raw('AUTH TLS')['code'] === 234);
     }
 
     /**
@@ -127,6 +137,6 @@ class FtpSSLConnection extends FtpConnection
      */
     protected function sslAuthentication()
     {
-        return ($this->command->rawRequest('AUTH SSL')->getResponseCode() === 234);
+        return ($this->command->raw('AUTH SSL')['code'] === 234);
     }
 }
