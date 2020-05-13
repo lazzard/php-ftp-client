@@ -1,11 +1,11 @@
 {
     "name": "lazzard/php-ftp-client",
-    "description": "Standard library for php FTP mechanisms",
+    "description": "A fully object-oriented library to the PHP FTP extension plus extra features.",
     "type": "library",
     "license": "MIT",
     "authors": [
         {
-            "name": "elamrani744",
+            "name": "El Amrani Chakir",
             "email": "elamrani.sv.laza@gmail.com"
         }
     ],
@@ -15,8 +15,6 @@
         }
     },
   "require": {
-    "ext-ftp": "*",
-    "ext-mbstring": "*",
-    "ext-fileinfo": "*"
+
   }
 }

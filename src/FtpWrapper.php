@@ -180,7 +180,6 @@ class FtpWrapper
      */
     public function chdir($directory)
     {
-        // TODO Error handling issue
         return @ftp_chdir($this->connection->getStream(), $directory);
     }
 
@@ -238,7 +237,7 @@ class FtpWrapper
      */
     public function delete($remoteFile)
     {
-        return @ftp_delete($this->connection->getStream(), $remoteFile);
+        return ftp_delete($this->connection->getStream(), $remoteFile);
     }
 
     /**
@@ -274,7 +273,6 @@ class FtpWrapper
      */
     public function mkdir($directory)
     {
-        // TODO
         return @ftp_mkdir($this->connection->getStream(), $directory);
     }
 

@@ -62,7 +62,8 @@ class FtpSSLConnection extends FtpConnection
      */
     public function secureDataChannel()
     {
-        if ( ! $this->protectBufferSize(0)) {
+        // TODO check if PBSZ and PROT commands are supported before
+        if ( ! $this->command->raw(sprintf("PBSZ %s", 0))['code'] !== 200) {
             $response = $this->command->raw("PROT P");
 
             if ($response['code'] !== 200) {
@@ -82,6 +83,7 @@ class FtpSSLConnection extends FtpConnection
      */
     protected function login()
     {
+        // TODO check if the authentication mechanism is supported before
         if ( ! $this->tlsAuthentication()) {
             if ( ! $this->sslAuthentication()) {
                 throw new ConnectionException("Authentication TLS/SSL was failed.");
@@ -112,16 +114,6 @@ class FtpSSLConnection extends FtpConnection
         $this->wrapper->setConnection($this);
 
         return $this->stream;
-    }
-
-    /**
-     * @param int $size
-     *
-     * @return bool|string
-     */
-    protected function protectBufferSize($size)
-    {
-        return ($this->command->raw(sprintf("PBSZ %s", $size))['code'] !== 200);
     }
 
     /**

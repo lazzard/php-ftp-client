@@ -34,13 +34,10 @@ class FtpClient
     protected $connection;
 
     /** @var FtpCommand */
-    protected $response;
+    protected $command;
 
     /** @var FtpWrapper */
     protected $wrapper;
-
-    /** @var string */
-    protected $currentDir;
 
     /**
      * FtpClient constructor.
@@ -61,14 +58,6 @@ class FtpClient
     public function getConnection()
     {
         return $this->connection;
-    }
-
-    /**
-     * @param ConnectionInterface $connection
-     */
-    public function setConnection($connection)
-    {
-        $this->connection = $connection;
     }
 
     /**
@@ -117,8 +106,6 @@ class FtpClient
                     ?: "Unable to change the current directory to [{$directory}]."
             );
         }
-
-        $this->currentDir = $directory;
     }
 
     /**
@@ -145,7 +132,7 @@ class FtpClient
      * @see FtpClient::listDirectoryDetails()
      *
      * @param bool   $recursive  [optional]
-     * @param int    $filter
+     * @param int    $filter     [optional]
      * @param bool   $ignoreDots [optional]
      *
      * @param string $directory
@@ -155,8 +142,7 @@ class FtpClient
      * @throws ClientException
      */
     public function getCount(
-        $directory, $recursive = false, $filter = self::FILE_DIR_TYPE,
-        $ignoreDots = false
+        $directory, $recursive = false, $filter = self::FILE_DIR_TYPE, $ignoreDots = false
     )
     {
         return count($this->listDirectoryDetails(
@@ -172,7 +158,7 @@ class FtpClient
      *
      * @param string $directory
      * @param bool   $recursive  [optional]
-     * @param int    $filter
+     * @param int    $filter     [optional]
      * @param bool   $ignoreDots [optional]
      *
      * @return array
@@ -251,7 +237,7 @@ class FtpClient
      * @param string $directory
      *
      * @return bool Return true if the giving file is a directory,
-     *              false if isn't or the file doesn't exists.
+     *              false if it's a file or the dir doesn't exists.
      */
     public function isDir($directory)
     {
@@ -307,7 +293,7 @@ class FtpClient
      */
     public function getSupportedSiteCommands()
     {
-        $response = $this->command->raw("HELP");
+        $response = $this->command->raw("SITE HELP");
 
         if ( ! $response['success']) {
             throw new ClientException($response['message']);
@@ -368,29 +354,19 @@ class FtpClient
      */
     public function removeDirectory($directory)
     {
-        // TODO replace size
-        if ($this->wrapper->size($directory) !== -1) {
+        if ( ! $this->isDir($directory)) {
             throw new ClientException("[{$directory}] must be an existing directory.");
         }
 
-        if ( ! ($list = $this->wrapper->nlist($directory))) {
-            $this->removeDirectory($directory);
-        }
+        $list = $this->listDirectoryDetails($directory, true);
 
-        if ( ! empty($list)) {
-            foreach ($list as $file) {
-                $path = "$directory/$file";
+        $_list = array_reverse($list);
 
-                if (in_array(basename($path), ['.', '..'])) {
-                    continue;
-                }
-
-                // TODO replace size
-                if ($this->wrapper->size($path) !== -1) {
-                    $this->wrapper->delete($path);
-                } elseif ($this->wrapper->rmdir($path) !== true) {
-                    $this->removeDirectory($path);
-                }
+        foreach ($_list as $fileInfo) {
+            if ($fileInfo['type'] === 'file') {
+                $this->wrapper->delete($fileInfo['path']);
+            } else {
+                $this->wrapper->rmdir($fileInfo['path']);
             }
         }
 
@@ -439,12 +415,13 @@ class FtpClient
      */
     public function lastMTime($remoteFile, $format = null)
     {
-        // TODO consider to remove this check
+        /**
+         * MDTM command not a standard in the basic FTP protocol as defined in RFC 959.
+         */
         if ( ! $this->isFeatureSupported('MDTM')) {
             throw new ClientException("This feature not supported by the remote server.");
         }
 
-        // TODO implementation for directories
         if ($this->isDir($remoteFile)) {
             throw new ClientException("[$remoteFile] is not a directory.");
         }
@@ -480,7 +457,8 @@ class FtpClient
     }
 
     /**
-     * Get supported arbitrary command on the FTP server.
+     * Get supported the additional commands outside the basic commands
+     * defined in RFC959.
      *
      * @see FtpCommand::raw()
      *
@@ -615,6 +593,18 @@ class FtpClient
             throw new ClientException("[{$remoteFile}] must be an existing file.");
         }
 
+        /**
+         * SIZE command not a standard in the basic FTP protocol as defined in RFC 959.
+         */
+        if ($this->isFeatureSupported('SIZE')) {
+            $list = $this->listDirectoryDetails('/');
+            foreach (range(0, count($list) - 1) as $i) {
+                if ($list[$i]['name'] === $remoteFile) {
+                    return $list[$i]['size'];
+                }
+            }
+        }
+
         return $this->wrapper->size($remoteFile);
     }
 
@@ -697,11 +687,11 @@ class FtpClient
      */
     public function allocateSpace($bytes)
     {
-        if ( ! is_double($bytes)) {
+        if ( ! is_int($bytes)) {
             throw new ClientException("[{$bytes}] must be of type integer.");
         }
 
-        // TODO ftp_alloc warning problem
+        // TODO ftp_alloc warning issue
         if ( ! $this->wrapper->alloc($bytes)) {
             throw new ClientException(ClientException::getFtpServerError()
                 ?: "Can't allocate [{$bytes}] bytes."
@@ -970,7 +960,6 @@ class FtpClient
             throw new ClientException("[{$remoteFile}] is a directory.");
         }
 
-        // TODO sys_get_temp_dir()
         $tempFile = tempnam(sys_get_temp_dir(), $remoteFile);
 
         if ( ! $this->wrapper->get($tempFile, $remoteFile, FtpWrapper::ASCII)) {
@@ -1115,8 +1104,13 @@ class FtpClient
         }
 
         $localFileSize = filesize($localFile);
-
         $handle   = fopen($localFile, 'r');
+
+        /**
+         * To check asynchronously the uploading state here we use the ftp_nb_fput
+         * function, by passing the local file pointer to the function we will
+         * be able to know the file pointer position using the ftell function.
+         */
         $download = $this->wrapper->nb_fput(
             $saveAs,
             $handle,
@@ -1182,6 +1176,12 @@ class FtpClient
         $originSize    = $this->fileSize($remoteFile);
 
         $handle   = fopen($localFile, 'r');
+        /**
+         * To check asynchronously the uploading state we use the ftp_nb_fput
+         * function, by passing the local file pointer to this function we will
+         * be able to know the local file file pointer position any time we want
+         * using the ftell function.
+         */
         $download = $this->wrapper->nb_fput(
             $remoteFile,
             $handle,

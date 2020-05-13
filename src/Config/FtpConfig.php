@@ -15,7 +15,7 @@ use Lazzard\FtpClient\Exception\ConfigException;
 use Lazzard\FtpClient\FtpWrapper;
 
 /**
- * Class FtpConfig
+ * Simple class to manage an FTP connection.
  *
  * @since  1.0
  * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>
@@ -40,11 +40,14 @@ final class FtpConfig
      * FtpConfig constructor.
      *
      * @param ConnectionInterface $connection
-     * @param array|null          $config
+     * @param array|null          $config [optional]
      */
-    public function __construct($connection, $config)
+    public function __construct($connection, $config = null)
     {
-        $this->config  = array_merge($this->config, $config);
+        if ($config) {
+            $this->config = array_merge($config, $config);
+        }
+
         $this->wrapper = new FtpWrapper($connection);
     }
 
@@ -70,6 +73,46 @@ final class FtpConfig
         $this->setAutoSeek($this->config['autoSeek']);
         $this->usePassiveAddress($this->config['usePassiveAddress']);
         $this->wrapper->chdir($this->config['initialDirectory']);
+    }
+
+    /**
+     * Sets the provided INI directives values.
+     *
+     * @param array $iniConfig
+     *
+     * @throws ConfigException
+     */
+    public function setPhpLimit($iniConfig)
+    {
+        $config = [
+            'maxExecutionTime' => null,
+            'ignoreUserAbort'  => null,
+            'memoryLimit'      => null
+        ];
+
+        $config = array_merge($config, $iniConfig);
+
+        if (($value = $config['maxExecutionTime']) !== null) {
+            if ( ! set_time_limit($value)) {
+                throw new ConfigException("Failed to set max_execution_time value to [{$value}].");
+            }
+        }
+
+        if (($value = $config['ignoreUserAbort']) !== null) {
+            ignore_user_abort($value);
+
+            if ((bool)ini_get('ignore_user_abort') !== $value) {
+                throw new ConfigException("Unable to set ignore_user_abort value to [{$value}].");
+            }
+        }
+
+        if (($value = $config['memoryLimit']) !== null) {
+            ini_set('memory_limit', sprintf('%sM', $value));
+
+            if ((int)ini_get('memory_limit') !== $value) {
+                throw new ConfigException("Failed to set memory_limit value to [{$value}M].");
+            }
+        }
     }
 
     /**
