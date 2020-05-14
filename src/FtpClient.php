@@ -25,10 +25,9 @@ class FtpClient
     /**
      * FtpClient predefined constants
      */
-    const FILE_DIR_TYPE     = 0;
-    const FILE_TYPE         = 2;
-    const DIR_TYPE          = 1;
-    const GET_TRANSFER_MODE = 3;
+    const FILE_DIR_TYPE = 0;
+    const FILE_TYPE     = 2;
+    const DIR_TYPE      = 1;
 
     /** @var ConnectionInterface */
     protected $connection;
@@ -263,7 +262,7 @@ class FtpClient
     }
 
     /**
-     * Gets the default transfer type on the FTP server.
+     * Gets the default transfer type.
      *
      * @see FtpCommand::raw()
      *
@@ -279,7 +278,7 @@ class FtpClient
             throw new ClientException($response['message']);
         }
 
-        return explode(' ', $response['message'], 2)[1];
+        return explode(' ', $response['message'], 3)[2];
     }
 
     /**
@@ -677,7 +676,7 @@ class FtpClient
     }
 
     /**
-     * Send a request to allocate a space.
+     * Send a request to FTP server to allocate a space for the next file transfer.
      *
      * @param int
      *
@@ -714,7 +713,7 @@ class FtpClient
      *
      * @throws ClientException
      */
-    public function download($remoteFile, $saveAs, $retries = 1, $mode = self::GET_TRANSFER_MODE, $startAt = 0)
+    public function download($remoteFile, $saveAs, $retries = 1, $mode = null, $startAt = 0)
     {
         if ( ! $this->isExists($remoteFile)) {
             throw new ClientException("[{$remoteFile}] does not exists.");
@@ -725,7 +724,7 @@ class FtpClient
             if ( ! $this->wrapper->get(
                 $saveAs,
                 $remoteFile,
-                $mode === self::GET_TRANSFER_MODE ? $this->getTransferMode($remoteFile) : $mode,
+                $mode,
                 $startAt
             )
             ) {
@@ -755,7 +754,7 @@ class FtpClient
      *
      * @throws ClientException
      */
-    public function resumeDownload($localFile, $remoteFile, $retries = 1, $mode = self::GET_TRANSFER_MODE)
+    public function resumeDownload($localFile, $remoteFile, $retries = 1, $mode = null)
     {
         if ( ! file_exists($localFile)) {
             throw new ClientException("Cannot resume downloading [{$localFile}] because is doesn't exists.");
@@ -772,6 +771,9 @@ class FtpClient
 
     /**
      * Gets the appropriate transfer mode for the giving file.
+     *
+     * Note! this method gives you the transfer mode basing on the
+     * giving file extension.
      *
      * @param $fileName
      *
@@ -823,7 +825,7 @@ class FtpClient
      *
      * @throws ClientException
      */
-    public function asyncDownload($remoteFile, $saveAs, $doWhileDownloading, $interval = 1, $mode = self::GET_TRANSFER_MODE)
+    public function asyncDownload($remoteFile, $saveAs, $doWhileDownloading, $interval = 1, $mode = null)
     {
         if ( ! $this->isExists($remoteFile)) {
             throw new ClientException("[{$remoteFile}] does not exists.");
@@ -834,7 +836,7 @@ class FtpClient
         $download = $this->wrapper->nb_get(
             $saveAs,
             $remoteFile,
-            $mode === self::GET_TRANSFER_MODE ? $this->getTransferMode($remoteFile) : $mode,
+            $mode,
             0
         );
 
@@ -889,7 +891,7 @@ class FtpClient
      *
      * @throws ClientException
      */
-    public function resumeAsyncDownload($remoteFile, $localFile, $doWhileDownloading, $interval = 1, $mode = self::GET_TRANSFER_MODE)
+    public function resumeAsyncDownload($remoteFile, $localFile, $doWhileDownloading, $interval = 1, $mode = null)
     {
         if ( ! file_exists($localFile)) {
             throw new ClientException("[{$localFile}] must be an existing file.");
@@ -905,7 +907,7 @@ class FtpClient
         $download = $this->wrapper->nb_get(
             $localFile,
             $remoteFile,
-            $mode === self::GET_TRANSFER_MODE ? $this->getTransferMode($remoteFile) : $mode,
+            $mode,
             $originSize
         );
 
@@ -987,7 +989,7 @@ class FtpClient
      *
      * @throws ClientException
      */
-    public function upload($localFile, $saveAs, $retries = 1, $mode = self::GET_TRANSFER_MODE, $startAt = 0)
+    public function upload($localFile, $saveAs, $retries = 1, $mode = null, $startAt = 0)
     {
         if ( ! file_exists($localFile)) {
             throw new ClientException("[{$localFile}] does not exists.");
@@ -998,7 +1000,7 @@ class FtpClient
             if ( ! $this->wrapper->put(
                 $saveAs,
                 $localFile,
-                $mode === self::GET_TRANSFER_MODE ? $this->getTransferMode($localFile) : $mode,
+                $mode,
                 $startAt)
             ) {
                 $i++;
@@ -1067,7 +1069,7 @@ class FtpClient
      *
      * @throws ClientException
      */
-    public function resumeUpload($localFile, $remoteFile, $retries = 1, $mode = self::GET_TRANSFER_MODE)
+    public function resumeUpload($localFile, $remoteFile, $retries = 1, $mode = null)
     {
         if ( ! $this->isExists($remoteFile)) {
             throw new ClientException(
@@ -1097,24 +1099,26 @@ class FtpClient
      *
      * @throws ClientException
      */
-    public function asyncUpload($localFile, $saveAs, $doWhileDownloading, $interval = 1, $mode = self::GET_TRANSFER_MODE)
+    public function asyncUpload($localFile, $saveAs, $doWhileDownloading, $interval = 1, $mode = null)
     {
         if ( ! file_exists($localFile)) {
             throw new ClientException("[{$localFile}] does not exists.");
         }
 
         $localFileSize = filesize($localFile);
-        $handle   = fopen($localFile, 'r');
+        $handle        = fopen($localFile, 'r');
 
         /**
-         * To check asynchronously the uploading state here we use the ftp_nb_fput
-         * function, by passing the local file pointer to the function we will
-         * be able to know the file pointer position using the ftell function.
+         * To check asynchronously the uploading state we use the ftp_nb_fput
+         * function instead of ftp_nb_put, by passing the local file pointer to this function we will
+         * be able to know the local file file pointer position any time we want
+         * using the ftell function.
          */
+
         $download = $this->wrapper->nb_fput(
             $saveAs,
             $handle,
-            $mode === self::GET_TRANSFER_MODE ? $this->getTransferMode($localFile) : $mode,
+            $mode,
             0
         );
 
@@ -1166,7 +1170,7 @@ class FtpClient
      *
      * @throws ClientException
      */
-    public function resumeAsyncUpload($localFile, $remoteFile, $doWhileDownloading, $interval = 1, $mode = self::GET_TRANSFER_MODE)
+    public function resumeAsyncUpload($localFile, $remoteFile, $doWhileDownloading, $interval = 1, $mode)
     {
         if ( ! file_exists($localFile)) {
             throw new ClientException("[{$localFile}] does not exists.");
@@ -1175,17 +1179,19 @@ class FtpClient
         $localFileSize = filesize($localFile);
         $originSize    = $this->fileSize($remoteFile);
 
-        $handle   = fopen($localFile, 'r');
+        $handle = fopen($localFile, 'r');
+
         /**
          * To check asynchronously the uploading state we use the ftp_nb_fput
-         * function, by passing the local file pointer to this function we will
+         * function instead of ftp_nb_put, by passing the local file pointer to this function we will
          * be able to know the local file file pointer position any time we want
          * using the ftell function.
          */
+
         $download = $this->wrapper->nb_fput(
             $remoteFile,
             $handle,
-            $mode === self::GET_TRANSFER_MODE ? $this->getTransferMode($localFile) : $mode,
+            $mode,
             $originSize
         );
 

@@ -3,6 +3,7 @@
     "description": "A fully object-oriented library to the PHP FTP extension plus extra features.",
     "type": "library",
     "license": "MIT",
+    "keywords": ["ftp", "ftp-library", "ftp-client"],
     "authors": [
         {
             "name": "El Amrani Chakir",

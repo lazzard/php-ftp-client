@@ -1,4 +1,5 @@
 /.idea/
 /tests/
+/test/
 /vendor/
 /.codeclimate.yml/

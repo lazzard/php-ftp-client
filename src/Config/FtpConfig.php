@@ -27,13 +27,11 @@ final class FtpConfig
 
     /** @var array */
     private $config = [
-
         'passive'           => false,
         'timeout'           => 90,
         'autoSeek'          => true,
         'usePassiveAddress' => true,
         'initialDirectory'  => '/'
-
     ];
 
     /**

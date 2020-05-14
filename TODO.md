@@ -3,6 +3,7 @@
 ### Code improvement.
 - [ ] FtpClient upload/download functions takes too much of lines, consider to do some refactoring, or extract an interface and implement these methods in a separate class. 
 - [ ] Reduce unnecessary error control operators (@).
+- [ ] Better FTP functions errors handing.
 
 ### Upcoming client features.
 - [ ] `lastMTime()` directory supporting.  
