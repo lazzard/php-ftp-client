@@ -14,7 +14,7 @@ use Lazzard\FtpClient\Command\FtpCommand;
 use Lazzard\FtpClient\Exception\ConnectionException;
 
 /**
- * Represents an -Explicit FTP over TLS/TLS- connection
+ * Represents an -Explicit FTP over TLS/TLS- connection.
  *
  * @since  1.0
  * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>
@@ -25,13 +25,7 @@ class FtpSSLConnection extends FtpConnection
     protected $command;
 
     /**
-     * FtpSSLConnection constructor.
-     *
-     * @param string $host
-     * @param string $username
-     * @param string $password
-     * @param int    $port
-     * @param int    $timeout
+     * {@inheritDoc}
      *
      * @throws ConnectionException
      */
@@ -51,12 +45,9 @@ class FtpSSLConnection extends FtpConnection
     }
 
     /**
-     * Sends a request to the remote server to secure the data channel by
-     * setting the level protection of the data channel to level P (private),
-     * this method set also the connection buffer size to 0 before sending the 'PROT'
-     * command to the server, if fails an exception throws.
-     *
-     * @return bool Returns true in success, otherwise throws an exception
+     * Sends a request to the remote server to secure the data channel.
+     * 
+     * @return bool Returns true in success, otherwise throws an exception.
      *
      * @throws ConnectionException
      */
@@ -77,9 +68,24 @@ class FtpSSLConnection extends FtpConnection
     }
 
     /**
-     * @return bool
-     *
-     * @throws ConnectionException
+     * @inheritDoc
+     */
+    protected function connect()
+    {
+        if ( ! $this->stream = $this->wrapper->ssl_connect($this->getHost(), $this->getPort(), $this->getTimeout())) {
+            throw new ConnectionException(ConnectionException::getFtpServerError()
+                ?: "SSL connection failed to FTP server."
+            );
+        }
+
+        $this->command = new FtpCommand($this);
+        $this->wrapper->setConnection($this);
+
+        return $this->stream;
+    }
+
+    /**
+     * @inheritDoc
      */
     protected function login()
     {
@@ -91,29 +97,6 @@ class FtpSSLConnection extends FtpConnection
         }
 
         return parent::login();
-    }
-
-    /**
-     * @return bool|false|resource
-     *
-     * @throws ConnectionException
-     */
-    protected function connect()
-    {
-        if ( ! $this->stream = $this->wrapper->ssl_connect(
-            $this->getHost(),
-            $this->getPort(),
-            $this->getTimeout()
-        )) {
-            throw new ConnectionException(ConnectionException::getFtpServerError()
-                ?: "SSL connection failed to FTP server."
-            );
-        }
-
-        $this->command = new FtpCommand($this);
-        $this->wrapper->setConnection($this);
-
-        return $this->stream;
     }
 
     /**

@@ -74,57 +74,17 @@ final class FtpConfig
     }
 
     /**
-     * Sets the provided INI directives values.
-     *
-     * @param array $iniConfig
-     *
-     * @throws ConfigException
-     */
-    public function setPhpLimit($iniConfig)
-    {
-        $config = [
-            'maxExecutionTime' => null,
-            'ignoreUserAbort'  => null,
-            'memoryLimit'      => null
-        ];
-
-        $config = array_merge($config, $iniConfig);
-
-        if (($value = $config['maxExecutionTime']) !== null) {
-            if ( ! set_time_limit($value)) {
-                throw new ConfigException("Failed to set max_execution_time value to [{$value}].");
-            }
-        }
-
-        if (($value = $config['ignoreUserAbort']) !== null) {
-            ignore_user_abort($value);
-
-            if ((bool)ini_get('ignore_user_abort') !== $value) {
-                throw new ConfigException("Unable to set ignore_user_abort value to [{$value}].");
-            }
-        }
-
-        if (($value = $config['memoryLimit']) !== null) {
-            ini_set('memory_limit', sprintf('%sM', $value));
-
-            if ((int)ini_get('memory_limit') !== $value) {
-                throw new ConfigException("Failed to set memory_limit value to [{$value}M].");
-            }
-        }
-    }
-
-    /**
      * Turn the passive mode on or off.
      *
-     * @param $bool
+     * @param bool $value
      *
-     * @return bool
+     * @return bool Returns true in success, if not an exception throws.
      *
      * @throws ConfigException
      */
-    public function setPassive($bool)
+    public function setPassive($value)
     {
-        if ( ! $this->wrapper->pasv($bool)) {
+        if ( ! $this->wrapper->pasv($value)) {
             throw new ConfigException(ConfigException::getFtpServerError()
                 ?: "Unable to switch FTP mode."
             );
@@ -136,9 +96,9 @@ final class FtpConfig
     /**
      * Sets the timeout in seconds for all FTP network operations.
      *
-     * @param int $value
+     * @param int $value The timeout value in seconds.
      *
-     * @return bool
+     * @return bool Returns true in success, if not an exception throws.
      *
      * @throws ConfigException
      */
@@ -164,7 +124,7 @@ final class FtpConfig
      *
      * @param bool $value
      *
-     * @return bool
+     * @return bool Returns true in success, if not an exception throws.
      *
      * @throws ConfigException
      */
@@ -186,12 +146,11 @@ final class FtpConfig
     }
 
     /**
-     * Specifies if the IP address returned via the PASV command
-     * will be used to open the data channel.
+     * Specifies if the IP address returned via the PASV command will be used to open the data channel.
      *
      * @param bool $value
      *
-     * @return bool
+     * @return bool Returns true in success, if not an exception throws.
      *
      * @throws ConfigException
      */

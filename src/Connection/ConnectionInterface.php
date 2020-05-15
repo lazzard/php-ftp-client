@@ -58,4 +58,14 @@ interface ConnectionInterface
      */
     public function getTimeout();
 
+    /**
+     * @return string
+     */
+    public function getUsername();
+
+    /**
+     * @return string
+     */
+    public function getPassword();
+
 }

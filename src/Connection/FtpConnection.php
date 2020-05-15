@@ -10,11 +10,12 @@
 
 namespace Lazzard\FtpClient\Connection;
 
+use Lazzard\FtpClient\Config\FtpConfig;
 use Lazzard\FtpClient\Exception\ConnectionException;
 use Lazzard\FtpClient\FtpWrapper;
 
 /**
- * Class FtpConnection represents a regular FTP/FTPS connection.
+ * Class FtpConnection represents a regular FTP connection.
  *
  * @since  1.0
  * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>
@@ -30,26 +31,27 @@ class FtpConnection implements ConnectionInterface
     /** @var string */
     protected $host;
 
-    /** @var string */
-    protected $username;
-
-    /* @var string */
-    protected $password;
-
     /** @var int */
     protected $port;
 
     /** @var int */
     protected $timeout;
 
+    /** @var string */
+    protected $username;
+
+    /* @var string */
+    protected $password;
+
     /**
-     * FtpConnection constructor.
+     * Prepares an FTP connection.
      *
-     * @param string $host
-     * @param string $username
-     * @param string $password
-     * @param int    $port    [optional]
-     * @param int    $timeout [optional]
+     * @param string $host     The host name or IP address.
+     * @param string $username The client's username.
+     * @param string $password The client's password.
+     * @param int    $port     [optional] Specifies the port to be used to open the control channel.
+     * @param int    $timeout  [optional] The connection timeout in seconds, the default set's to 90,
+     *                         you can set this option any time using the {@link FtpConfig::setTimeout()} method.
      */
     public function __construct($host, $username, $password, $port = 21, $timeout = 90)
     {
@@ -144,7 +146,7 @@ class FtpConnection implements ConnectionInterface
     }
 
     /**
-     * @return bool|resource
+     * @return resource
      *
      * @throws ConnectionException
      */

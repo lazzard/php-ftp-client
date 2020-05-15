@@ -331,13 +331,13 @@ class FtpWrapper
      * @param string $localFile
      * @param string $remoteFile
      * @param int    $mode
-     * @param int    $resumepos [optional]
+     * @param int    $resumePos [optional]
      *
      * @return bool
      */
-    public function get($localFile, $remoteFile, $mode, $resumepos = 0)
+    public function get($localFile, $remoteFile, $mode, $resumePos = 0)
     {
-        return @ftp_get($this->connection->getStream(), $localFile, $remoteFile, $mode, $resumepos);
+        return ftp_get($this->connection->getStream(), $localFile, $remoteFile, $mode, $resumePos);
     }
 
     /**
@@ -346,13 +346,13 @@ class FtpWrapper
      * @param string $localFile
      * @param string $remoteFile
      * @param int    $mode
-     * @param int    $resumepos [optional]
+     * @param int    $resumePos [optional]
      *
      * @return int
      */
-    public function nb_get($localFile, $remoteFile, $mode, $resumepos = 0)
+    public function nb_get($localFile, $remoteFile, $mode, $resumePos = 0)
     {
-        return ftp_nb_get($this->connection->getStream(), $localFile, $remoteFile, $mode, $resumepos);
+        return ftp_nb_get($this->connection->getStream(), $localFile, $remoteFile, $mode, $resumePos);
     }
 
     /**
@@ -371,13 +371,13 @@ class FtpWrapper
      * @param string $remoteFile
      * @param string $localFile
      * @param int    $mode
-     * @param int    $startpos [optional]
+     * @param int    $startPos [optional]
      *
      * @return bool
      */
-    public function put($remoteFile, $localFile, $mode, $startpos = 0)
+    public function put($remoteFile, $localFile, $mode, $startPos = 0)
     {
-        return ftp_put($this->connection->getStream(), $remoteFile, $localFile, $mode, $startpos);
+        return ftp_put($this->connection->getStream(), $remoteFile, $localFile, $mode, $startPos);
     }
 
     /**
@@ -386,13 +386,13 @@ class FtpWrapper
      * @param string   $remoteFile
      * @param resource $handle
      * @param int      $mode
-     * @param int      $startpos [optional]
+     * @param int      $startPos [optional]
      *
      * @return bool
      */
-    public function fput($remoteFile, $handle, $mode, $startpos = 0)
+    public function fput($remoteFile, $handle, $mode, $startPos = 0)
     {
-        return ftp_fput($this->connection->getStream(), $remoteFile, $handle, $mode, $startpos);
+        return ftp_fput($this->connection->getStream(), $remoteFile, $handle, $mode, $startPos);
     }
 
     /**
@@ -401,13 +401,13 @@ class FtpWrapper
      * @param string   $remoteFile
      * @param resource $handle
      * @param int      $mode
-     * @param int      $startpos [optional]
+     * @param int      $startPos [optional]
      *
      * @return int
      */
-    public function nb_fput($remoteFile, $handle, $mode, $startpos = 0)
+    public function nb_fput($remoteFile, $handle, $mode, $startPos = 0)
     {
-        return ftp_nb_fput($this->connection->getStream(), $remoteFile, $handle, $mode, $startpos);
+        return ftp_nb_fput($this->connection->getStream(), $remoteFile, $handle, $mode, $startPos);
     }
 
     /**

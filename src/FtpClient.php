@@ -60,7 +60,7 @@ class FtpClient
     }
 
     /**
-     * Gets parent of the current directory.
+     * Gets the parent of the current working directory.
      *
      * @return string
      *
@@ -81,6 +81,8 @@ class FtpClient
     }
 
     /**
+     * Gets the current working directory.
+     *
      * @return string
      */
     public function getCurrentDir()
@@ -89,26 +91,7 @@ class FtpClient
     }
 
     /**
-     * @param string $directory
-     *
-     * @throws ClientException
-     */
-    public function setCurrentDir($directory)
-    {
-        if ( ! $this->isDir($directory)) {
-            throw new ClientException("[{$directory}] is not a directory.");
-        }
-
-        if ( ! $this->wrapper->chdir($directory)) {
-            throw new ClientException(
-                ClientException::getFtpServerError()
-                    ?: "Unable to change the current directory to [{$directory}]."
-            );
-        }
-    }
-
-    /**
-     * Back to the parent directory.
+     * Backs to the parent directory.
      *
      * @return bool
      *
@@ -126,7 +109,58 @@ class FtpClient
     }
 
     /**
-     * Get files count of the giving directory.
+     * Changes the current directory to the specified directory.
+     *
+     * @param string $directory The remote file directory.
+     *
+     * @return true Returns true in success, false otherwise.
+     *
+     * @throws ClientException
+     */
+    public function setCurrentDir($directory)
+    {
+        if ( ! $this->isDir($directory)) {
+            throw new ClientException("[{$directory}] is not a directory.");
+        }
+
+        if ( ! $this->wrapper->chdir($directory)) {
+            throw new ClientException(
+                ClientException::getFtpServerError()
+                    ?: "Unable to change the current directory to [{$directory}]."
+            );
+        }
+
+        return true;
+    }
+
+    /**
+     * Checks whether if a file is a directory or not.
+     *
+     * @param string $remoteFile The remote file path.
+     *
+     * @return bool Return true if the giving file is a directory,
+     *              otherwise returns false.
+     */
+    public function isDir($remoteFile)
+    {
+        return ($this->wrapper->size($remoteFile) === -1);
+    }
+
+    /**
+     * Checks if the giving remote file is a regular file.
+     *
+     * @param string $remoteFile The remote file path.
+     *
+     * @return bool Return true if the giving remote file is a regular file,
+     *              otherwise returns false.
+     */
+    public function isFile($remoteFile)
+    {
+        return ($this->wrapper->size($remoteFile) !== -1);
+    }
+
+    /**
+     * Gets files count of the giving directory.
      *
      * @see FtpClient::listDirectoryDetails()
      *
@@ -136,13 +170,11 @@ class FtpClient
      *
      * @param string $directory
      *
-     * @return int
+     * @return int Returns the files count as an integer.
      *
      * @throws ClientException
      */
-    public function getCount(
-        $directory, $recursive = false, $filter = self::FILE_DIR_TYPE, $ignoreDots = false
-    )
+    public function getCount($directory, $recursive = false, $filter = self::FILE_DIR_TYPE, $ignoreDots = false)
     {
         return count($this->listDirectoryDetails(
             $directory,
@@ -153,14 +185,18 @@ class FtpClient
     }
 
     /**
-     * Get detailed list of files in the giving directory.
+     * Gets detailed list of the files in the giving directory.
+     * Returned file information : ['name', 'chmod', 'num', 'owner', 'group', 'size', 'month', 'day', 'time', 'type',
+     * 'path'].
      *
-     * @param string $directory
-     * @param bool   $recursive  [optional]
-     * @param int    $filter     [optional]
-     * @param bool   $ignoreDots [optional]
+     * @param string $directory  The remote directory path.
+     * @param bool   $recursive  [optional] Recursive listing option sets to false by default.
+     * @param int    $filter     [optional] Specifies the type of the returned files, the default is
+     *                           {@link FtpClient::FILE_DIR_TYPE} for files only or dirs only use
+     *                           {@link FtpClient::FILE_TYPE} and {@link FtpClient::DIR_TYPE}.
+     * @param bool   $ignoreDots [optional] Ignore dots files ['.', '..'], default sets to false.
      *
-     * @return array
+     * @return array Returns a detailed list of the files in the giving directory.
      *
      * @throws ClientException
      */
@@ -231,19 +267,6 @@ class FtpClient
     }
 
     /**
-     * Check whether if a file is a directory or not.
-     *
-     * @param string $directory
-     *
-     * @return bool Return true if the giving file is a directory,
-     *              false if it's a file or the dir doesn't exists.
-     */
-    public function isDir($directory)
-    {
-        return ($this->wrapper->size($directory) === -1);
-    }
-
-    /**
      * Gets operating system type of the FTP server.
      *
      * @return string
@@ -282,31 +305,11 @@ class FtpClient
     }
 
     /**
-     * Get supported SITE commands by the remote server.
+     * Deletes a remote regular file.
      *
-     * @see FtpCommand::raw()
+     * @param string $remoteFile The remote file path.
      *
-     * @return array Return array of SITE available commands in success.
-     *
-     * @throws ClientException
-     */
-    public function getSupportedSiteCommands()
-    {
-        $response = $this->command->raw("SITE HELP");
-
-        if ( ! $response['success']) {
-            throw new ClientException($response['message']);
-        }
-
-        return array_map('ltrim', $response['body']);
-    }
-
-    /**
-     * Delete an FTP file.
-     *
-     * @param string $remoteFile
-     *
-     * @return bool
+     * @return bool Returns true if the giving file was successfully removed, otherwise an exception throws.
      *
      * @throws ClientException
      */
@@ -326,11 +329,11 @@ class FtpClient
     }
 
     /**
-     * Check whether if the giving file/directory is exists or not.
+     * Checks whether the giving file or directory exists.
      *
-     * @param string $remoteFile
+     * @param string $remoteFile The remote file path.
      *
-     * @return bool
+     * @return bool Returns true if the remote file exists, false otherwise.
      */
     public function isExists($remoteFile)
     {
@@ -341,13 +344,13 @@ class FtpClient
     }
 
     /**
-     * Delete an FTP remote directory.
+     * Deletes a directory on the FTP server.
      *
-     * Be careful with this method, it well remove everything within the giving directory.
+     * Note! This method will removes everything within the giving directory.
      *
-     * @param string $directory
+     * @param string $directory The remote directory path.
      *
-     * @return bool
+     * @return bool Returns true is success, false otherwise.
      *
      * @throws ClientException
      */
@@ -373,9 +376,12 @@ class FtpClient
     }
 
     /**
-     * Create an FTP directory.
+     * Creates a directory on the FTP server.
      *
-     * @param string $directory
+     * Note! this method supports the recursive directory creation.
+     *
+     * @param string $directory The directory name or the full path to create the dirs recursively.
+     *                          Ex : 'foo/bar/java/'.
      *
      * @return bool
      *
@@ -402,13 +408,15 @@ class FtpClient
     }
 
     /**
-     * Gets last modified time for an FTP remote file.
+     * Gets last modified time of an FTP remote regular file.
      *
-     * @param string      $remoteFile
-     * @param string|null $format [optional]
+     * Note! this method not work for directories.
+     *
+     * @param string      $remoteFile The remote file name.
+     * @param string|null $format     [optional] A date format string to be passed to {@link date()} function.
      *
      * @return string|int Returns the string format if the format parameter was
-     *                    specified, if not returns an numeric timestamp representation.
+     *                    specified, if not returns a numeric timestamp representation.
      *
      * @throws ClientException
      */
@@ -435,7 +443,7 @@ class FtpClient
     }
 
     /**
-     * Determine if the giving feature is supported by the remote server or not.
+     * Determines if the giving feature is supported by the remote server or not.
      *
      * Note! the characters case not important.
      *
@@ -443,9 +451,7 @@ class FtpClient
      *
      * @param string $feature
      *
-     * @return bool
-     *
-     * @throws ClientException
+     * @return bool Returns true if the feature is supported, false otherwise.
      */
     public function isFeatureSupported($feature)
     {
@@ -456,32 +462,32 @@ class FtpClient
     }
 
     /**
-     * Get supported the additional commands outside the basic commands
+     * Gets the additional commands supported by the FTP server outside the basic commands
      * defined in RFC959.
      *
-     * @see FtpCommand::raw()
+     * @link https://tools.ietf.org/html/rfc959
      *
-     * @return array
+     * @see  FtpCommand::raw()
      *
-     * @throws ClientException
+     * @return array|string Returns an array in success, if not the FTP reply error returned.
      */
     public function getFeatures()
     {
         $response = $this->command->raw("FEAT");
 
         if ( ! $response['success']) {
-            throw new ClientException($response['message']);
+            return $response['message'];
         }
 
         return array_map('ltrim', $response['body']);
     }
 
     /**
-     * Gets directory size.
+     * Gets remote directory size.
      *
-     * @param string $directory
+     * @param string $directory The remote directory path.
      *
-     * @return int Return the size on bytes.
+     * @return int Return the size in bytes.
      *
      * @throws ClientException
      */
@@ -501,32 +507,33 @@ class FtpClient
     }
 
     /**
-     * Check whether if the giving directory is empty or not.
+     * Checks whether if the giving directory is empty or not.
      *
-     * @param string $directory
+     * @param string $directory The remote file directory.
      *
-     * @return bool
+     * @return bool Returns true if empty, otherwise returns false.
      *
      * @throws ClientException
      */
-    public function isEmptyDir($directory)
+    public function isEmptyDirectory($directory)
     {
         if ( ! $this->isDir($directory)) {
             throw new ClientException("[{$directory}] is not directory.");
         }
 
-        return empty($this->listDirectory($directory, true));
+        return empty($this->listDirectory($directory));
     }
 
     /**
-     * Get list of files names in giving directory.
+     * Gets a list of files names in the giving directory.
      *
-     * @param string $directory
-     * @param int    $filter
-     * @param bool   $ignoreDots [optional] Ignore dots files items '.' and '..',
-     *                           default sets to false.
+     * @param string $directory  The remote directory path.
+     * @param int    $filter     [optional] Specifies the type of the returned files, the default is
+     *                           {@link FtpClient::FILE_DIR_TYPE} for files only or dirs only use
+     *                           {@link FtpClient::FILE_TYPE} and {@link FtpClient::DIR_TYPE}.
+     * @param bool   $ignoreDots [optional] Ignore dots files ['.', '..'], default sets to false.
      *
-     * @return array
+     * @return array returns a list of files names as an array.
      *
      * @throws ClientException
      */
@@ -543,7 +550,6 @@ class FtpClient
         }
 
         switch ($filter) {
-
             case self::DIR_TYPE:
                 return array_filter($files, function ($file) {
                     return $this->isDir($file);
@@ -562,9 +568,9 @@ class FtpClient
     /**
      * Checks if the remote file is empty or not.
      *
-     * @param $remoteFile
+     * @param string $remoteFile The remote file path.
      *
-     * @return bool
+     * @return bool Returns true if empty, otherwise returns false.
      *
      * @throws ClientException
      */
@@ -578,11 +584,11 @@ class FtpClient
     }
 
     /**
-     * Gets file size.
+     * Gets a regular file size.
      *
-     * @param string $remoteFile
+     * @param string $remoteFile The remote file path.
      *
-     * @return int Return the size on bytes.
+     * @return int Return the size in bytes.
      *
      * @throws ClientException
      */
@@ -593,8 +599,15 @@ class FtpClient
         }
 
         /**
-         * SIZE command not a standard in the basic FTP protocol as defined in RFC 959.
+         * SIZE command not a standard in the basic FTP protocol as defined in RFC 959,
+         * so many FTP servers may not implement this command, to work around we use the
+         * listDirectoryDetails() method which uses the ftp_rawlist FTP extension function,
+         * in turn this function uses the LIST command to get the directory files
+         * information includes the files size.
+         *
+         * @link https://tools.ietf.org/html/rfc959
          */
+
         if ($this->isFeatureSupported('SIZE')) {
             $list = $this->listDirectoryDetails('/');
             foreach (range(0, count($list) - 1) as $i) {
@@ -610,10 +623,10 @@ class FtpClient
     /**
      * Move a file or a directory to another path.
      *
-     * @param string $source      Source file
-     * @param string $destination Destination directory
+     * @param string $source      The remote file to be moved.
+     * @param string $destination The destination remote directory.
      *
-     * @return bool
+     * @return bool Returns true in success, an exception throws otherwise.
      *
      * @throws ClientException
      */
@@ -631,54 +644,58 @@ class FtpClient
     }
 
     /**
-     * Rename a file/directory.
+     * Rename a file/directory on the FTP server.
      *
-     * @param string $oldName
-     * @param string $newName
+     * @param string $remoteFile The remote file to renames.
+     * @param string $newName    The new name.
      *
-     * @return bool
+     * @return bool Returns true in success, otherwise an exception throws.
      *
      * @throws ClientException
      */
-    public function rename($oldName, $newName)
+    public function rename($remoteFile, $newName)
     {
-        if ( ! $this->isExists($oldName)) {
-            throw new ClientException("[{$oldName}] doesn't exists.");
+        if ( ! $this->isExists($remoteFile)) {
+            throw new ClientException("[{$remoteFile}] doesn't exists.");
         }
 
         if ($this->isExists($newName)) {
             throw new ClientException("[{$newName}] is already exists.");
         }
 
-        if ( ! $this->wrapper->rename($oldName, $newName)) {
-            throw new ClientException(
-                ClientException::getFtpServerError()
-                    ?: sprintf(
+        if ( ! $this->wrapper->rename($remoteFile, $newName)) {
+            throw new ClientException(ClientException::getFtpServerError()
+                ?: sprintf(
                     "Unable to rename %s to %s",
-                    $oldName,
+                    $remoteFile,
                     $newName
-                ));
+                )
+            );
         }
 
         return true;
     }
 
     /**
-     * Check if the FTP server is still connected and responds for commands.
+     * Sends a request to the server to keep the control channel alive and prevent the server from
+     * disconnecting the session.
      *
      * @see FtpCommand::raw()
      *
-     * @return bool
+     * @return bool Return true in success, false otherwise.
      */
-    public function isServerAlive()
+    public function keepConnectionAlive()
     {
         return $this->command->raw("NOOP")['success'];
     }
 
     /**
-     * Send a request to FTP server to allocate a space for the next file transfer.
+     * Sends a request to FTP server to allocate a space for the next file transfer.
      *
-     * @param int
+     * Note! this function can success even the FTP server doesn't requires
+     * the allocating spaces for the file transfers.
+     *
+     * @param int An integer represent the size in bytes
      *
      * @return bool
      *
@@ -690,7 +707,6 @@ class FtpClient
             throw new ClientException("[{$bytes}] must be of type integer.");
         }
 
-        // TODO ftp_alloc warning issue
         if ( ! $this->wrapper->alloc($bytes)) {
             throw new ClientException(ClientException::getFtpServerError()
                 ?: "Can't allocate [{$bytes}] bytes."
@@ -701,72 +717,47 @@ class FtpClient
     }
 
     /**
-     * Download remote file from the FTP server.
+     * Start downloading a remote file.
      *
-     * @param string $remoteFile
-     * @param int    $saveAs  [optional]
-     * @param int    $retries [optional]
-     * @param int    $mode    [optional]
-     * @param int    $startAt [optional]
+     * Note! this method download the file synchronously (blocking mode),
+     * for the async operations use {@link FtpClient::asyncDownload()} or
+     * {@link FtpClient::asyncUpload()} methods.
      *
-     * @return bool
+     * @param string $remoteFile The remote file to download.
+     * @param int    $localFile  The local file path.
+     * @param bool   $resume     [optional] resume downloading the file, the default is true.
+     * @param int    $mode       [optional] The mode which will be used to transfer the file, the default is
+     *                           the binary mode, if you don't know which mode you can use
+     *                           {@link FtpClient::getTransferMode()}.
+     *
+     * @return bool Return true in success, otherwise an exception throws.
      *
      * @throws ClientException
      */
-    public function download($remoteFile, $saveAs, $retries = 1, $mode = null, $startAt = 0)
+    public function download($remoteFile, $localFile, $resume = true, $mode = FtpWrapper::BINARY)
     {
         if ( ! $this->isExists($remoteFile)) {
             throw new ClientException("[{$remoteFile}] does not exists.");
         }
 
-        $i = 0;
-        do {
-            if ( ! $this->wrapper->get(
-                $saveAs,
-                $remoteFile,
-                $mode,
-                $startAt
-            )
-            ) {
-                $i++;
-                if ($i >= $retries) {
-                    throw new ClientException(ClientException::getFtpServerError()
-                        ?: "Unable to retrieve [{$remoteFile}]."
-                    );
-                }
-            } else {
-                break;
-            }
-        } while ($i < $retries);
-
-        return true;
-    }
-
-    /**
-     * Resume downloading broken file.
-     *
-     * @param string $localFile
-     * @param string $remoteFile
-     * @param int    $retries [optional]
-     * @param int    $mode    [optional]
-     *
-     * @return bool
-     *
-     * @throws ClientException
-     */
-    public function resumeDownload($localFile, $remoteFile, $retries = 1, $mode = null)
-    {
-        if ( ! file_exists($localFile)) {
-            throw new ClientException("Cannot resume downloading [{$localFile}] because is doesn't exists.");
+        $startPos = 0;
+        if ($resume) {
+            $startPos = filesize($localFile);
         }
 
-        return $this->download(
-            $remoteFile,
+        if ( ! $this->wrapper->get(
             $localFile,
-            $retries,
+            $remoteFile,
             $mode,
-            filesize($localFile)
-        );
+            $startPos
+        )
+        ) {
+            throw new ClientException(ClientException::getFtpServerError()
+                ?: "Unable to retrieve the file [{$remoteFile}]."
+            );
+        }
+
+        return true;
     }
 
     /**
@@ -815,122 +806,82 @@ class FtpClient
     /**
      * Retrieves a remote file asynchronously (non-blocking).
      *
-     * @param string   $remoteFile
-     * @param string   $saveAs
-     * @param callback $doWhileDownloading
-     * @param int      $interval [optional]
-     * @param int      $mode     [optional]
+     * @see FtpWrapper::nb_get()
      *
-     * @return bool
+     * @param string   $remoteFile         The remote file to download.
+     * @param string   $localFile          The local file path.
+     * @param callback $doWhileDownloading A callback function performed asynchronously while downloading the remote
+     *                                     file.
+     * @param bool     $resume             [optional] resume downloading the file, the default is true.
+     * @param int      $interval           [optional] An optional parameter represent the interval in seconds that the
+     *                                     callback function will repeatedly called every specific interval until the
+     *                                     transfer is complete, the default value sets to 1 seconds.
+     * @param int      $mode               [optional] The mode which will be used to transfer the file, the default is
+     *                                     the binary mode, if you don't know which mode you can use
+     *                                     {@link FtpClient::getTransferMode()}.
+     *
+     * @return bool Return bool if the transfer operation was successfully complete, if somethings goes wrong during
+     *              the transfer an exception throws.
      *
      * @throws ClientException
      */
-    public function asyncDownload($remoteFile, $saveAs, $doWhileDownloading, $interval = 1, $mode = null)
+    public function asyncDownload($remoteFile, $localFile, $doWhileDownloading, $resume = true, $interval = 1, $mode = FtpWrapper::BINARY)
     {
         if ( ! $this->isExists($remoteFile)) {
             throw new ClientException("[{$remoteFile}] does not exists.");
         }
 
-        $remoteFileSize = $this->fileSize($remoteFile);
-
-        $download = $this->wrapper->nb_get(
-            $saveAs,
-            $remoteFile,
-            $mode,
-            0
-        );
-
-        $timeStart = microtime(true);
-
-        $sizeTmp        = null;
-        $elapsedTimeTmp = null;
-        while ($download === FtpWrapper::MOREDATA) {
-            $download = $this->wrapper->nb_continue();
-
-            $elapsedTime = ceil(microtime(true) - $timeStart);
-
-            if ($elapsedTimeTmp !== $elapsedTime && is_int(intval($elapsedTime) / $interval)) {
+        $startPos = 0;
+        if ($resume) {
+            if (file_exists($localFile)) {
                 clearstatcache();
-                $localFileSizeSync = filesize($saveAs);
-
-                $doWhileDownloading($this->getAsyncStatInfo([
-                    'sizeSync'         => $localFileSizeSync,
-                    'previousSyncSize' => $sizeTmp,
-                    'sourceSize'       => $remoteFileSize,
-                    'elapsedTime'      => $elapsedTime
-                ]));
-
-                $sizeTmp = $localFileSizeSync;
+                $startPos = filesize($localFile);
             }
-
-            $elapsedTimeTmp = $elapsedTime;
         }
 
-        if ($download === FtpWrapper::FAILED) {
-            throw new ClientException(ClientException::getFtpServerError()
-                ?: "Failed to download [{$remoteFile}]."
-            );
-        }
-
-        return (bool)FtpWrapper::FINISHED;
-    }
-
-    /**
-     * Resume downloading file asynchronously.
-     *
-     * Note : the autoSeek option must be turned ON (default), otherwise
-     * the download will start from the beginning.
-     *
-     * @param string $remoteFile
-     * @param string $localFile
-     * @param string $doWhileDownloading
-     * @param int    $interval [optional]
-     * @param int    $mode     [optional]
-     *
-     * @return bool
-     *
-     * @throws ClientException
-     */
-    public function resumeAsyncDownload($remoteFile, $localFile, $doWhileDownloading, $interval = 1, $mode = null)
-    {
-        if ( ! file_exists($localFile)) {
-            throw new ClientException("[{$localFile}] must be an existing file.");
-        }
-
-        if ( ! $this->isExists($remoteFile)) {
-            throw new ClientException("[{$remoteFile}] does not exists.");
-        }
-
-        $originSize     = filesize($localFile);
         $remoteFileSize = $this->fileSize($remoteFile);
 
         $download = $this->wrapper->nb_get(
             $localFile,
             $remoteFile,
             $mode,
-            $originSize
+            $startPos
         );
 
-        $timeStart = microtime(true);
+        $startTime = microtime(true);
 
-        $sizeTmp        = null;
-        $elapsedTimeTmp = null;
+        $sizeTmp        = $startPos;
+        $elapsedTimeTmp = 0;
         while ($download === FtpWrapper::MOREDATA) {
             $download = $this->wrapper->nb_continue();
 
-            $elapsedTime = ceil(microtime(true) - $timeStart);
+            $elapsedTime = ceil(microtime(true) - $startTime);
 
-            if ($elapsedTimeTmp !== $elapsedTime && is_int(intval($elapsedTime) / $interval)) {
+            /**
+             * The first condition : perform the callback function only once every interval time.
+             * The second one      : perform the callback function every interval time.
+             *
+             * The integer cast inside the is_int is the second condition is because
+             * the elapsedTime is a float number.
+             *
+             * A small simulation of the first 2 seconds supposing the interval is sets to 1 :
+             *
+             * Time(0.5s)  : (0 !== 1 && is_int( (int) 0.5f  / 1) => false
+             * Time(1.01s) : (1 !== 2 && is_int( (int) 1.01f / 1) => true
+             * Time(1.5s)  : (2 !== 2 && is_int( (int) 1.5f  / 1) => false
+             * Time(2s)    : (2 !== 2 && is_int( (int) 2f    / 1) => false
+             * Time(2.01s) : (2 !== 3 && is_int( (int) 2.01f / 1) => true
+             */
+            if ($elapsedTimeTmp !== $elapsedTime && is_int((int)$elapsedTime / $interval)) {
                 clearstatcache();
-                $localFileSize = filesize($localFile) - $originSize;
+                $localFileSize = filesize($localFile);
 
-                $doWhileDownloading($this->getAsyncStatInfo([
-                    'sizeSync'         => $localFileSize,
-                    'previousSyncSize' => $sizeTmp,
-                    'sourceSize'       => $remoteFileSize,
-                    'originSize'       => $originSize,
-                    'elapsedTime'      => $elapsedTime
-                ], true));
+                $doWhileDownloading([
+                    'speed'       => $this->transferSpeed($localFileSize - $startPos, $elapsedTime),
+                    'percentage'  => $this->transferPercentage($localFileSize, $remoteFileSize),
+                    'transferred' => $this->transferredBytes($localFileSize, $sizeTmp),
+                    'seconds'     => $elapsedTime
+                ]);
 
                 $sizeTmp = $localFileSize;
             }
@@ -940,7 +891,7 @@ class FtpClient
 
         if ($download === FtpWrapper::FAILED) {
             throw new ClientException(ClientException::getFtpServerError()
-                ?: "Failed to download the file [{$remoteFile}]."
+                ?: "Downloading the file [{$remoteFile}] was failed."
             );
         }
 
@@ -948,7 +899,7 @@ class FtpClient
     }
 
     /**
-     * Read the remote file content and return the data as a string.
+     * Reads the remote file content and returns the data as a string.
      *
      * @param string $remoteFile
      *
@@ -962,8 +913,8 @@ class FtpClient
             throw new ClientException("[{$remoteFile}] is a directory.");
         }
 
+        // Create a temporary file in the system temp files directory
         $tempFile = tempnam(sys_get_temp_dir(), $remoteFile);
-
         if ( ! $this->wrapper->get($tempFile, $remoteFile, FtpWrapper::ASCII)) {
             throw new ClientException(ClientException::getFtpServerError()
                 ?: "Unable to get [{$remoteFile}] content."
@@ -971,69 +922,9 @@ class FtpClient
         }
 
         $content = file_get_contents($tempFile);
-        unlink($tempFile);
+        unlink($tempFile); // delete the temp file
 
         return $content;
-    }
-
-    /**
-     * Starts uploading the giving local file to the FTP server.
-     *
-     * @param string     $localFile
-     * @param string|int $saveAs
-     * @param int        $retries
-     * @param int        $mode
-     * @param int        $startAt
-     *
-     * @return bool
-     *
-     * @throws ClientException
-     */
-    public function upload($localFile, $saveAs, $retries = 1, $mode = null, $startAt = 0)
-    {
-        if ( ! file_exists($localFile)) {
-            throw new ClientException("[{$localFile}] does not exists.");
-        }
-
-        $i = 0;
-        do {
-            if ( ! $this->wrapper->put(
-                $saveAs,
-                $localFile,
-                $mode,
-                $startAt)
-            ) {
-                $i++;
-                if ($i >= $retries) {
-                    throw new ClientException(ClientException::getFtpServerError()
-                        ?: "Unable to upload [{$localFile}]."
-                    );
-                }
-            } else {
-                break;
-            }
-        } while ($i < $retries);
-
-        return true;
-    }
-
-    /**
-     * Inserts the giving contents to a specific FTP remote file.
-     *
-     * Note : if the file does not exists it will be created.
-     *
-     * @param string $remoteFile
-     * @param mixed  $content
-     *
-     * @return bool
-     */
-    public function setFileContent($remoteFile, $content)
-    {
-        $handle = fopen('php://temp', 'a');
-        fwrite($handle, (string)$content);
-        rewind($handle);
-
-        return $this->wrapper->fput($remoteFile, $handle, FtpWrapper::ASCII);
     }
 
     /**
@@ -1058,165 +949,152 @@ class FtpClient
     }
 
     /**
-     * Resume uploading a local file.
+     * Inserts the giving contents to a specific FTP remote file.
      *
-     * @param string $localFile
-     * @param string $remoteFile
-     * @param int    $retries [optional]
-     * @param int    $mode    [optional]
+     * Note! if the file does not exists it will be created.
      *
-     * @return bool
+     * @param string $remoteFile The remote file path.
+     * @param mixed  $content    The content to write in a remote file.
+     *
+     * @return bool Returns true in success, an exception throws in error.
      *
      * @throws ClientException
      */
-    public function resumeUpload($localFile, $remoteFile, $retries = 1, $mode = null)
+    public function setFileContent($remoteFile, $content)
     {
-        if ( ! $this->isExists($remoteFile)) {
-            throw new ClientException(
-                "Cannot resume uploading [{$localFile}] because is doesn't exists."
-            );
+        // Create file pointer to a temp file
+        $handle = fopen('php://temp', 'a');
+        fwrite($handle, (string)$content);
+        rewind($handle); // Rewind position
+
+        if ( ! $this->wrapper->fput($remoteFile, $handle, FtpWrapper::ASCII)) {
+            throw new ClientException("Unable to set [{$remoteFile}] content.");
         }
 
-        return $this->upload(
-            $localFile,
-            $remoteFile,
-            $retries,
-            $mode,
-            $this->fileSize($remoteFile)
-        );
+        return true;
     }
 
     /**
-     * Uploading a local file asynchronously.
+     * Starts uploading the giving local file to the FTP server.
      *
-     * @param string $localFile
-     * @param string $saveAs
-     * @param string $doWhileDownloading
-     * @param int    $interval [optional]
-     * @param int    $mode     [optional]
+     * @param string|int $localFile
+     * @param            $remoteFile
+     * @param bool       $resume
+     * @param int        $mode
      *
      * @return bool
      *
      * @throws ClientException
      */
-    public function asyncUpload($localFile, $saveAs, $doWhileDownloading, $interval = 1, $mode = null)
+    public function upload($localFile, $remoteFile, $resume = true, $mode = FtpWrapper::BINARY)
     {
         if ( ! file_exists($localFile)) {
-            throw new ClientException("[{$localFile}] does not exists.");
+            throw new ClientException("Cannot uploading the file [{$localFile}] because is not exists.");
+        }
+
+        $startPos = 0;
+        if ($resume) {
+            if ($this->isExists($remoteFile)) {
+                $startPos = $this->fileSize($remoteFile);
+            }
+        }
+
+        if ( ! $this->wrapper->put(
+            $remoteFile,
+            $localFile,
+            $mode,
+            $startPos)
+        ) {
+            throw new ClientException(ClientException::getFtpServerError()
+                ?: "Unable to upload the file [{$localFile}]."
+            );
+        }
+
+        return true;
+    }
+
+    /**
+     * Uploading a local file asynchronously to the remote server.
+     *
+     * @param string $localFile            The local file to upload.
+     * @param string $remoteFile           The remote file path.
+     * @param string $doWhileDownloading   A callback function performed asynchronously while downloading the remote
+     *                                     file.
+     * @param bool   $resume               [optional] resume downloading the file, the default is true.
+     * @param int    $interval             [optional] An optional parameter represent the interval in seconds that the
+     *                                     callback function will repeatedly called every specific interval until the
+     *                                     transfer is complete, the default value sets to 1 seconds.
+     * @param int    $mode                 [optional] The mode which will be used to transfer the file, the default is
+     *                                     the binary mode, if you don't know which mode you can use
+     *                                     {@link FtpClient::getTransferMode()}.
+     *
+     * @return bool Return true if file successfully uploaded, if not an exception throws.
+     *
+     * @throws ClientException
+     */
+    public function asyncUpload($localFile, $remoteFile, $doWhileDownloading, $resume = true, $interval = 1, $mode = FtpWrapper::BINARY)
+    {
+        if ( ! file_exists($localFile)) {
+            throw new ClientException("[{$localFile}] doesn't exists to upload.");
+        }
+
+        $startPos = 0;
+        if ($resume) {
+            if ($this->isExists($remoteFile)) {
+                $startPos = $this->fileSize($remoteFile);
+            }
         }
 
         $localFileSize = filesize($localFile);
         $handle        = fopen($localFile, 'r');
 
         /**
-         * To check asynchronously the uploading state we use the ftp_nb_fput
-         * function instead of ftp_nb_put, by passing the local file pointer to this function we will
-         * be able to know the local file file pointer position any time we want
-         * using the ftell function.
+         * To check asynchronously the uploading state we use the ftp_nb_fput function instead
+         * of ftp_nb_put, by passing the local file pointer to this function we will
+         * be able to know the remote file size every time using the ftell function.
          */
-
-        $download = $this->wrapper->nb_fput(
-            $saveAs,
-            $handle,
-            $mode,
-            0
-        );
-
-        $timeStart = microtime(true);
-
-        $sizeTmp        = null;
-        $elapsedTimeTmp = null;
-        while ($download === FtpWrapper::MOREDATA) {
-            $download = $this->wrapper->nb_continue();
-
-            $elapsedTime = ceil(microtime(true) - $timeStart);
-
-            if ($elapsedTimeTmp !== $elapsedTime && is_int(intval($elapsedTime) / $interval)) {
-
-                $localFileSizeSync = ftell($handle);
-
-                $doWhileDownloading($this->getAsyncStatInfo([
-                    'sizeSync'         => $localFileSizeSync,
-                    'previousSyncSize' => $sizeTmp,
-                    'sourceSize'       => $localFileSize,
-                    'elapsedTime'      => $elapsedTime
-                ]));
-
-                $sizeTmp = $localFileSizeSync;
-            }
-
-            $elapsedTimeTmp = $elapsedTime;
-        }
-
-        if ($download === FtpWrapper::FAILED) {
-            throw new ClientException(ClientException::getFtpServerError()
-                ?: "Failed to upload the file [{$localFile}]."
-            );
-        }
-
-        return (bool)FtpWrapper::FINISHED;
-    }
-
-    /**
-     * Continues uploading a remote file asynchronously.
-     *
-     * @param string $localFile
-     * @param string $remoteFile
-     * @param string $doWhileDownloading
-     * @param int    $interval [optional]
-     * @param int    $mode     [optional]
-     *
-     * @return bool
-     *
-     * @throws ClientException
-     */
-    public function resumeAsyncUpload($localFile, $remoteFile, $doWhileDownloading, $interval = 1, $mode)
-    {
-        if ( ! file_exists($localFile)) {
-            throw new ClientException("[{$localFile}] does not exists.");
-        }
-
-        $localFileSize = filesize($localFile);
-        $originSize    = $this->fileSize($remoteFile);
-
-        $handle = fopen($localFile, 'r');
-
-        /**
-         * To check asynchronously the uploading state we use the ftp_nb_fput
-         * function instead of ftp_nb_put, by passing the local file pointer to this function we will
-         * be able to know the local file file pointer position any time we want
-         * using the ftell function.
-         */
-
         $download = $this->wrapper->nb_fput(
             $remoteFile,
             $handle,
             $mode,
-            $originSize
+            $startPos
         );
 
-        $timeStart = microtime(true);
+        $startTime = microtime(true);
 
         $sizeTmp        = null;
         $elapsedTimeTmp = null;
         while ($download === FtpWrapper::MOREDATA) {
             $download = $this->wrapper->nb_continue();
 
-            $elapsedTime = ceil(microtime(true) - $timeStart);
+            $elapsedTime = ceil(microtime(true) - $startTime);
 
-            if ($elapsedTimeTmp !== $elapsedTime && is_int(intval($elapsedTime) / $interval)) {
+            /**
+             * The first condition : perform the callback function only once every interval time.
+             * The second one      : perform the callback function every interval time.
+             *
+             * The integer cast inside the is_int is the second condition is because
+             * the elapsedTime is a float number.
+             *
+             * A small simulation of the first 2 seconds supposing the interval is sets to 1 :
+             *
+             * Time(0.5s)  : (0 !== 1 && is_int( (int) 0.5f  / 1) => false
+             * Time(1.01s) : (1 !== 2 && is_int( (int) 1.01f / 1) => true
+             * Time(1.5s)  : (2 !== 2 && is_int( (int) 1.5f  / 1) => false
+             * Time(2s)    : (2 !== 2 && is_int( (int) 2f    / 1) => false
+             * Time(2.01s) : (2 !== 3 && is_int( (int) 2.01f / 1) => true
+             */
+            if ($elapsedTimeTmp !== $elapsedTime && is_int((int)$elapsedTime / $interval)) {
+                $remoteFileSize = ftell($handle);
 
-                $sizeSync = ftell($handle) - $originSize;
+                $doWhileDownloading([
+                    'speed'       => $this->transferSpeed($remoteFileSize - $startPos, $elapsedTime),
+                    'percentage'  => $this->transferPercentage($remoteFileSize, $localFileSize),
+                    'transferred' => $this->transferredBytes($remoteFileSize, $sizeTmp),
+                    'seconds'     => $elapsedTime
+                ]);
 
-                $doWhileDownloading($this->getAsyncStatInfo([
-                    'sizeSync'         => $sizeSync,
-                    'previousSyncSize' => $sizeTmp,
-                    'sourceSize'       => $localFileSize,
-                    'originSize'       => $originSize,
-                    'elapsedTime'      => $elapsedTime,
-                ], true));
-
-                $sizeTmp = $sizeSync;
+                $sizeTmp = $remoteFileSize;
             }
 
             $elapsedTimeTmp = $elapsedTime;
@@ -1234,8 +1112,18 @@ class FtpClient
     /**
      * Sets permissions on an FTP file or directory.
      *
-     * @param string           $filename
-     * @param array|int|string $mode
+     * @param string           $filename The remote file name.
+     * @param array|int|string $mode     The mode parameter can be an integer or a string contains three digits e.g
+     *                                   (777). The array parameter must be an associative array where a key is the
+     *                                   permission group ['owner', 'group', 'other'] and the value is a string
+     *                                   representation separated by a '-' contains the permissions to be sets on the
+     *                                   remote file e.g "w-r-e".
+     *
+     * An example : [
+     * 'owner' => 'r-w',
+     * 'group' => 'e',
+     * 'other' => 'w-r'
+     * ]
      *
      * @return bool
      *
@@ -1284,62 +1172,47 @@ class FtpClient
     }
 
     /**
-     * @param string $chmod
+     * Gets the transfer operation average speed.
      *
-     * @return int|mixed
+     * @param int $size
+     * @param int $elapsedTime
+     *
+     * @return float
      */
-    protected function chmodToNumeric($chmod)
+    protected function transferSpeed($size, $elapsedTime)
     {
-        $actions = [
-            'r' => 4,
-            'w' => 2,
-            'e' => 1
-        ];
-
-        $chunks  = explode('-', $chmod);
-        $numeric = 0;
-        foreach ($chunks as $action) {
-            $numeric += $actions[$action];
-        }
-
-        return $numeric;
+        return (float)number_format(($size / $elapsedTime) / 1000, 2);
     }
 
     /**
-     * Gets miscellaneous information of the giving upload/download operation state.
+     * Gets the transfer operation progress percentage.
      *
-     * @param array $state
-     * @param bool  $resume
+     * @param int $size
+     * @param int $totalSize
      *
-     * @return array
+     * @return int
      */
-    protected function getAsyncStatInfo($state, $resume = false)
+    protected function transferPercentage($size, $totalSize)
     {
-        if ( ! $resume) {
-            $percentage = number_format(
-                ($state['sizeSync'] * 100) / $state['sourceSize']
-            );
-        } else {
-            $percentage = number_format(
-                ($state['sizeSync'] * 100) / ($state['sourceSize'] - $state['originSize'])
-            );
-        }
-
-        return [
-            'transferred' => number_format(
-                ($state['sizeSync'] - $state['previousSyncSize']) / 1000
-            ),
-            'speed'       => number_format(
-                ($state['sizeSync'] / $state['elapsedTime']) / 1000, 2
-            ),
-            'percentage'  => $percentage,
-            'seconds'     => $state['elapsedTime']
-        ];
+        return (int)(($size * 100) / $totalSize);
     }
 
     /**
-     * Extract the file type (type, dir, link) from chmod string
-     * (e.g., 'drwxr - xr - x' will return 'dir').
+     * Gets the amount of bytes transferred in a transfer operation.
+     *
+     * @param int $size
+     * @param int $previousSize
+     *
+     * @return int
+     */
+    protected function transferredBytes($size, $previousSize)
+    {
+        return (int)(($size - $previousSize) / 1000);
+    }
+
+    /**
+     * Gets the file type (type, dir, link) from teh giving chmod string
+     * Ex : ('drwxr-xr-x' => 'dir').
      *
      * @param string $chmod
      *
@@ -1360,5 +1233,31 @@ class FtpClient
             default:
                 return 'unknown file type.';
         }
+    }
+
+    /**
+     * Converts the giving chmod string to a numeric representation.
+     * Ex : "w-r-e" => 7
+     * Ex : "r-e"   => 3
+     *
+     * @param string $chmod
+     *
+     * @return int
+     */
+    protected function chmodToNumeric($chmod)
+    {
+        $actions = [
+            'r' => 4,
+            'w' => 2,
+            'e' => 1
+        ];
+
+        $chunks  = explode('-', $chmod);
+        $numeric = 0;
+        foreach ($chunks as $action) {
+            $numeric += $actions[$action];
+        }
+
+        return $numeric;
     }
 }

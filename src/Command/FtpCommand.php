@@ -36,11 +36,11 @@ final class FtpCommand
     }
 
     /**
-     * Send a request to FTP server to execute an arbitrary command.
+     * Sends a request to FTP server to execute an arbitrary command.
      *
-     * @param string $command
+     * @param string $command The command to execute.
      *
-     * @return array
+     * @return array Returns a parsed array.
      */
     public function raw($command)
     {
@@ -57,11 +57,13 @@ final class FtpCommand
     }
 
     /**
-     * Send a request to FTP server to execute a SITE command.
+     * Sends a SITE command to the FTP server.
      *
-     * @param string $command
+     * @see FtpCommand::supportedSiteCommands()
      *
-     * @return bool
+     * @param string $command The site command to execute.
+     *
+     * @return bool Returns true in success, if not an exception throws.
      *
      * @throws CommandException
      */
@@ -83,7 +85,11 @@ final class FtpCommand
     }
 
     /**
-     * Send a request to FTP server for execution a SITE EXEC command.
+     * Sends a SITE EXEC command to FTP server.
+     *
+     * Note! Not all FTP servers support this command.
+     *
+     * @see FtpCommand::supportedSiteCommands()
      *
      * @param string $command
      *
@@ -105,16 +111,21 @@ final class FtpCommand
     }
 
     /**
-     * @return array
+     * Gets supported SITE commands by the remote server.
+     *
+     * @see FtpCommand::raw()
+     *
+     * @return array|string Return array of SITE available commands in success, if not the FTP reply error returns.
      */
-    private function supportedSiteCommands()
+    public function supportedSiteCommands()
     {
-        return array_map(
-            function ($item) {
-                return ltrim(strtolower($item));
-            },
-            $this->raw("SITE HELP")['body']
-        );
+        $response = $this->raw("SITE HELP");
+
+        if ( ! $response['success']) {
+            return $response['message'];
+        }
+
+        return array_map('ltrim', $response['body']);
     }
 
 }
