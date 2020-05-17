@@ -202,7 +202,7 @@ class FtpWrapper
      */
     public function nlist($directory)
     {
-        return ftp_nlist($this->connection->getStream(), $directory);
+        return @ftp_nlist($this->connection->getStream(), $directory);
     }
 
     /**
@@ -212,7 +212,7 @@ class FtpWrapper
      */
     public function cdup()
     {
-        return ftp_cdup($this->connection->getStream());
+        return @ftp_cdup($this->connection->getStream());
     }
 
     /**
@@ -225,7 +225,7 @@ class FtpWrapper
      */
     public function rawlist($directory, $recursive = false)
     {
-        return ftp_rawlist($this->connection->getStream(), $directory, $recursive);
+        return @ftp_rawlist($this->connection->getStream(), $directory, $recursive);
     }
 
     /**
@@ -237,7 +237,7 @@ class FtpWrapper
      */
     public function delete($remoteFile)
     {
-        return ftp_delete($this->connection->getStream(), $remoteFile);
+        return @ftp_delete($this->connection->getStream(), $remoteFile);
     }
 
     /**
@@ -249,7 +249,7 @@ class FtpWrapper
      */
     public function mdtm($remoteFile)
     {
-        return ftp_mdtm($this->connection->getStream(), $remoteFile);
+        return @ftp_mdtm($this->connection->getStream(), $remoteFile);
     }
 
     /**
@@ -298,7 +298,7 @@ class FtpWrapper
      */
     public function rename($oldName, $newName)
     {
-        return ftp_rename($this->connection->getStream(), $oldName, $newName);
+        return @ftp_rename($this->connection->getStream(), $oldName, $newName);
     }
 
     /**
@@ -308,7 +308,7 @@ class FtpWrapper
      */
     public function systype()
     {
-        return ftp_systype($this->connection->getStream());
+        return @ftp_systype($this->connection->getStream());
     }
 
     /**
@@ -322,7 +322,7 @@ class FtpWrapper
     public function alloc($size, $result = null)
     {
         // TODO reference $result testing
-        return ftp_alloc($this->connection->getStream(), $size, $result);
+        return @ftp_alloc($this->connection->getStream(), $size, $result);
     }
 
     /**
@@ -337,7 +337,7 @@ class FtpWrapper
      */
     public function get($localFile, $remoteFile, $mode, $resumePos = 0)
     {
-        return ftp_get($this->connection->getStream(), $localFile, $remoteFile, $mode, $resumePos);
+        return @ftp_get($this->connection->getStream(), $localFile, $remoteFile, $mode, $resumePos);
     }
 
     /**
@@ -377,7 +377,7 @@ class FtpWrapper
      */
     public function put($remoteFile, $localFile, $mode, $startPos = 0)
     {
-        return ftp_put($this->connection->getStream(), $remoteFile, $localFile, $mode, $startPos);
+        return @ftp_put($this->connection->getStream(), $remoteFile, $localFile, $mode, $startPos);
     }
 
     /**
@@ -434,6 +434,6 @@ class FtpWrapper
      */
     public function chmod($mode, $filename)
     {
-        return ftp_chmod($this->connection->getStream(), $mode, $filename);
+        return @ftp_chmod($this->connection->getStream(), $mode, $filename);
     }
 }

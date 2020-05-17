@@ -10,7 +10,6 @@
 
 namespace Lazzard\FtpClient\Connection;
 
-use Lazzard\FtpClient\Config\FtpConfig;
 use Lazzard\FtpClient\Exception\ConnectionException;
 use Lazzard\FtpClient\FtpWrapper;
 
@@ -46,7 +45,7 @@ class FtpConnection implements ConnectionInterface
     /**
      * Prepares an FTP connection.
      *
-     * @param string $host     The host name or IP address.
+     * @param string $host     The host name or the IP address.
      * @param string $username The client's username.
      * @param string $password The client's password.
      * @param int    $port     [optional] Specifies the port to be used to open the control channel.

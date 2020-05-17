@@ -40,7 +40,7 @@ final class FtpCommand
      *
      * @param string $command The command to execute.
      *
-     * @return array Returns a parsed array.
+     * @return array Returns a detailed response array.
      */
     public function raw($command)
     {
@@ -115,7 +115,7 @@ final class FtpCommand
      *
      * @see FtpCommand::raw()
      *
-     * @return array|string Return array of SITE available commands in success, if not the FTP reply error returns.
+     * @return array Returns an array of SITE available commands in success, if not the FTP reply error returns.
      */
     public function supportedSiteCommands()
     {

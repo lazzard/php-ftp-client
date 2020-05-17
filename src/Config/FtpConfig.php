@@ -40,10 +40,10 @@ final class FtpConfig
      * @param ConnectionInterface $connection
      * @param array|null          $config [optional]
      */
-    public function __construct($connection, $config = null)
+    public function __construct(ConnectionInterface $connection, $config = null)
     {
         if ($config) {
-            $this->config = array_merge($config, $config);
+            $this->config = array_merge($this->config, $config);
         }
 
         $this->wrapper = new FtpWrapper($connection);

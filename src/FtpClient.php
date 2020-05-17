@@ -230,7 +230,7 @@ class FtpClient
                         continue;
                     }
                 } elseif ($filter === self::DIR_TYPE) {
-                    if ($type === 'file' || $type === 'link') {
+                    if ($type !== 'dir') {
                         continue;
                     }
                 }
@@ -890,9 +890,7 @@ class FtpClient
         }
 
         if ($download === FtpWrapper::FAILED) {
-            throw new ClientException(ClientException::getFtpServerError()
-                ?: "Downloading the file [{$remoteFile}] was failed."
-            );
+            throw new ClientException("Downloading the file [{$remoteFile}] was failed.");
         }
 
         return (bool)FtpWrapper::FINISHED;
@@ -940,9 +938,7 @@ class FtpClient
     public function createFile($fileName, $content = null)
     {
         if ( ! $this->setFileContent($fileName, (string)$content)) {
-            throw new ClientException(ClientException::getFtpServerError()
-                ?: "Unable to create the file [{$fileName}]."
-            );
+            throw new ClientException("Unable to create the file [{$fileName}].");
         }
 
         return true;
@@ -1101,9 +1097,7 @@ class FtpClient
         }
 
         if ($download === FtpWrapper::FAILED) {
-            throw new ClientException(ClientException::getFtpServerError()
-                ?: "Failed to upload the file [{$localFile}]."
-            );
+            throw new ClientException("Failed to upload the file [{$localFile}].");
         }
 
         return (bool)FtpWrapper::FINISHED;
