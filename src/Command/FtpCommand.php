@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the Lazzard/php-ftp-client package.
  *
@@ -71,13 +72,11 @@ final class FtpCommand
     {
         $siteCommand = strtolower(explode(' ', trim($command))[0]);
 
-        if ( ! in_array($siteCommand, $this->supportedSiteCommands())) {
-            throw new CommandException(
-                "[{$siteCommand}] SITE command not supported by the remote server."
-            );
+        if (!in_array($siteCommand, $this->supportedSiteCommands())) {
+            throw new CommandException("[{$siteCommand}] SITE command not supported by the remote server.");
         }
 
-        if ( ! $this->wrapper->site(trim($command))) {
+        if (!$this->wrapper->site(trim($command))) {
             throw new CommandException("SITE EXEC command was failed");
         }
 
@@ -99,11 +98,11 @@ final class FtpCommand
      */
     public function exec($command)
     {
-        if ( ! in_array('exec', $this->supportedSiteCommands())) {
+        if (!in_array('exec', $this->supportedSiteCommands())) {
             throw new CommandException("SITE EXEC command not provided by the FTP server.");
         }
 
-        if ( ! $this->wrapper->exec(trim($command))) {
+        if (!$this->wrapper->exec(trim($command))) {
             throw new CommandException("SITE EXEC command was failed");
         }
 
@@ -121,11 +120,10 @@ final class FtpCommand
     {
         $response = $this->raw("SITE HELP");
 
-        if ( ! $response['success']) {
+        if (!$response['success']) {
             return $response['message'];
         }
 
         return array_map('ltrim', $response['body']);
     }
-
 }

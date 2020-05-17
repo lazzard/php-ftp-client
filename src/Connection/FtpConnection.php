@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the Lazzard/php-ftp-client package.
  *
@@ -70,7 +71,7 @@ class FtpConnection implements ConnectionInterface
      */
     public function getStream()
     {
-        if ( ! is_resource($this->stream)) {
+        if (!is_resource($this->stream)) {
             throw new ConnectionException(
                 "Invalid FTP stream resource, try to reopen the connection to FTP server."
             );
@@ -135,10 +136,9 @@ class FtpConnection implements ConnectionInterface
      */
     public function close()
     {
-        if ( ! $this->wrapper->close()) {
+        if (!$this->wrapper->close()) {
             throw new ConnectionException(ConnectionException::getFtpServerError()
-                ?: "Failed to closing FTP connection."
-            );
+                ?: "Failed to closing FTP connection.");
         }
 
         return true;
@@ -151,11 +151,9 @@ class FtpConnection implements ConnectionInterface
      */
     protected function connect()
     {
-        if ( ! ($stream = $this->wrapper->connect($this->getHost(), $this->getPort(), $this->getTimeout()))
-        ) {
+        if (!($stream = $this->wrapper->connect($this->getHost(), $this->getPort(), $this->getTimeout()))) {
             throw new ConnectionException(ConnectionException::getFtpServerError()
-                ?: "Connection failed to remote server."
-            );
+                ?: "Connection failed to remote server.");
         }
 
         $this->stream = $stream;
@@ -171,13 +169,11 @@ class FtpConnection implements ConnectionInterface
      */
     protected function login()
     {
-        if ( ! $this->wrapper->login($this->getUsername(), $this->getPassword())) {
+        if (!$this->wrapper->login($this->getUsername(), $this->getPassword())) {
             throw new ConnectionException(ConnectionException::getFtpServerError()
-                ?: "Login into the FTP server was failed."
-            );
+                ?: "Login into the FTP server was failed.");
         }
 
         return true;
     }
-
 }

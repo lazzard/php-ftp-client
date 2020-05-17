@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the Lazzard/php-ftp-client package.
  *
@@ -350,7 +351,7 @@ class FtpWrapper
      *
      * @return int
      */
-    public function nb_get($localFile, $remoteFile, $mode, $resumePos = 0)
+    public function nbGet($localFile, $remoteFile, $mode, $resumePos = 0)
     {
         return ftp_nb_get($this->connection->getStream(), $localFile, $remoteFile, $mode, $resumePos);
     }
@@ -360,7 +361,7 @@ class FtpWrapper
      *
      * @return int
      */
-    public function nb_continue()
+    public function nbContinue()
     {
         return @ftp_nb_continue($this->connection->getStream());
     }
@@ -405,7 +406,7 @@ class FtpWrapper
      *
      * @return int
      */
-    public function nb_fput($remoteFile, $handle, $mode, $startPos = 0)
+    public function nbFput($remoteFile, $handle, $mode, $startPos = 0)
     {
         return ftp_nb_fput($this->connection->getStream(), $remoteFile, $handle, $mode, $startPos);
     }
@@ -419,7 +420,7 @@ class FtpWrapper
      *
      * @return false|resource
      */
-    public function ssl_connect($host, $port = 21, $timeout = 90)
+    public function sslConnect($host, $port = 21, $timeout = 90)
     {
         return @ftp_ssl_connect($host, $port, $timeout);
     }

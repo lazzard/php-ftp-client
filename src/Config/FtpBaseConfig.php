@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the Lazzard/php-ftp-client package.
  *
@@ -38,7 +39,7 @@ final class FtpBaseConfig
         $config = array_merge($config, $iniConfig);
 
         if (($value = $config['maxExecutionTime']) !== null) {
-            if ( ! set_time_limit($value)) {
+            if (!set_time_limit($value)) {
                 throw new ConfigException("Failed to set max_execution_time value to [{$value}].");
             }
         }
@@ -67,7 +68,7 @@ final class FtpBaseConfig
      */
     public static function isFtpExtensionLoaded()
     {
-        if ( ! in_array('ftp', get_loaded_extensions())) {
+        if (!in_array('ftp', get_loaded_extensions())) {
             throw new ConfigException("Extension not loaded");
         }
     }

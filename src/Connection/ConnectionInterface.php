@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the Lazzard/php-ftp-client package.
  *
@@ -67,5 +68,4 @@ interface ConnectionInterface
      * @return string
      */
     public function getPassword();
-
 }

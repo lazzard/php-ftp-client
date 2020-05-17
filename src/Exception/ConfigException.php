@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the Lazzard/php-ftp-client package.
  *
@@ -22,5 +23,4 @@ class ConfigException extends ClientException
     {
         parent::__construct("[ConfigException] - " . $message);
     }
-
 }

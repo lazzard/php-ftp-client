@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the Lazzard/php-ftp-client package.
  *
@@ -31,14 +32,12 @@ class FtpSSLConnection extends FtpConnection
      */
     public function __construct($host, $username, $password, $port = 21, $timeout = 90)
     {
-        if ( ! extension_loaded('openssl')) {
+        if (!extension_loaded('openssl')) {
             throw new ConnectionException("openssl extension not loaded.");
-
-        } elseif ( ! function_exists('ftp_ssl_connect')) {
-            throw new ConnectionException("
-                It seems that either the FTP module or openssl extension are not statically built into your PHP.
-                If you have to use an SSL-FTP connection, then you must compile your own PHP binaries using the right configuration options."
-            );
+        } elseif (!function_exists('ftp_ssl_connect')) {
+            throw new ConnectionException("It seems that either the FTP module or openssl extension are not 
+            statically built into your PHP. If you have to use an SSL-FTP connection, then you must compile your 
+            own PHP binaries using the right configuration options.");
         }
 
         parent::__construct($host, $username, $password, $port, $timeout);
@@ -46,7 +45,7 @@ class FtpSSLConnection extends FtpConnection
 
     /**
      * Sends a request to the remote server to secure the data channel.
-     * 
+     *
      * @return bool Returns true in success, otherwise throws an exception.
      *
      * @throws ConnectionException
@@ -54,7 +53,7 @@ class FtpSSLConnection extends FtpConnection
     public function secureDataChannel()
     {
         // TODO check if PBSZ and PROT commands are supported before
-        if ( ! $this->command->raw(sprintf("PBSZ %s", 0))['code'] !== 200) {
+        if (!$this->command->raw(sprintf("PBSZ %s", 0))['code'] !== 200) {
             $response = $this->command->raw("PROT P");
 
             if ($response['code'] !== 200) {
@@ -72,10 +71,9 @@ class FtpSSLConnection extends FtpConnection
      */
     protected function connect()
     {
-        if ( ! $this->stream = $this->wrapper->ssl_connect($this->getHost(), $this->getPort(), $this->getTimeout())) {
+        if (!$this->stream = $this->wrapper->sslConnect($this->getHost(), $this->getPort(), $this->getTimeout())) {
             throw new ConnectionException(ConnectionException::getFtpServerError()
-                ?: "SSL connection failed to FTP server."
-            );
+                ?: "SSL connection failed to FTP server.");
         }
 
         $this->command = new FtpCommand($this);
@@ -90,8 +88,8 @@ class FtpSSLConnection extends FtpConnection
     protected function login()
     {
         // TODO check if the authentication mechanism is supported before
-        if ( ! $this->tlsAuthentication()) {
-            if ( ! $this->sslAuthentication()) {
+        if (!$this->tlsAuthentication()) {
+            if (!$this->sslAuthentication()) {
                 throw new ConnectionException("Authentication TLS/SSL was failed.");
             }
         }

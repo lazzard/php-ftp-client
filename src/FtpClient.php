@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the Lazzard/php-ftp-client package.
  *
@@ -99,10 +100,9 @@ class FtpClient
      */
     public function back()
     {
-        if ( ! $this->wrapper->cdup()) {
-            throw new ClientException(ClientException::getFtpServerError()
-                ?: "Unable to change to the parent directory."
-            );
+        if (!$this->wrapper->cdup()) {
+            throw new ClientException(ClientException::getFtpServerError() ?:
+                "Unable to change to the parent directory.");
         }
 
         return true;
@@ -119,11 +119,11 @@ class FtpClient
      */
     public function setCurrentDir($directory)
     {
-        if ( ! $this->isDir($directory)) {
+        if (!$this->isDir($directory)) {
             throw new ClientException("[{$directory}] is not a directory.");
         }
 
-        if ( ! $this->wrapper->chdir($directory)) {
+        if (!$this->wrapper->chdir($directory)) {
             throw new ClientException(
                 ClientException::getFtpServerError()
                     ?: "Unable to change the current directory to [{$directory}]."
@@ -200,16 +200,19 @@ class FtpClient
      *
      * @throws ClientException
      */
-    public function listDirectoryDetails($directory, $recursive = false, $filter = self::FILE_DIR_TYPE, $ignoreDots = true)
-    {
-        if ( ! $this->isDir($directory)) {
+    public function listDirectoryDetails(
+        $directory,
+        $recursive = false,
+        $filter = self::FILE_DIR_TYPE,
+        $ignoreDots = true
+    ) {
+        if (!$this->isDir($directory)) {
             throw new ClientException("[{$directory}] is not a directory.");
         }
 
-        if ( ! ($details = $this->wrapper->rawlist($directory, $recursive))) {
+        if (!($details = $this->wrapper->rawlist($directory, $recursive))) {
             throw new ClientException(ClientException::getFtpServerError()
-                ?: "Unable to get files list for [{$directory}] directory."
-            );
+                ?: "Unable to get files list for [{$directory}] directory.");
         }
 
         $pathTmp = null;
@@ -241,7 +244,7 @@ class FtpClient
                     }
                 }
 
-                if ( ! $pathTmp) {
+                if (!$pathTmp) {
                     $path = $directory !== '/' ? $directory . '/' . $chunks[8] : $chunks[8];
                 } else {
                     $path = $pathTmp . '/' . $chunks[8];
@@ -275,10 +278,9 @@ class FtpClient
      */
     public function getSystem()
     {
-        if ( ! ($sysType = $this->wrapper->systype())) {
+        if (!($sysType = $this->wrapper->systype())) {
             throw new ClientException(ClientException::getFtpServerError()
-                ?: "Unable to get FTP server operating system type."
-            );
+                ?: "Unable to get FTP server operating system type.");
         }
 
         return $sysType;
@@ -297,7 +299,7 @@ class FtpClient
     {
         $response = $this->command->raw("SYST");
 
-        if ( ! $response['success']) {
+        if (!$response['success']) {
             throw new ClientException($response['message']);
         }
 
@@ -315,14 +317,13 @@ class FtpClient
      */
     public function removeFile($remoteFile)
     {
-        if ( ! $this->isExists($remoteFile) || $this->isDir($remoteFile)) {
+        if (!$this->isExists($remoteFile) || $this->isDir($remoteFile)) {
             throw new ClientException("[{$remoteFile}] must be an existing file.");
         }
 
-        if ( ! $this->wrapper->delete($remoteFile)) {
+        if (!$this->wrapper->delete($remoteFile)) {
             throw new ClientException(ClientException::getFtpServerError()
-                ?: "Unable to delete the file [{$remoteFile}]."
-            );
+                ?: "Unable to delete the file [{$remoteFile}].");
         }
 
         return true;
@@ -356,7 +357,7 @@ class FtpClient
      */
     public function removeDirectory($directory)
     {
-        if ( ! $this->isDir($directory)) {
+        if (!$this->isDir($directory)) {
             throw new ClientException("[{$directory}] must be an existing directory.");
         }
 
@@ -399,7 +400,7 @@ class FtpClient
         for ($i = 1; $i <= $count; $i++) {
             $dir = join("/", array_slice($dirs, 0, $i));
 
-            if ( ! $this->isDir($dir)) {
+            if (!$this->isDir($dir)) {
                 $this->wrapper->mkdir($dir);
             }
         }
@@ -425,7 +426,7 @@ class FtpClient
         /**
          * MDTM command not a standard in the basic FTP protocol as defined in RFC 959.
          */
-        if ( ! $this->isFeatureSupported('MDTM')) {
+        if (!$this->isFeatureSupported('MDTM')) {
             throw new ClientException("This feature not supported by the remote server.");
         }
 
@@ -433,10 +434,9 @@ class FtpClient
             throw new ClientException("[$remoteFile] is not a directory.");
         }
 
-        if ( ! ($time = $this->wrapper->mdtm($remoteFile))) {
+        if (!($time = $this->wrapper->mdtm($remoteFile))) {
             throw new ClientException(ClientException::getFtpServerError()
-                ?: "Could not get last modified time for [{$remoteFile}]."
-            );
+                ?: "Could not get last modified time for [{$remoteFile}].");
         }
 
         return $format ? date($format, $time) : $time;
@@ -475,7 +475,7 @@ class FtpClient
     {
         $response = $this->command->raw("FEAT");
 
-        if ( ! $response['success']) {
+        if (!$response['success']) {
             return $response['message'];
         }
 
@@ -493,7 +493,7 @@ class FtpClient
      */
     public function dirSize($directory)
     {
-        if ( ! $this->isDir($directory)) {
+        if (!$this->isDir($directory)) {
             throw new ClientException("[{$directory}] must be an existing directory.");
         }
 
@@ -517,7 +517,7 @@ class FtpClient
      */
     public function isEmptyDirectory($directory)
     {
-        if ( ! $this->isDir($directory)) {
+        if (!$this->isDir($directory)) {
             throw new ClientException("[{$directory}] is not directory.");
         }
 
@@ -539,10 +539,9 @@ class FtpClient
      */
     public function listDirectory($directory, $filter = self::FILE_DIR_TYPE, $ignoreDots = true)
     {
-        if ( ! $files = $this->wrapper->nlist($directory)) {
+        if (!$files = $this->wrapper->nlist($directory)) {
             throw new ClientException(ClientException::getFtpServerError()
-                ?: "Failed to get files list."
-            );
+                ?: "Failed to get files list.");
         }
 
         if ($ignoreDots) {
@@ -557,7 +556,7 @@ class FtpClient
 
             case self::FILE_TYPE:
                 return array_filter($files, function ($file) {
-                    return ! $this->isDir($file);
+                    return!$this->isDir($file);
                 });
 
             default:
@@ -632,11 +631,11 @@ class FtpClient
      */
     public function move($source, $destination)
     {
-        if ( ! $this->isExists($source)) {
+        if (!$this->isExists($source)) {
             throw new ClientException("[{$source}] source file does not exists.");
         }
 
-        if ( ! $this->isDir($destination)) {
+        if (!$this->isDir($destination)) {
             throw new ClientException("[{$destination}] must be an existing directory.");
         }
 
@@ -655,7 +654,7 @@ class FtpClient
      */
     public function rename($remoteFile, $newName)
     {
-        if ( ! $this->isExists($remoteFile)) {
+        if (!$this->isExists($remoteFile)) {
             throw new ClientException("[{$remoteFile}] doesn't exists.");
         }
 
@@ -663,14 +662,13 @@ class FtpClient
             throw new ClientException("[{$newName}] is already exists.");
         }
 
-        if ( ! $this->wrapper->rename($remoteFile, $newName)) {
+        if (!$this->wrapper->rename($remoteFile, $newName)) {
             throw new ClientException(ClientException::getFtpServerError()
                 ?: sprintf(
                     "Unable to rename %s to %s",
                     $remoteFile,
                     $newName
-                )
-            );
+                ));
         }
 
         return true;
@@ -703,14 +701,13 @@ class FtpClient
      */
     public function allocateSpace($bytes)
     {
-        if ( ! is_int($bytes)) {
+        if (!is_int($bytes)) {
             throw new ClientException("[{$bytes}] must be of type integer.");
         }
 
-        if ( ! $this->wrapper->alloc($bytes)) {
+        if (!$this->wrapper->alloc($bytes)) {
             throw new ClientException(ClientException::getFtpServerError()
-                ?: "Can't allocate [{$bytes}] bytes."
-            );
+                ?: "Can't allocate [{$bytes}] bytes.");
         }
 
         return true;
@@ -736,7 +733,7 @@ class FtpClient
      */
     public function download($remoteFile, $localFile, $resume = true, $mode = FtpWrapper::BINARY)
     {
-        if ( ! $this->isExists($remoteFile)) {
+        if (!$this->isExists($remoteFile)) {
             throw new ClientException("[{$remoteFile}] does not exists.");
         }
 
@@ -745,16 +742,9 @@ class FtpClient
             $startPos = filesize($localFile);
         }
 
-        if ( ! $this->wrapper->get(
-            $localFile,
-            $remoteFile,
-            $mode,
-            $startPos
-        )
-        ) {
+        if (!$this->wrapper->get($localFile, $remoteFile, $mode, $startPos)) {
             throw new ClientException(ClientException::getFtpServerError()
-                ?: "Unable to retrieve the file [{$remoteFile}]."
-            );
+                ?: "Unable to retrieve the file [{$remoteFile}].");
         }
 
         return true;
@@ -772,30 +762,27 @@ class FtpClient
      */
     public function getTransferMode($fileName)
     {
-        if (in_array(substr($fileName, strpos($fileName, '.') + 1), [
-            "3dm", "3ds", "3g2", "3gp", "7z", "a", "aac", "adp", "ai", "aif", "aiff", "alz", "ape",
-            "apk", "ar", "arj", "asf", "au", "avi", "bak", "baml", "bh", "bin", "bk", "bmp", "btif",
-            "bz2", "bzip2", "cab", "caf", "cgm", "class", "cmx", "cpio", "cr2", "cur", "dat", "dcm",
-            "deb", "dex", "djvu", "dll", "dmg", "dng", "doc", "docm", "docx", "dot", "dotm", "dra",
-            "DS_Store", "dsk", "dts", "dtshd", "dvb", "dwg", "dxf", "ecelp4800", "ecelp7470",
-            "ecelp9600", "egg", "eol", "eot", "epub", "exe", "f4v", "fbs", "fh", "fla", "flac",
-            "fli", "flv", "fpx", "fst", "fvt", "g3", "gh", "gif", "graffle", "gz", "gzip", "h261",
-            "h263", "h264", "icns", "ico", "ief", "img", "ipa", "iso", "jar", "jpeg", "jpg", "jpgv",
-            "jpm", "jxr", "key", "ktx", "lha", "lib", "lvp", "lz", "lzh", "lzma", "lzo", "m3u",
-            "m4a", "m4v", "mar", "mdi", "mht", "mid", "midi", "mj2", "mka", "mkv", "mmr", "mng",
-            "mobi", "mov", "movie", "mp3", "mp4", "mp4a", "mpeg", "mpg", "mpga", "mxu", "nef",
-            "npx", "numbers", "nupkg", "o", "oga", "ogg", "ogv", "otf", "pages", "pbm", "pcx",
-            "pdb", "pdf", "pea", "pgm", "pic", "png", "pnm", "pot", "potm", "potx", "ppa", "ppam",
-            "ppm", "pps", "ppsm", "ppsx", "ppt", "pptm", "pptx", "psd", "pya", "pyc", "pyo", "pyv",
-            "qt", "rar", "ras", "raw", "resources", "rgb", "rip", "rlc", "rmf", "rmvb", "rtf", "rz",
-            "s3m", "s7z", "scpt", "sgi", "shar", "sil", "sketch", "slk", "smv", "snk", "so", "stl",
-            "suo", "sub", "swf", "tar", "tbz", "tbz2", "tga", "tgz", "thmx", "tif", "tiff", "tlz",
-            "ttc", "ttf", "txz", "udf", "uvh", "uvi", "uvm", "uvp", "uvs", "uvu", "viv", "vob",
-            "war", "wav", "wax", "wbmp", "wdp", "weba", "webm", "webp", "whl", "wim", "wm", "wma",
-            "wmv", "wmx", "woff", "woff2", "wrm", "wvx", "xbm", "xif", "xla", "xlam", "xls", "xlsb",
-            "xlsm", "xlsx", "xlt", "xltm", "xltx", "xm", "xmind", "xpi", "xpm", "xwd", "xz", "z",
-            "zip", "zipx"
-        ])
+        if (
+            in_array(substr($fileName, strpos($fileName, '.') + 1), [
+                "3dm", "3ds", "3g2", "3gp", "7z", "a", "aac", "adp", "ai", "aif", "aiff", "alz", "apk", "ape", "ar",
+                "arj", "asf", "au", "avi", "bak", "baml", "bh", "bin", "bk", "bmp", "btif", "bz2", "bzip2", "cab",
+                "caf", "cgm", "class", "cmx", "cpio", "cr2", "cur", "dat", "dcm", "deb", "dex", "djvu", "dll", "dmg",
+                "dng", "doc", "docm", "docx", "dot", "dotm", "dra", "DS_Store", "dsk", "dts", "dtshd", "dvb", "dwg",
+                "dxf", "ecelp4800", "ecelp7470", "ecelp9600", "egg", "eol", "eot", "epub", "exe", "f4v", "fbs", "fh",
+                "fla", "flac", "fli", "flv", "fpx", "fst", "fvt", "g3", "gh", "gif", "graffle", "gz", "gzip", "h261",
+                "h263", "h264", "icns", "ico", "ief", "img", "ipa", "iso", "jar", "jpeg", "jpg", "jpgv", "jpm", "jxr",
+                "key", "ktx", "lha", "lib", "lvp", "lz", "lzh", "lzma", "lzo", "m3u", "m4a", "m4v", "mar", "mdi", "mht",
+                "mid", "midi", "mj2", "mka", "mkv", "mmr", "mng", "mobi", "mov", "movie", "mp3", "mp4", "mp4a", "mpeg",
+                "mpg", "mpga", "mxu", "nef", "npx", "numbers", "nupkg", "o", "oga", "ogg", "ogv", "otf", "pages", "pbm",
+                "pcx", "pdb", "pdf", "pea", "pgm", "pic", "png", "pnm", "pot", "potm", "potx", "ppa", "ppam", "ppm",
+                "pps", "ppsm", "ppsx", "ppt", "pptm", "pptx", "psd", "pya", "pyc", "pyo", "pyv", "qt", "rar", "ras",
+                "raw", "resources", "rgb", "rip", "rlc", "rmf", "rmvb", "rtf", "rz", "s3m", "s7z", "scpt", "sgi",
+                "shar", "sil", "sketch", "slk", "smv", "snk", "so", "stl", "suo", "sub", "swf", "tar", "tbz", "tbz2",
+                "tga", "tgz", "thmx", "tif", "tiff", "tlz", "ttc", "ttf", "txz", "udf", "uvh", "uvi", "uvm", "uvp",
+                "uvs", "uvu", "viv", "vob", "war", "wav", "wax", "wbmp", "wdp", "weba", "webm", "webp", "whl", "wim",
+                "wm", "wma", "wmv", "wmx", "woff", "woff2", "wrm", "wvx", "xbm", "xif", "xla", "xlam", "xls", "xlsb",
+                "xlsm", "xlsx", "xlt", "xltm", "xltx", "xm", "xmind", "xpi", "xpm", "xwd", "xz", "z", "zip", "zipx"
+            ])
         ) {
             return FtpWrapper::BINARY;
         }
@@ -806,7 +793,7 @@ class FtpClient
     /**
      * Retrieves a remote file asynchronously (non-blocking).
      *
-     * @see FtpWrapper::nb_get()
+     * @see FtpWrapper::nbGet()
      *
      * @param string   $remoteFile         The remote file to download.
      * @param string   $localFile          The local file path.
@@ -825,9 +812,15 @@ class FtpClient
      *
      * @throws ClientException
      */
-    public function asyncDownload($remoteFile, $localFile, $doWhileDownloading, $resume = true, $interval = 1, $mode = FtpWrapper::BINARY)
-    {
-        if ( ! $this->isExists($remoteFile)) {
+    public function asyncDownload(
+        $remoteFile,
+        $localFile,
+        $doWhileDownloading,
+        $resume = true,
+        $interval = 1,
+        $mode = FtpWrapper::BINARY
+    ) {
+        if (!$this->isExists($remoteFile)) {
             throw new ClientException("[{$remoteFile}] does not exists.");
         }
 
@@ -841,7 +834,7 @@ class FtpClient
 
         $remoteFileSize = $this->fileSize($remoteFile);
 
-        $download = $this->wrapper->nb_get(
+        $download = $this->wrapper->nbGet(
             $localFile,
             $remoteFile,
             $mode,
@@ -853,7 +846,7 @@ class FtpClient
         $sizeTmp        = $startPos;
         $elapsedTimeTmp = 0;
         while ($download === FtpWrapper::MOREDATA) {
-            $download = $this->wrapper->nb_continue();
+            $download = $this->wrapper->nbContinue();
 
             $elapsedTime = ceil(microtime(true) - $startTime);
 
@@ -913,10 +906,9 @@ class FtpClient
 
         // Create a temporary file in the system temp files directory
         $tempFile = tempnam(sys_get_temp_dir(), $remoteFile);
-        if ( ! $this->wrapper->get($tempFile, $remoteFile, FtpWrapper::ASCII)) {
+        if (!$this->wrapper->get($tempFile, $remoteFile, FtpWrapper::ASCII)) {
             throw new ClientException(ClientException::getFtpServerError()
-                ?: "Unable to get [{$remoteFile}] content."
-            );
+                ?: "Unable to get [{$remoteFile}] content.");
         }
 
         $content = file_get_contents($tempFile);
@@ -937,7 +929,7 @@ class FtpClient
      */
     public function createFile($fileName, $content = null)
     {
-        if ( ! $this->setFileContent($fileName, (string)$content)) {
+        if (!$this->setFileContent($fileName, (string)$content)) {
             throw new ClientException("Unable to create the file [{$fileName}].");
         }
 
@@ -963,7 +955,7 @@ class FtpClient
         fwrite($handle, (string)$content);
         rewind($handle); // Rewind position
 
-        if ( ! $this->wrapper->fput($remoteFile, $handle, FtpWrapper::ASCII)) {
+        if (!$this->wrapper->fput($remoteFile, $handle, FtpWrapper::ASCII)) {
             throw new ClientException("Unable to set [{$remoteFile}] content.");
         }
 
@@ -984,7 +976,7 @@ class FtpClient
      */
     public function upload($localFile, $remoteFile, $resume = true, $mode = FtpWrapper::BINARY)
     {
-        if ( ! file_exists($localFile)) {
+        if (!file_exists($localFile)) {
             throw new ClientException("Cannot uploading the file [{$localFile}] because is not exists.");
         }
 
@@ -995,15 +987,9 @@ class FtpClient
             }
         }
 
-        if ( ! $this->wrapper->put(
-            $remoteFile,
-            $localFile,
-            $mode,
-            $startPos)
-        ) {
+        if (!$this->wrapper->put($remoteFile, $localFile, $mode, $startPos)) {
             throw new ClientException(ClientException::getFtpServerError()
-                ?: "Unable to upload the file [{$localFile}]."
-            );
+                ?: "Unable to upload the file [{$localFile}].");
         }
 
         return true;
@@ -1028,9 +1014,15 @@ class FtpClient
      *
      * @throws ClientException
      */
-    public function asyncUpload($localFile, $remoteFile, $doWhileDownloading, $resume = true, $interval = 1, $mode = FtpWrapper::BINARY)
-    {
-        if ( ! file_exists($localFile)) {
+    public function asyncUpload(
+        $localFile,
+        $remoteFile,
+        $doWhileDownloading,
+        $resume = true,
+        $interval = 1,
+        $mode = FtpWrapper::BINARY
+    ) {
+        if (!file_exists($localFile)) {
             throw new ClientException("[{$localFile}] doesn't exists to upload.");
         }
 
@@ -1049,7 +1041,7 @@ class FtpClient
          * of ftp_nb_put, by passing the local file pointer to this function we will
          * be able to know the remote file size every time using the ftell function.
          */
-        $download = $this->wrapper->nb_fput(
+        $download = $this->wrapper->nbFput(
             $remoteFile,
             $handle,
             $mode,
@@ -1061,7 +1053,7 @@ class FtpClient
         $sizeTmp        = null;
         $elapsedTimeTmp = null;
         while ($download === FtpWrapper::MOREDATA) {
-            $download = $this->wrapper->nb_continue();
+            $download = $this->wrapper->nbContinue();
 
             $elapsedTime = ceil(microtime(true) - $startTime);
 
@@ -1127,7 +1119,7 @@ class FtpClient
     {
         if (is_array($mode)) {
             foreach ($mode as $key => $value) {
-                if ( ! in_array($key, ['owner', 'group', 'other'])) {
+                if (!in_array($key, ['owner', 'group', 'other'])) {
                     throw new ClientException("[{$key}] is invalid permission group.");
                 }
             }
@@ -1138,7 +1130,6 @@ class FtpClient
 
             foreach ($mode as $key => $value) {
                 switch ($key) {
-
                     case "other":
                         $w = $this->chmodToNumeric($value);
                         break;
@@ -1156,10 +1147,9 @@ class FtpClient
 
         $mode = octdec(str_pad($mode, 4, '0', STR_PAD_LEFT));
 
-        if ( ! $this->wrapper->chmod($mode, $filename)) {
+        if (!$this->wrapper->chmod($mode, $filename)) {
             throw new ClientException(ClientException::getFtpServerError()
-                ?: "Failed to set permissions to [{$filename}]"
-            );
+                ?: "Failed to set permissions to [{$filename}]");
         }
 
         return true;
