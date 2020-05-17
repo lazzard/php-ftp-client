@@ -13,12 +13,12 @@ namespace Lazzard\FtpClient\Config;
 use Lazzard\FtpClient\Exception\ConfigException;
 
 /**
- * BaseConfig class
+ * FtpBaseConfig class
  *
  * @since  1.0
  * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>
  */
-final class BaseConfig
+final class FtpBaseConfig
 {
     /**
      * Sets the client's INI configuration.
