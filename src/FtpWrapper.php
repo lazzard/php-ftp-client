@@ -26,7 +26,6 @@ class FtpWrapper
      */
     const TIMEOUT_SEC    = FTP_TIMEOUT_SEC;
     const AUTOSEEK       = FTP_AUTOSEEK;
-    const USEPASVADDRESS = FTP_USEPASVADDRESS;
     const ASCII          = FTP_ASCII;
     const BINARY         = FTP_BINARY;
     const FAILED         = FTP_FAILED;

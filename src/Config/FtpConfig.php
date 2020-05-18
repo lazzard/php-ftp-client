@@ -31,7 +31,6 @@ final class FtpConfig
         'passive'           => false,
         'timeout'           => 90,
         'autoSeek'          => true,
-        'usePassiveAddress' => true,
         'initialDirectory'  => '/'
     ];
 
@@ -70,7 +69,6 @@ final class FtpConfig
         $this->setPassive($this->config['passive']);
         $this->setTimeout($this->config['timeout']);
         $this->setAutoSeek($this->config['autoSeek']);
-        $this->usePassiveAddress($this->config['usePassiveAddress']);
         $this->wrapper->chdir($this->config['initialDirectory']);
     }
 
@@ -142,29 +140,6 @@ final class FtpConfig
     }
 
     /**
-     * Specifies if the IP address returned via the PASV command will be used to open the data channel.
-     *
-     * @param bool $value
-     *
-     * @return bool Returns true in success, if not an exception throws.
-     *
-     * @throws ConfigException
-     */
-    public function usePassiveAddress($value)
-    {
-        if (!is_bool($value)) {
-            throw new ConfigException("[{$value}] usePassiveAddress option value must be of type boolean.");
-        }
-
-        if (!$this->wrapper->setOption(FtpWrapper::USEPASVADDRESS, $value)) {
-            throw new ConfigException(ConfigException::getFtpServerError()
-                ?: "Unable to set usePassiveAddress runtime option.");
-        }
-
-        return true;
-    }
-
-    /**
      * Gets the timeout option value.
      *
      * @return int
@@ -189,24 +164,6 @@ final class FtpConfig
      * @throws ConfigException
      */
     public function isAutoSeek()
-    {
-        if (!($optionValue = $this->wrapper->getOption(FtpWrapper::AUTOSEEK))) {
-            throw new ConfigException(ConfigException::getFtpServerError() ?:
-                "Unable to get FTP timeout option value.");
-        }
-
-        return $optionValue;
-    }
-
-    /**
-     * Checks if the passive address returned in the PASV response
-     * is used by the control channel or not.
-     *
-     * @return bool
-     *
-     * @throws ConfigException
-     */
-    public function isUsePassiveAddress()
     {
         if (!($optionValue = $this->wrapper->getOption(FtpWrapper::AUTOSEEK))) {
             throw new ConfigException(ConfigException::getFtpServerError() ?:
