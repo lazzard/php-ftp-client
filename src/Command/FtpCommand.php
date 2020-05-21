@@ -53,7 +53,7 @@ final class FtpCommand
             'code'     => $code,
             'message'  => ltrim(substr(@$response[0], 3)),
             'body'     => array_slice($response, 1, -1) ?: null,
-            'success'  => $code >= 200 && $code <= 257
+            'success'  => $code < 400
         ];
     }
 
