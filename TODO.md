@@ -18,15 +18,6 @@
 - [ ] [ftp_quit](https://www.php.net/manual/en/function.ftp-quit.php) - is just an alias of [ftp_close](https://www.php.net/manual/en/function.ftp-close.php) function.
 - [ ] [ftp_np_put](https://www.php.net/manual/en/function.ftp-nb-put.php) - using [ftp_np_fput](https://www.php.net/manual/en/function.ftp-nb-fput.php) instead for the upload progress.
 
-### Functions to implement
-- [ ] `auth_ssl()` **`AUTH`** - [RFC2228](https://tools.ietf.org/html/rfc2228).
-- [ ] `auth_tls()` **`AUTH`** - [RFC2228](https://tools.ietf.org/html/rfc2228).
-- [ ] `prot($level)` **`PROT`** - [RFC2228](https://tools.ietf.org/html/rfc2228).
-- [ ] `pbsz($size)` **`PBSZ`** - [RFC2228](https://tools.ietf.org/html/rfc2228).
-- [ ] `clear_cmd()` **`CCC`** -  [RFC2228](https://tools.ietf.org/html/rfc2228).
-- [ ] `mlsd($directory)` : available only in PHP7.
-- [ ] `append($remoteFile)` : available only in PHP7.
-
 ### Testing.
 - [ ] FtpSSLConnection testing.
 
