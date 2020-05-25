@@ -24,13 +24,13 @@ class FtpWrapper
     /**
      * Php FTP predefined constants aliases
      */
-    const TIMEOUT_SEC    = FTP_TIMEOUT_SEC;
-    const AUTOSEEK       = FTP_AUTOSEEK;
-    const ASCII          = FTP_ASCII;
-    const BINARY         = FTP_BINARY;
-    const FAILED         = FTP_FAILED;
-    const FINISHED       = FTP_FINISHED;
-    const MOREDATA       = FTP_MOREDATA;
+    const TIMEOUT_SEC = FTP_TIMEOUT_SEC;
+    const AUTOSEEK    = FTP_AUTOSEEK;
+    const ASCII       = FTP_ASCII;
+    const BINARY      = FTP_BINARY;
+    const FAILED      = FTP_FAILED;
+    const FINISHED    = FTP_FINISHED;
+    const MOREDATA    = FTP_MOREDATA;
 
     /** @var ConnectionInterface */
     protected $connection;
@@ -131,7 +131,7 @@ class FtpWrapper
      */
     public function site($command)
     {
-        return ftp_site($this->connection->getStream(), $command);
+        return @ftp_site($this->connection->getStream(), $command);
     }
 
     /**

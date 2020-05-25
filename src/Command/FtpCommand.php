@@ -63,24 +63,16 @@ final class FtpCommand
     }
 
     /**
-     * Sends a SITE command to the FTP server.
+     * Executes a SITE command.
      *
      * @param string $command The site command to execute.
      *
      * @return bool Returns true in success, if not an exception throws.
      *
      * @throws CommandException
-     * @see FtpCommand::supportedSiteCommands()
-     *
      */
     public function site($command)
     {
-        $siteCommand = strtolower(explode(' ', trim($command))[0]);
-
-        if (!in_array($siteCommand, $this->supportedSiteCommands())) {
-            throw new CommandException("[{$siteCommand}] SITE command not supported by the remote server.");
-        }
-
         if (!$this->wrapper->site(trim($command))) {
             throw new CommandException("SITE EXEC command was failed");
         }
@@ -93,13 +85,13 @@ final class FtpCommand
      *
      * Note! Not all FTP servers support this command.
      *
+     * @see FtpCommand::supportedSiteCommands()
+     *
      * @param string $command
      *
      * @return bool
      *
      * @throws CommandException
-     * @see FtpCommand::supportedSiteCommands()
-     *
      */
     public function exec($command)
     {
