@@ -53,6 +53,6 @@ class FtpSSLConnection extends FtpConnection
 
         $this->wrapper->setConnection($this);
 
-        return $this->stream;
+        return true;
     }
 }

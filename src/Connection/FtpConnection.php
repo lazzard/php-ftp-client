@@ -50,7 +50,7 @@ class FtpConnection implements ConnectionInterface
      * @param string $username The client's username.
      * @param string $password The client's password.
      * @param int    $port     [optional] Specifies the port to be used to open the control channel.
-     * @param int    $timeout  [optional] The connection timeout in seconds, the default set's to 90,
+     * @param int    $timeout  [optional] The connection timeout in seconds, the default sets to 90,
      *                         you can set this option any time using the {@link FtpConfig::setTimeout()} method.
      */
     public function __construct($host, $username, $password, $port = 21, $timeout = 90)
@@ -145,7 +145,7 @@ class FtpConnection implements ConnectionInterface
     }
 
     /**
-     * @return resource
+     * @return bool
      *
      * @throws ConnectionException
      */
@@ -159,7 +159,7 @@ class FtpConnection implements ConnectionInterface
         $this->stream = $stream;
         $this->wrapper->setConnection($this);
 
-        return $stream;
+        return true;
     }
 
     /**
