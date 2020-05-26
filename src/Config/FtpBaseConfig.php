@@ -27,6 +27,8 @@ final class FtpBaseConfig
      * @param array $iniConfig
      *
      * @throws ConfigException
+     *
+     * @return void
      */
     public static function setPhpLimit($iniConfig)
     {
@@ -35,6 +37,12 @@ final class FtpBaseConfig
             'ignoreUserAbort'  => null,
             'memoryLimit'      => null
         ];
+
+        foreach ($iniConfig as $name => $value) {
+            if (!array_key_exists($name, $config)) {
+                throw new ConfigException("[{$name}] is invalid option.");
+            }
+        }
 
         $config = array_merge($config, $iniConfig);
 
@@ -65,6 +73,8 @@ final class FtpBaseConfig
      * Checks if FTP extension is loaded, if not an exception throws.
      *
      * @throws ConfigException
+     *
+     * @return void
      */
     public static function isFtpExtensionLoaded()
     {
