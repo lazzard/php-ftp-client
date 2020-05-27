@@ -38,11 +38,19 @@ final class FtpConfig
      * FtpConfig constructor.
      *
      * @param ConnectionInterface $connection
-     * @param array|null          $config [optional]
+     * @param array|null $config [optional]
+     *
+     * @throws ConfigException
      */
     public function __construct(ConnectionInterface $connection, $config = null)
     {
         if ($config) {
+            foreach ($config as $optionKey => $optionValue) {
+                if (!array_key_exists($optionKey, $this->config)) {
+                    throw new ConfigException("[{$optionKey}] is not a valid option.");
+                }
+            }
+
             $this->config = array_merge($this->config, $config);
         }
 
@@ -63,6 +71,8 @@ final class FtpConfig
      * Sets client's configuration.
      *
      * @throws ConfigException
+     *
+     * @return void
      */
     public function apply()
     {
@@ -160,16 +170,9 @@ final class FtpConfig
      * Checks if the autoSeek option enabled or not.
      *
      * @return bool
-     *
-     * @throws ConfigException
      */
     public function isAutoSeek()
     {
-        if (!($optionValue = $this->wrapper->getOption(FtpWrapper::AUTOSEEK))) {
-            throw new ConfigException(ConfigException::getFtpServerError() ?:
-                "Unable to get FTP timeout option value.");
-        }
-
-        return $optionValue;
+        return $this->wrapper->getOption(FTP_AUTOSEEK);
     }
 }
