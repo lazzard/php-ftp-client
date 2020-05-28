@@ -74,7 +74,8 @@ final class FtpCommand
     public function site($command)
     {
         if (!$this->wrapper->site(trim($command))) {
-            throw new CommandException("SITE EXEC command was failed");
+            throw new CommandException(CommandException::getFtpServerError()
+                ?: "SITE command was failed");
         }
 
         return true;
