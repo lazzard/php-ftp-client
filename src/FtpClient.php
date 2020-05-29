@@ -200,17 +200,18 @@ class FtpClient
     /**
      * Gets files count in the giving directory.
      *
-     * @param bool $recursive [optional]
-     * @param int $filter [optional]
-     * @param bool $ignoreDots [optional]
+     * @see FtpClient::listDirectoryDetails()
+     *
+     * @param int    $filter     [optional]
+     * @param bool   $ignoreDots [optional]
      *
      * @param string $directory
+     *
+     * @param bool   $recursive  [optional]
      *
      * @return int Returns the files count as an integer.
      *
      * @throws ClientException
-     * @see FtpClient::listDirectoryDetails()
-     *
      */
     public function getCount($directory, $recursive = false, $filter = self::FILE_DIR_TYPE, $ignoreDots = false)
     {
@@ -228,12 +229,12 @@ class FtpClient
      * Returned file information : ['name', 'chmod', 'num', 'owner', 'group', 'size', 'month', 'day', 'time', 'type',
      * 'path'].
      *
-     * @param string $directory The remote directory path.
-     * @param bool $recursive [optional] Recursive listing option sets to false by default.
-     * @param int $filter [optional] Specifies the type of the returned files, the default is
+     * @param string $directory  The remote directory path.
+     * @param bool   $recursive  [optional] Recursive listing option sets to false by default.
+     * @param int    $filter     [optional] Specifies the type of the returned files, the default is
      *                           {@link FtpClient::FILE_DIR_TYPE} for files only or dirs only use
      *                           {@link FtpClient::FILE_TYPE} and {@link FtpClient::DIR_TYPE}.
-     * @param bool $ignoreDots [optional] Ignore dots files ['.', '..'], default sets to false.
+     * @param bool   $ignoreDots [optional] Ignore dots files ['.', '..'], default sets to false.
      *
      * @return array Returns a detailed list of the files in the giving directory.
      *
@@ -309,31 +310,6 @@ class FtpClient
     }
 
     /**
-     * Gets the file type (type, dir, link) from teh giving chmod string
-     * Ex : ('drwxr-xr-x' => 'dir').
-     *
-     * @param string $chmod
-     *
-     * @return string
-     */
-    protected function chmodToFileType($chmod)
-    {
-        switch ($chmod[0]) {
-            case '-':
-                return 'file';
-
-            case 'd':
-                return 'dir';
-
-            case 'l':
-                return 'link';
-
-            default:
-                return 'unknown file type.';
-        }
-    }
-
-    /**
      * Gets operating system type of the FTP server.
      *
      * @return string
@@ -353,11 +329,11 @@ class FtpClient
     /**
      * Gets the default transfer type of the FTP server.
      *
+     * @see FtpCommand::raw()
+     *
      * @return string
      *
      * @throws ClientException
-     * @see FtpCommand::raw()
-     *
      */
     public function getDefaultTransferType()
     {
@@ -448,7 +424,7 @@ class FtpClient
      * @param string $directory The directory name or the full path to create the dirs recursively.
      *                          Ex : 'foo/bar/java/'.
      *
-     * @return bool
+     * @return bool Returns true in success, false otherwise.
      *
      * @throws ClientException
      */
@@ -464,8 +440,10 @@ class FtpClient
         for ($i = 1; $i <= $count; $i++) {
             $dir = join("/", array_slice($dirs, 0, $i));
 
-            if (!$this->isDir($dir)) {
-                $this->wrapper->mkdir($dir);
+            if (!$this->isExists($dir)) {
+                if (!$this->wrapper->mkdir($dir)) {
+                    return false;
+                }
             }
         }
 
@@ -477,8 +455,8 @@ class FtpClient
      *
      * Note! this method not work for directories.
      *
-     * @param string $remoteFile The remote file name.
-     * @param string|null $format [optional] A date format string to be passed to {@link date()} function.
+     * @param string      $remoteFile The remote file name.
+     * @param string|null $format     [optional] A date format string to be passed to {@link date()} function.
      *
      * @return string|int Returns the string format if the format parameter was
      *                    specified, if not returns a numeric timestamp representation.
@@ -509,13 +487,13 @@ class FtpClient
     /**
      * Determines if the giving feature is supported by the remote server or not.
      *
-     * Note! the characters case not important.
+     * Note! the characters case are not important.
+     *
+     * @see FtpClient::getFeatures()
      *
      * @param string $feature
      *
      * @return bool Returns true if the feature is supported, false otherwise.
-     * @see FtpClient::getFeatures()
-     *
      */
     public function isFeatureSupported($feature)
     {
@@ -585,11 +563,11 @@ class FtpClient
     /**
      * Gets list of files names in the giving directory.
      *
-     * @param string $directory The remote directory path.
-     * @param int $filter [optional] Specifies the type of the returned files, the default is
+     * @param string $directory  The remote directory path.
+     * @param int    $filter     [optional] Specifies the type of the returned files, the default is
      *                           {@link FtpClient::FILE_DIR_TYPE} for files only or dirs only use
      *                           {@link FtpClient::FILE_TYPE} and {@link FtpClient::DIR_TYPE}.
-     * @param bool $ignoreDots [optional] Ignore dots files ['.', '..'], default sets to false.
+     * @param bool   $ignoreDots [optional] Ignore dots files ['.', '..'], default sets to false.
      *
      * @return array returns a list of files names as an array.
      *
@@ -680,7 +658,7 @@ class FtpClient
     /**
      * Moves file or a directory to another path.
      *
-     * @param string $source The remote file to be moved.
+     * @param string $source      The remote file to be moved.
      * @param string $destination The destination remote directory.
      *
      * @return bool Returns true in success, an exception throws otherwise.
@@ -704,7 +682,7 @@ class FtpClient
      * Renames file/directory on the FTP server.
      *
      * @param string $remoteFile The remote file to renames.
-     * @param string $newName The new name.
+     * @param string $newName    The new name.
      *
      * @return bool Returns true in success, otherwise an exception throws.
      *
@@ -736,9 +714,9 @@ class FtpClient
      * Sends a request to the server to keep the control channel alive and prevent the server from
      * disconnecting the session.
      *
-     * @return bool Return true in success, false otherwise.
      * @see FtpCommand::raw()
      *
+     * @return bool Return true in success, false otherwise.
      */
     public function keepConnectionAlive()
     {
@@ -779,9 +757,9 @@ class FtpClient
      * {@link FtpClient::asyncUpload()} methods.
      *
      * @param string $remoteFile The remote file to download.
-     * @param int $localFile The local file path.
-     * @param bool $resume [optional] resume downloading the file, the default is true.
-     * @param int $mode [optional] The mode which will be used to transfer the file, the default is
+     * @param int    $localFile  The local file path.
+     * @param bool   $resume     [optional] resume downloading the file, the default is true.
+     * @param int    $mode       [optional] The mode which will be used to transfer the file, the default is
      *                           the binary mode, if you don't know which mode you can use
      *                           {@link FtpClient::getTransferMode()}.
      *
@@ -821,26 +799,26 @@ class FtpClient
     public function getTransferMode($fileName)
     {
         if (
-            in_array(substr($fileName, strpos($fileName, '.') + 1), [
-                "3dm", "3ds", "3g2", "3gp", "7z", "a", "aac", "adp", "ai", "aif", "aiff", "alz", "apk", "ape", "ar",
-                "arj", "asf", "au", "avi", "bak", "baml", "bh", "bin", "bk", "bmp", "btif", "bz2", "bzip2", "cab",
-                "caf", "cgm", "class", "cmx", "cpio", "cr2", "cur", "dat", "dcm", "deb", "dex", "djvu", "dll", "dmg",
-                "dng", "doc", "docm", "docx", "dot", "dotm", "dra", "DS_Store", "dsk", "dts", "dtshd", "dvb", "dwg",
-                "dxf", "ecelp4800", "ecelp7470", "ecelp9600", "egg", "eol", "eot", "epub", "exe", "f4v", "fbs", "fh",
-                "fla", "flac", "fli", "flv", "fpx", "fst", "fvt", "g3", "gh", "gif", "graffle", "gz", "gzip", "h261",
-                "h263", "h264", "icns", "ico", "ief", "img", "ipa", "iso", "jar", "jpeg", "jpg", "jpgv", "jpm", "jxr",
-                "key", "ktx", "lha", "lib", "lvp", "lz", "lzh", "lzma", "lzo", "m3u", "m4a", "m4v", "mar", "mdi", "mht",
-                "mid", "midi", "mj2", "mka", "mkv", "mmr", "mng", "mobi", "mov", "movie", "mp3", "mp4", "mp4a", "mpeg",
-                "mpg", "mpga", "mxu", "nef", "npx", "numbers", "nupkg", "o", "oga", "ogg", "ogv", "otf", "pages", "pbm",
-                "pcx", "pdb", "pdf", "pea", "pgm", "pic", "png", "pnm", "pot", "potm", "potx", "ppa", "ppam", "ppm",
-                "pps", "ppsm", "ppsx", "ppt", "pptm", "pptx", "psd", "pya", "pyc", "pyo", "pyv", "qt", "rar", "ras",
-                "raw", "resources", "rgb", "rip", "rlc", "rmf", "rmvb", "rtf", "rz", "s3m", "s7z", "scpt", "sgi",
-                "shar", "sil", "sketch", "slk", "smv", "snk", "so", "stl", "suo", "sub", "swf", "tar", "tbz", "tbz2",
-                "tga", "tgz", "thmx", "tif", "tiff", "tlz", "ttc", "ttf", "txz", "udf", "uvh", "uvi", "uvm", "uvp",
-                "uvs", "uvu", "viv", "vob", "war", "wav", "wax", "wbmp", "wdp", "weba", "webm", "webp", "whl", "wim",
-                "wm", "wma", "wmv", "wmx", "woff", "woff2", "wrm", "wvx", "xbm", "xif", "xla", "xlam", "xls", "xlsb",
-                "xlsm", "xlsx", "xlt", "xltm", "xltx", "xm", "xmind", "xpi", "xpm", "xwd", "xz", "z", "zip", "zipx"
-            ])
+        in_array(substr($fileName, strpos($fileName, '.') + 1), [
+            "3dm", "3ds", "3g2", "3gp", "7z", "a", "aac", "adp", "ai", "aif", "aiff", "alz", "apk", "ape", "ar",
+            "arj", "asf", "au", "avi", "bak", "baml", "bh", "bin", "bk", "bmp", "btif", "bz2", "bzip2", "cab",
+            "caf", "cgm", "class", "cmx", "cpio", "cr2", "cur", "dat", "dcm", "deb", "dex", "djvu", "dll", "dmg",
+            "dng", "doc", "docm", "docx", "dot", "dotm", "dra", "DS_Store", "dsk", "dts", "dtshd", "dvb", "dwg",
+            "dxf", "ecelp4800", "ecelp7470", "ecelp9600", "egg", "eol", "eot", "epub", "exe", "f4v", "fbs", "fh",
+            "fla", "flac", "fli", "flv", "fpx", "fst", "fvt", "g3", "gh", "gif", "graffle", "gz", "gzip", "h261",
+            "h263", "h264", "icns", "ico", "ief", "img", "ipa", "iso", "jar", "jpeg", "jpg", "jpgv", "jpm", "jxr",
+            "key", "ktx", "lha", "lib", "lvp", "lz", "lzh", "lzma", "lzo", "m3u", "m4a", "m4v", "mar", "mdi", "mht",
+            "mid", "midi", "mj2", "mka", "mkv", "mmr", "mng", "mobi", "mov", "movie", "mp3", "mp4", "mp4a", "mpeg",
+            "mpg", "mpga", "mxu", "nef", "npx", "numbers", "nupkg", "o", "oga", "ogg", "ogv", "otf", "pages", "pbm",
+            "pcx", "pdb", "pdf", "pea", "pgm", "pic", "png", "pnm", "pot", "potm", "potx", "ppa", "ppam", "ppm",
+            "pps", "ppsm", "ppsx", "ppt", "pptm", "pptx", "psd", "pya", "pyc", "pyo", "pyv", "qt", "rar", "ras",
+            "raw", "resources", "rgb", "rip", "rlc", "rmf", "rmvb", "rtf", "rz", "s3m", "s7z", "scpt", "sgi",
+            "shar", "sil", "sketch", "slk", "smv", "snk", "so", "stl", "suo", "sub", "swf", "tar", "tbz", "tbz2",
+            "tga", "tgz", "thmx", "tif", "tiff", "tlz", "ttc", "ttf", "txz", "udf", "uvh", "uvi", "uvm", "uvp",
+            "uvs", "uvu", "viv", "vob", "war", "wav", "wax", "wbmp", "wdp", "weba", "webm", "webp", "whl", "wim",
+            "wm", "wma", "wmv", "wmx", "woff", "woff2", "wrm", "wvx", "xbm", "xif", "xla", "xlam", "xls", "xlsb",
+            "xlsm", "xlsx", "xlt", "xltm", "xltx", "xm", "xmind", "xpi", "xpm", "xwd", "xz", "z", "zip", "zipx"
+        ])
         ) {
             return FtpWrapper::BINARY;
         }
@@ -851,24 +829,25 @@ class FtpClient
     /**
      * Retrieves a remote file asynchronously (non-blocking).
      *
-     * @param string $remoteFile The remote file to download.
-     * @param string $localFile The local file path.
+     * @see FtpWrapper::nbGet()
+     *
+     * @param string   $localFile          The local file path.
      * @param callback $doWhileDownloading A callback function performed asynchronously while downloading the remote
      *                                     file.
-     * @param bool $resume [optional] resume downloading the file, the default is true.
-     * @param int $interval [optional] An optional parameter represent the interval in seconds that the
+     * @param bool     $resume             [optional] resume downloading the file, the default is true.
+     * @param int      $interval           [optional] An optional parameter represent the interval in seconds that the
      *                                     callback function will repeatedly called every specific interval until the
      *                                     transfer is complete, the default value sets to 1 seconds.
-     * @param int $mode [optional] The mode which will be used to transfer the file, the default is
+     * @param int      $mode               [optional] The mode which will be used to transfer the file, the default is
      *                                     the binary mode, if you don't know which mode you can use
      *                                     {@link FtpClient::getTransferMode()}.
+     *
+     * @param string   $remoteFile         The remote file to download.
      *
      * @return bool Return bool if the transfer operation was successfully complete, if somethings goes wrong during
      *              the transfer an exception throws.
      *
      * @throws ClientException
-     * @see FtpWrapper::nbGet()
-     *
      */
     public function asyncDownload(
         $remoteFile,
@@ -948,45 +927,6 @@ class FtpClient
     }
 
     /**
-     * Gets the transfer operation average speed.
-     *
-     * @param int $size
-     * @param int $elapsedTime
-     *
-     * @return float
-     */
-    protected function transferSpeed($size, $elapsedTime)
-    {
-        return (float)number_format(($size / $elapsedTime) / 1000, 2);
-    }
-
-    /**
-     * Gets the transfer operation progress percentage.
-     *
-     * @param int $size
-     * @param int $totalSize
-     *
-     * @return int
-     */
-    protected function transferPercentage($size, $totalSize)
-    {
-        return (int)(($size * 100) / $totalSize);
-    }
-
-    /**
-     * Gets the amount of bytes transferred in a transfer operation.
-     *
-     * @param int $size
-     * @param int $previousSize
-     *
-     * @return int
-     */
-    protected function transferredBytes($size, $previousSize)
-    {
-        return (int)(($size - $previousSize) / 1000);
-    }
-
-    /**
      * Reads the remote file content and returns the data as a string.
      *
      * @param string $remoteFile
@@ -1017,44 +957,25 @@ class FtpClient
     /**
      * Creates a file on the FTP server and inserting the giving content to it.
      *
-     * @param string $fileName
+     * @param string     $remoteFile
      * @param mixed|null $content
      *
      * @return bool
      *
      * @throws ClientException
      */
-    public function createFile($fileName, $content = null)
+    public function createFile($remoteFile, $content = null)
     {
-        if (!$this->setFileContent($fileName, (string)$content)) {
-            throw new ClientException("Unable to create the file [{$fileName}].");
+        if ($this->isExists($remoteFile)) {
+            throw new ClientException("[{$remoteFile}] already exists.");
         }
 
-        return true;
-    }
-
-    /**
-     * Inserts giving contents to the specified remote file.
-     *
-     * Note! if the file does not exists it will be created.
-     *
-     * @param string $remoteFile The remote file path.
-     * @param mixed $content The content to write in a remote file.
-     *
-     * @return bool Returns true in success, an exception throws in error.
-     *
-     * @throws ClientException
-     */
-    public function setFileContent($remoteFile, $content)
-    {
-        // Create file pointer to a temp file
+        // Create a file pointer to a temp file
         $handle = fopen('php://temp', 'a');
         fwrite($handle, (string)$content);
         rewind($handle); // Rewind position
 
-        if (!$this->wrapper->fput($remoteFile, $handle, FtpWrapper::ASCII)) {
-            throw new ClientException("Unable to set [{$remoteFile}] content.");
-        }
+        $this->wrapper->fput($remoteFile, $handle, FtpWrapper::ASCII);
 
         return true;
     }
@@ -1064,8 +985,8 @@ class FtpClient
      *
      * @param string|int $localFile
      * @param            $remoteFile
-     * @param bool $resume
-     * @param int $mode
+     * @param bool       $resume
+     * @param int        $mode
      *
      * @return bool
      *
@@ -1095,15 +1016,15 @@ class FtpClient
     /**
      * Uploading a local file asynchronously to the remote server.
      *
-     * @param string $localFile The local file to upload.
-     * @param string $remoteFile The remote file path.
-     * @param string $doWhileDownloading A callback function performed asynchronously while downloading the remote
+     * @param string $localFile            The local file to upload.
+     * @param string $remoteFile           The remote file path.
+     * @param string $doWhileDownloading   A callback function performed asynchronously while downloading the remote
      *                                     file.
-     * @param bool $resume [optional] resume downloading the file, the default is true.
-     * @param int $interval [optional] An optional parameter represent the interval in seconds that the
+     * @param bool   $resume               [optional] resume downloading the file, the default is true.
+     * @param int    $interval             [optional] An optional parameter represent the interval in seconds that the
      *                                     callback function will repeatedly called every specific interval until the
      *                                     transfer is complete, the default value sets to 1 seconds.
-     * @param int $mode [optional] The mode which will be used to transfer the file, the default is
+     * @param int    $mode                 [optional] The mode which will be used to transfer the file, the default is
      *                                     the binary mode, if you don't know which mode you can use
      *                                     {@link FtpClient::getTransferMode()}.
      *
@@ -1195,8 +1116,8 @@ class FtpClient
     /**
      * Sets permissions on FTP file or directory.
      *
-     * @param string $filename The remote file name.
-     * @param array|int|string $mode The mode parameter can be an integer or a string contains three digits e.g
+     * @param string           $filename The remote file name.
+     * @param array|int|string $mode     The mode parameter can be an integer or a string contains three digits e.g
      *                                   (777). The array parameter must be an associative array where a key is the
      *                                   permission group ['owner', 'group', 'other'] and the value is a string
      *                                   representation separated by a '-' contains the permissions to be sets on the
@@ -1250,6 +1171,70 @@ class FtpClient
         }
 
         return true;
+    }
+
+    /**
+     * Gets the transfer operation average speed.
+     *
+     * @param int $size
+     * @param int $elapsedTime
+     *
+     * @return float
+     */
+    protected function transferSpeed($size, $elapsedTime)
+    {
+        return (float)number_format(($size / $elapsedTime) / 1000, 2);
+    }
+
+    /**
+     * Gets the transfer operation progress percentage.
+     *
+     * @param int $size
+     * @param int $totalSize
+     *
+     * @return int
+     */
+    protected function transferPercentage($size, $totalSize)
+    {
+        return (int)(($size * 100) / $totalSize);
+    }
+
+    /**
+     * Gets the amount of bytes transferred in a transfer operation.
+     *
+     * @param int $size
+     * @param int $previousSize
+     *
+     * @return int
+     */
+    protected function transferredBytes($size, $previousSize)
+    {
+        return (int)(($size - $previousSize) / 1000);
+    }
+
+    /**
+     * Gets the file type (type, dir, link) from teh giving chmod string
+     * Ex : ('drwxr-xr-x' => 'dir').
+     *
+     * @param string $chmod
+     *
+     * @return string
+     */
+    protected function chmodToFileType($chmod)
+    {
+        switch ($chmod[0]) {
+            case '-':
+                return 'file';
+
+            case 'd':
+                return 'dir';
+
+            case 'l':
+                return 'link';
+
+            default:
+                return 'unknown file type.';
+        }
     }
 
     /**

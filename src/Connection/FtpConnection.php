@@ -151,12 +151,11 @@ class FtpConnection implements ConnectionInterface
      */
     protected function connect()
     {
-        if (!($stream = $this->wrapper->connect($this->getHost(), $this->getPort(), $this->getTimeout()))) {
+        if (!($this->stream = $this->wrapper->connect($this->getHost(), $this->getPort(), $this->getTimeout()))) {
             throw new ConnectionException(ConnectionException::getFtpServerError()
                 ?: "Connection failed to remote server.");
         }
 
-        $this->stream = $stream;
         $this->wrapper->setConnection($this);
 
         return true;

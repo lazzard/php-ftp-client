@@ -58,6 +58,14 @@ final class FtpConfig
     }
 
     /**
+     * @param FtpWrapper $wrapper
+     */
+    public function setWrapper($wrapper)
+    {
+        $this->wrapper = $wrapper;
+    }
+
+    /**
      * Gets configuration.
      *
      * @return array
