@@ -186,11 +186,11 @@ class FtpWrapper
     /**
      * @link https://www.php.net/manual/en/function.ftp-pwd.php
      *
-     * @return string
+     * @return string|false
      */
     public function pwd()
     {
-        return ftp_pwd($this->connection->getStream());
+        return @ftp_pwd($this->connection->getStream());
     }
 
     /**
@@ -273,7 +273,7 @@ class FtpWrapper
      */
     public function mkdir($directory)
     {
-        return @ftp_mkdir($this->connection->getStream(), $directory);
+        return ftp_mkdir($this->connection->getStream(), $directory);
     }
 
     /**
@@ -317,7 +317,7 @@ class FtpWrapper
      * @param int         $size
      * @param string|null $result
      *
-     * @return string|bool
+     * @return bool
      */
     public function alloc($size, $result = null)
     {

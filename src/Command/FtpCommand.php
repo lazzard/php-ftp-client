@@ -110,9 +110,9 @@ final class FtpCommand
     /**
      * Gets supported SITE commands by the remote server.
      *
-     * @return array Returns an array of SITE available commands in success, if not the FTP reply error returns.
      * @see FtpCommand::raw()
      *
+     * @return array Returns an array of SITE available commands in success, if not the FTP reply error returns.
      */
     public function supportedSiteCommands()
     {

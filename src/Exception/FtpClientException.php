@@ -12,12 +12,28 @@
 namespace Lazzard\FtpClient\Exception;
 
 /**
- * A base interface for all FtpClient exceptions
+ * Class FtpClientException
  *
  * @since 1.0
  * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>
  */
-interface FtpClientException
+class FtpClientException extends \Exception
 {
+    public function __construct($message)
+    {
+        parent::__construct(
+            self::classBaseName(get_class($this)) === self::classBaseName(self::class)
+            ? "[FtpClientException] - " . $message : $message
+        );
+    }
 
+    public static function getFtpServerError()
+    {
+        return @explode(' ', error_get_last()['message'], 2)[1];
+    }
+
+    private static function classBaseName($class)
+    {
+        return basename(str_replace('\\', '/', $class), $class);
+    }
 }

@@ -17,7 +17,7 @@ namespace Lazzard\FtpClient\Exception;
  * @since 1.0
  * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>
  */
-class ConnectionException extends ClientException
+class ConnectionException extends FtpClientException
 {
     public function __construct($message)
     {

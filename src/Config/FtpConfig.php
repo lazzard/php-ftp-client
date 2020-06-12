@@ -28,17 +28,17 @@ final class FtpConfig
 
     /** @var array */
     private $config = [
-        'passive'           => false,
-        'timeout'           => 90,
-        'autoSeek'          => true,
-        'initialDirectory'  => '/'
+        'passive'          => false,
+        'timeout'          => 90,
+        'autoSeek'         => true,
+        'initialDirectory' => '/'
     ];
 
     /**
      * FtpConfig constructor.
      *
      * @param ConnectionInterface $connection
-     * @param array|null $config [optional]
+     * @param array|null          $config [optional]
      *
      * @throws ConfigException
      */
@@ -78,9 +78,9 @@ final class FtpConfig
     /**
      * Sets client's configuration.
      *
-     * @throws ConfigException
-     *
      * @return void
+     *
+     * @throws ConfigException
      */
     public function apply()
     {
@@ -181,6 +181,6 @@ final class FtpConfig
      */
     public function isAutoSeek()
     {
-        return $this->wrapper->getOption(FTP_AUTOSEEK);
+        return $this->wrapper->getOption(FtpWrapper::AUTOSEEK);
     }
 }
