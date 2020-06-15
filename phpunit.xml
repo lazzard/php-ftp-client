@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit 
+    bootstrap="./tests/bootstrap.php"
+    colors="true" 
+    verbose="true"
+    convertErrorsToExceptions="true"
+    convertNoticesToExceptions="true"
+    convertWarningsToExceptions="true"
+    stopOnFailure="false"
+>
+
+    <testsuites>
+        <testsuite name="FTP Client Tests">
+            <directory>./tests/Connection</directory>
+            <directory>./tests/</directory>
+        </testsuite>
+    </testsuites>
+
+</phpunit>

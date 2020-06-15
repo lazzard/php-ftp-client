@@ -1,21 +1,34 @@
 {
-    "name": "lazzard/php-ftp-client",
-    "description": "A fully object-oriented library to the PHP FTP extension plus extra features.",
-    "type": "library",
-    "license": "MIT",
-    "keywords": ["ftp", "ftp-library", "ftp-client"],
-    "authors": [
-        {
-            "name": "El Amrani Chakir",
-            "email": "elamrani.sv.laza@gmail.com"
-        }
-    ],
-    "autoload": {
-        "psr-4": {
-            "Lazzard\\FtpClient\\": "src/"
-        }
-    },
+  "name": "lazzard/php-ftp-client",
+  "description": "A fully object-oriented library to the PHP FTP extension plus extra features.",
+  "type": "library",
+  "license": "MIT",
+  "keywords": [
+    "ftp",
+    "ftp-library",
+    "ftp-client"
+  ],
+  "authors": [
+    {
+      "name": "El Amrani Chakir",
+      "email": "elamrani.sv.laza@gmail.com",
+      "homepage": "https://github.com/ELAMRANI744"
+    }
+  ],
   "require": {
-
+    "php": ">=5.5.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^4"
+  },
+  "autoload": {
+    "psr-4": {
+      "Lazzard\\FtpClient\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Lazzard\\FtpClient\\Tests\\": "tests/"
+    }
   }
 }
