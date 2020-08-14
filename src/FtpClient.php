@@ -257,7 +257,7 @@ class FtpClient
             throw new FtpClientException("[{$directory}] is not a directory.");
         }
 
-        if (!($details = $this->wrapper->rawlist($directory, $recursive))) {
+        if (!($details = $this->wrapper->rawlist(str_replace(' ', '\ ', $directory), $recursive))) {
             throw new FtpClientException(FtpClientException::getFtpServerError()
                 ?: "Unable to get files list for [{$directory}] directory.");
         }
