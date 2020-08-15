@@ -6,6 +6,8 @@
 
 > **Lazzard/FtpClient** provides a high flexibility to deal with FTP transfer mechanisms in PHP, and allows you to communicate with FTP servers in a more comfortable way than using FTP extension functions directly, in addition to many great features.
 
+**Note:** This library is fully documented and tested.
+
 # Contents
 
 - [Lazzard/FtpClient](#lazzardftpclient)
