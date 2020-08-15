@@ -11,9 +11,6 @@
 ### Upcoming client features.
 - [ ] `lastMTime()` directory supporting.  
 - [ ] File append feature.
-- [ ] Supporting implicit FTP connection.
-- [ ] Supporting IPV6 protocol transfers **[RFC[2428]](https://tools.ietf.org/html/rfc2428)**.
-- [ ] (Performance) Caching functions results.
 
 ### Not wrapped FTP extension functions - why ?
 - [ ] [ftp_mlsd](https://www.php.net/manual/en/function.ftp-append.php) - not supported in PHP5. 

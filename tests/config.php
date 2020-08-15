@@ -4,17 +4,18 @@
  * Your FTP settings for testing.
  */
 
-const HOST     = 'files.000webhost.com';
-const USERNAME = "amrani999";
-const PASSWORD = "0659630023";
+const HOST     = '';
+const USERNAME = '';
+const PASSWORD = '';
 const TIMEOUT  = 90;
 const PORT     = 21;
 
 /**
  * Other settings
  *
- * Use ssl connection for testing, please notice that if SSL connection was enabled
- * and the connection failed then all depending tests will be failed.
+ * Use ssl connection for testing, note that if this option enabled
+ * and connection failed to the server then all depending tests
+ * will be failed.
  */
 
 const USESSL = false;
