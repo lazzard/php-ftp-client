@@ -257,7 +257,7 @@ class FtpClient
             throw new FtpClientException("[{$directory}] is not a directory.");
         }
 
-        if (!($details = $this->wrapper->rawlist($directory, $recursive))) {
+        if (!($details = $this->wrapper->rawlist(str_replace(' ', '\ ', $directory), $recursive))) {
             throw new FtpClientException(FtpClientException::getFtpServerError()
                 ?: "Unable to get files list for [{$directory}] directory.");
         }
@@ -265,11 +265,12 @@ class FtpClient
         $pathTmp = null;
         $info    = [];
         foreach ($details as $detail) {
-            $chunks = preg_split('/\s+/', $detail);
+            $chunks = preg_split('/[\s]+/', $detail, 9);
 
-            if (strlen($chunks[0]) !== 0 && count($chunks) !== 9) { // catch directory path
-                $pieces  = explode('/', substr($chunks[0], 0, -1));
-                $pathTmp = join('/', $pieces);
+            if (strlen($chunks[0]) !== 0 && count($chunks) < 8) { // catch directory path
+                $pathTmp = substr($detail, 0, -1);
+                // Fix the two slashes
+                $pathTmp = preg_replace('/(\/\/)/', '/', $pathTmp);
             }
 
             if (count($chunks) === 9) {
