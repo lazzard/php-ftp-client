@@ -1,10 +1,10 @@
 # Lazzard/FtpClient
 
-![Release version](https://img.shields.io/badge/release-1.0.0--RC1-orange)
-![Tested on](https://img.shields.io/badge/tested-5.6.4-green)
+![Release version](https://img.shields.io/badge/version-1.0.0-green)
+![Tested on](https://img.shields.io/badge/tested-5.6.4-blue)
 ![Minimum PHP version](https://img.shields.io/badge/php-%3E%3D5.5.0-blue)
 
-> **Lazzard/FtpClient** provides high flexibility to deal with FTP transfer mechanisms in PHP, and allows you to communicate with FTP servers in a more comfortable way than using FTP extension functions directly, in addition to many great features.
+> **Lazzard/FtpClient** provides a high flexibility to deal with FTP transfer mechanisms in PHP, and allows you to communicate with FTP servers in a more comfortable way than using FTP extension functions directly, in addition to many great features.
 
 # Contents
 
@@ -328,7 +328,7 @@ if you don't have PHPUnit installed globally, or you have a different PHPUnit ve
 
 ## Tests configs
 
-To run tests properly edit  **tests/config.php** with your FTP credianles.
+To run tests properly edit  **tests/config.php** with your FTP credentials.
 
 ## Run tests :
 
