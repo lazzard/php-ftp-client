@@ -1,6 +1,6 @@
 # Lazzard/FtpClient
 
-![Release version](https://img.shields.io/badge/version-1.0.0-green)
+![Release version](https://img.shields.io/badge/version-1.0.2-green)
 ![Tested on](https://img.shields.io/badge/tested-5.6.4-blue)
 ![Minimum PHP version](https://img.shields.io/badge/php-%3E%3D5.5.0-blue)
 
