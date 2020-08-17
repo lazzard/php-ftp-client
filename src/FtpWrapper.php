@@ -273,7 +273,7 @@ class FtpWrapper
      */
     public function mkdir($directory)
     {
-        return ftp_mkdir($this->connection->getStream(), $directory);
+        return @ftp_mkdir($this->connection->getStream(), $directory);
     }
 
     /**
@@ -392,7 +392,7 @@ class FtpWrapper
      */
     public function fput($remoteFile, $handle, $mode, $startPos = 0)
     {
-        return ftp_fput($this->connection->getStream(), $remoteFile, $handle, $mode, $startPos);
+        return @ftp_fput($this->connection->getStream(), $remoteFile, $handle, $mode, $startPos);
     }
 
     /**
