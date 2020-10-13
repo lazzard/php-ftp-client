@@ -8,62 +8,15 @@ use Lazzard\FtpClient\Tests\ConnectionHelper;
 
 class FtpConfigTest extends \PHPUnit_Framework_TestCase
 {
-    public static function getFtpConfig()
+    public function test__constructor()
     {
-        return new FtpConfig(ConnectionHelper::getConnection());
-    }
-
-    public function testConstructorWithoutOptions()
-    {
-        $this->assertInstanceOf(FtpConfig::class, new FtpConfig(ConnectionHelper::getConnection()));
-    }
-
-    public function testConstructorWithValidOptions()
-    {
-        (new FtpConfig(ConnectionHelper::getConnection(), [
-            "passive" => true,
-            "autoSeek" => false,
-            "timeout" => 90,
-            "initialDirectory" => "public_html"
-        ]));
-        $this->assertTrue(true);
-    }
-
-    public function testConstructorWithInvalidOptions()
-    {
-        $this->setExpectedException(ConfigException::class);
-        (new FtpConfig(ConnectionHelper::getConnection(), [
-            "invalidOption" => "value"
-        ]));
-    }
-
-    public function testApplyValidOptions()
-    {
-        try {
-            (new FtpConfig(ConnectionHelper::getConnection(), [
-                "passive" => true,
-                "autoSeek" => false,
-                "timeout" => 90,
-                "initialDirectory" => "public_html"
-            ]))->apply();
-            $this->assertTrue(true);
-        } catch (ConfigException $ex) {
-            $this->fail($ex);
-        }
-    }
-
-    public function testApplyInvalidOptions()
-    {
-        $this->setExpectedException(ConfigException::class);
-        (new FtpConfig(ConnectionHelper::getConnection(), [
-            "active" => true,
-        ]))->apply();
+        $this->assertInstanceOf(FtpConfig::class, self::getFtpConfigInstance());
     }
 
     public function testSetPassive()
     {
         try {
-            $this->assertTrue((new FtpConfig(ConnectionHelper::getConnection()))->setPassive(true));
+            $this->assertTrue(self::getFtpConfigInstance()->setPassive(true));
         } catch (ConfigException $ex) {
             $this->fail($ex);
         }
@@ -72,7 +25,7 @@ class FtpConfigTest extends \PHPUnit_Framework_TestCase
     public function testSetAutoSeek()
     {
         try {
-            $this->assertTrue((new FtpConfig(ConnectionHelper::getConnection()))->setAutoSeek(false));
+            $this->assertTrue(self::getFtpConfigInstance()->setAutoSeek(false));
         } catch (ConfigException $ex) {
             $this->fail($ex);
         }
@@ -81,7 +34,7 @@ class FtpConfigTest extends \PHPUnit_Framework_TestCase
     public function testSetTimeout()
     {
         try {
-            $this->assertTrue((new FtpConfig(ConnectionHelper::getConnection()))->setTimeout(70));
+            $this->assertTrue(self::getFtpConfigInstance()->setTimeout(70));
         } catch (ConfigException $ex) {
             $this->fail($ex);
         }
@@ -90,7 +43,7 @@ class FtpConfigTest extends \PHPUnit_Framework_TestCase
     public function testGetTimeout()
     {
         try {
-            $this->assertInternalType('int', (new FtpConfig(ConnectionHelper::getConnection()))->getTimeout());
+            $this->assertInternalType('int', self::getFtpConfigInstance()->getTimeout());
         } catch (ConfigException $ex) {
             $this->fail($ex);
         }
@@ -98,11 +51,11 @@ class FtpConfigTest extends \PHPUnit_Framework_TestCase
 
     public function testIsAutoSeek()
     {
-        $this->assertInternalType('boolean', (new FtpConfig(ConnectionHelper::getConnection()))->isAutoSeek());
+        $this->assertInternalType('boolean', self::getFtpConfigInstance()->isAutoSeek());
     }
 
-    public function testGetConfig()
+    protected static function getFtpConfigInstance()
     {
-        $this->assertInternalType('array', (new FtpConfig(ConnectionHelper::getConnection()))->getConfig());
+        return new FtpConfig(ConnectionHelper::getConnection());
     }
 }

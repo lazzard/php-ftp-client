@@ -21,10 +21,13 @@ use Lazzard\FtpClient\FtpWrapper;
  * @since  1.0
  * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>
  */
-final class FtpCommand
+class FtpCommand
 {
+    /** @var ConnectionInterface */
+    protected $connection;
+
     /** @var FtpWrapper */
-    private $wrapper;
+    protected $wrapper;
 
     /**
      * FtpCommand constructor.
@@ -37,25 +40,41 @@ final class FtpCommand
     }
 
     /**
+     * @return ConnectionInterface
+     */
+    public function getConnection()
+    {
+        return $this->connection;
+    }
+
+    /**
+     * @param FtpWrapper $wrapper
+     */
+    public function setWrapper($wrapper)
+    {
+        $this->wrapper = $wrapper;
+    }
+
+    /**
      * Sends a request to FTP server to execute an arbitrary command.
      *
      * @param string $command The command to execute.
      *
      * @return array|false Returns detailed array of the FTP response, if the giving command is
-     *                     null or empty false returned.
+     *                     null or empty returns false.
      */
     public function raw($command)
     {
         if (!empty(trim($command))) {
             $response = $this->wrapper->raw(trim($command));
-            $code = (int)substr(@$response[0], 0, 3);
+            $code     = (int)substr(@$response[0], 0, 3);
 
             return [
                 'response' => $response,
-                'code' => $code,
-                'message' => ltrim(substr(@$response[0], 3)),
-                'body' => array_slice($response, 1, -1) ?: null,
-                'success' => $code < 400
+                'code'     => $code,
+                'message'  => ltrim(substr(@$response[0], 3)),
+                'body'     => array_slice($response, 1, -1) ?: null,
+                'success'  => $code < 400
             ];
         }
 
@@ -74,7 +93,7 @@ final class FtpCommand
     public function site($command)
     {
         if (!$this->wrapper->site(trim($command))) {
-            throw new CommandException(CommandException::getFtpServerError()
+            throw new CommandException($this->wrapper->getFtpErrorMessage()
                 ?: "SITE command was failed");
         }
 
@@ -85,8 +104,6 @@ final class FtpCommand
      * Sends a SITE EXEC command to FTP server.
      *
      * Note! Not all FTP servers support this command.
-     *
-     * @see FtpCommand::supportedSiteCommands()
      *
      * @param string $command
      *
@@ -112,13 +129,12 @@ final class FtpCommand
      *
      * @see FtpCommand::raw()
      *
-     * @return array Returns an array of SITE available commands in success, if not the FTP reply error returns.
+     * @return array Returns an array of SITE available commands in success, if not
+     *               the FTP reply error message returns.
      */
     public function supportedSiteCommands()
     {
-        $response = $this->raw("SITE HELP");
-
-        if (!$response['success']) {
+        if (!$response = $this->raw("SITE HELP")) {
             return $response['message'];
         }
 

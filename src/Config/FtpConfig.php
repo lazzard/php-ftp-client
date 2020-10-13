@@ -16,45 +16,35 @@ use Lazzard\FtpClient\Exception\ConfigException;
 use Lazzard\FtpClient\FtpWrapper;
 
 /**
- * Simple class to manage an FTP connection.
+ * A simple class to manage an FTP connection.
  *
  * @since  1.0
  * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>
  */
-final class FtpConfig
+class FtpConfig
 {
-    /** @var FtpWrapper */
-    private $wrapper;
+    /** @var ConnectionInterface */
+    protected $connection;
 
-    /** @var array */
-    private $config = [
-        'passive'          => false,
-        'timeout'          => 90,
-        'autoSeek'         => true,
-        'initialDirectory' => '/'
-    ];
+    /** @var FtpWrapper */
+    protected $wrapper;
 
     /**
      * FtpConfig constructor.
      *
      * @param ConnectionInterface $connection
-     * @param array|null          $config [optional]
-     *
-     * @throws ConfigException
      */
-    public function __construct(ConnectionInterface $connection, $config = null)
+    public function __construct(ConnectionInterface $connection)
     {
-        if ($config) {
-            foreach ($config as $optionKey => $optionValue) {
-                if (!array_key_exists($optionKey, $this->config)) {
-                    throw new ConfigException("[{$optionKey}] is not a valid option.");
-                }
-            }
-
-            $this->config = array_merge($this->config, $config);
-        }
-
         $this->wrapper = new FtpWrapper($connection);
+    }
+
+    /**
+     * @return ConnectionInterface
+     */
+    public function getConnection()
+    {
+        return $this->connection;
     }
 
     /**
@@ -63,31 +53,6 @@ final class FtpConfig
     public function setWrapper($wrapper)
     {
         $this->wrapper = $wrapper;
-    }
-
-    /**
-     * Gets configuration.
-     *
-     * @return array
-     */
-    public function getConfig()
-    {
-        return $this->config;
-    }
-
-    /**
-     * Sets client's configuration.
-     *
-     * @return void
-     *
-     * @throws ConfigException
-     */
-    public function apply()
-    {
-        $this->setPassive($this->config['passive']);
-        $this->setTimeout($this->config['timeout']);
-        $this->setAutoSeek($this->config['autoSeek']);
-        $this->wrapper->chdir($this->config['initialDirectory']);
     }
 
     /**
@@ -102,7 +67,7 @@ final class FtpConfig
     public function setPassive($value)
     {
         if (!$this->wrapper->pasv($value)) {
-            throw new ConfigException(ConfigException::getFtpServerError() ?: "Unable to switch FTP mode.");
+            throw new ConfigException($this->wrapper->getFtpErrorMessage() ?: "Unable to switch FTP mode.");
         }
 
         return true;
@@ -121,13 +86,12 @@ final class FtpConfig
     {
         if (!is_int($value) || $value < 0) {
             throw new ConfigException(
-                "[{$value}] Timeout option value must be of type integer and greater than 0."
-            );
+                "[{$value}] Timeout option value must be of type integer and greater than 0.");
         }
 
-        if (!$this->wrapper->setOption(FtpWrapper::TIMEOUT_SEC, $value)) {
-            throw new ConfigException(ConfigException::getFtpServerError() ?:
-                "Unable to set Timeout runtime option.");
+        if (!$this->wrapper->set_option(FTP_TIMEOUT_SEC, $value)) {
+            throw new ConfigException($this->wrapper->getFtpErrorMessage()
+                ?: "Unable to set Timeout runtime option.");
         }
 
         return true;
@@ -145,13 +109,12 @@ final class FtpConfig
     public function setAutoSeek($value)
     {
         if (!is_bool($value)) {
-            throw new ConfigException(
-                "[{$value}] AutoSeek option value must be of type boolean."
-            );
+            throw new ConfigException("[{$value}] AutoSeek option value must be of type boolean.");
         }
 
-        if (!$this->wrapper->setOption(FtpWrapper::AUTOSEEK, $value)) {
-            throw new ConfigException(ConfigException::getFtpServerError() ?: "Unable to set AutoSeek runtime option.");
+        if (!$this->wrapper->set_option(FTP_AUTOSEEK, $value)) {
+            throw new ConfigException($this->wrapper->getFtpErrorMessage()
+                ?: "Unable to set AutoSeek runtime option.");
         }
 
         return true;
@@ -166,8 +129,8 @@ final class FtpConfig
      */
     public function getTimeout()
     {
-        if (!($optionValue = $this->wrapper->getOption(FtpWrapper::TIMEOUT_SEC))) {
-            throw new ConfigException(ConfigException::getFtpServerError()
+        if (!$optionValue = $this->wrapper->get_option(FTP_TIMEOUT_SEC)) {
+            throw new ConfigException($this->wrapper->getFtpErrorMessage()
                 ?: "Unable to get FTP timeout option value.");
         }
 
@@ -181,6 +144,6 @@ final class FtpConfig
      */
     public function isAutoSeek()
     {
-        return $this->wrapper->getOption(FtpWrapper::AUTOSEEK);
+        return $this->wrapper->get_option(FTP_AUTOSEEK);
     }
 }

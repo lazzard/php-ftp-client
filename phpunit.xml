@@ -7,11 +7,10 @@
     convertErrorsToExceptions="true"
     convertNoticesToExceptions="true"
     convertWarningsToExceptions="true"
-    stopOnFailure="false"
->
+    stopOnFailure="false">
 
     <testsuites>
-        <testsuite name="FTP Client Tests">
+        <testsuite name="Lazzard/FtpClient">
             <directory>./tests/Connection</directory>
             <directory>./tests/</directory>
         </testsuite>

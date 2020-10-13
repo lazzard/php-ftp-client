@@ -15,7 +15,7 @@ use Lazzard\FtpClient\Exception\ConnectionException;
 use Lazzard\FtpClient\FtpWrapper;
 
 /**
- * Class FtpConnection represents a regular FTP connection.
+ * FtpConnection represents a regular FTP connection (not secure).
  *
  * @since  1.0
  * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>
@@ -65,6 +65,14 @@ class FtpConnection implements ConnectionInterface
     }
 
     /**
+     * @param FtpWrapper $wrapper
+     */
+    public function setWrapper($wrapper)
+    {
+        $this->wrapper = $wrapper;
+    }
+
+    /**
      * {@inheritDoc}
      *
      * @throws ConnectionException
@@ -72,9 +80,7 @@ class FtpConnection implements ConnectionInterface
     public function getStream()
     {
         if (!is_resource($this->stream)) {
-            throw new ConnectionException(
-                "Invalid FTP stream resource, try to reopen the connection to FTP server."
-            );
+            throw new ConnectionException("Invalid FTP stream resource, try to reopen the connection to FTP server.");
         }
 
         return $this->stream;
@@ -137,7 +143,7 @@ class FtpConnection implements ConnectionInterface
     public function close()
     {
         if (!$this->wrapper->close()) {
-            throw new ConnectionException(ConnectionException::getFtpServerError()
+            throw new ConnectionException($this->wrapper->getFtpErrorMessage()
                 ?: "Failed to closing FTP connection.");
         }
 
@@ -152,7 +158,7 @@ class FtpConnection implements ConnectionInterface
     protected function connect()
     {
         if (!($this->stream = $this->wrapper->connect($this->getHost(), $this->getPort(), $this->getTimeout()))) {
-            throw new ConnectionException(ConnectionException::getFtpServerError()
+            throw new ConnectionException($this->wrapper->getFtpErrorMessage()
                 ?: "Connection failed to remote server.");
         }
 
@@ -169,7 +175,7 @@ class FtpConnection implements ConnectionInterface
     protected function login()
     {
         if (!$this->wrapper->login($this->getUsername(), $this->getPassword())) {
-            throw new ConnectionException(ConnectionException::getFtpServerError()
+            throw new ConnectionException($this->wrapper->getFtpErrorMessage()
                 ?: "Login into the FTP server was failed.");
         }
 

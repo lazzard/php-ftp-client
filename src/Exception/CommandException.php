@@ -12,10 +12,10 @@
 namespace Lazzard\FtpClient\Exception;
 
 /**
- * Class CommandException
- *
  * @since 1.0
  * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>
+ *
+ * @internal
  */
 class CommandException extends FtpClientException
 {

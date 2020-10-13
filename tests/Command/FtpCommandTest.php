@@ -8,82 +8,53 @@ use Lazzard\FtpClient\Tests\ConnectionHelper;
 use PHPUnit\Framework\TestCase;
 
 class FtpCommandTest extends TestCase
-{
-    public static function getFtpCommand()
+{    
+    public function test__constructor()
     {
-        return new FtpCommand(ConnectionHelper::getConnection());
-    }
-    
-    public function testConstructor()
-    {
-        $this->assertInstanceOf(FtpCommand::class, self::getFtpCommand());
+        $this->assertInstanceOf(FtpCommand::class, self::getFtpCommandInstance());
     }
 
-    /**
-     * @depends testConstructor
-     */
-    public function testRawEmptyStringCommand()
+    public function testRawWithEmptyStringCommand()
     {
-        $this->assertFalse(self::getFtpCommand()->raw(''));
+        $this->assertFalse(self::getFtpCommandInstance()->raw(''));
     }
 
-    /**
-     * @depends testConstructor
-     */
-    public function testRawSpacesStringCommand()
+    public function testRawWithSpacesStringCommand()
     {
-        $this->assertFalse(self::getFtpCommand()->raw('    '));
+        $this->assertFalse(self::getFtpCommandInstance()->raw('    '));
     }
 
-    /**
-     * @depends testConstructor
-     */
-    public function testRawValidCommand()
+    public function testRawWithValidCommand()
     {
-        $this->assertInternalType('array', self::getFtpCommand()->raw('SITE HELP'));
+        $this->assertInternalType('array', self::getFtpCommandInstance()->raw('SITE HELP'));
     }
 
-    /**
-     * @depends testConstructor
-     */
-    public function testSiteEmptyStringCommand()
+    public function testSiteWithEmptyStringCommand()
     {
         $this->setExpectedException(CommandException::class);
-        self::getFtpCommand()->site('');
+        self::getFtpCommandInstance()->site('');
     }
 
-    /**
-     * @depends testConstructor
-     */
-    public function testSiteSpacesStringCommand()
+    public function testSiteWithSpacesStringCommand()
     {
         $this->setExpectedException(CommandException::class);
-        self::getFtpCommand()->site('    ');
+        self::getFtpCommandInstance()->site('    ');
     }
 
-    /**
-     * @depends testConstructor
-     */
-    public function testSite()
+    public function testSiteWithValidCommand()
     {
-        $this->assertTrue(self::getFtpCommand()->site('HELP'));
+        $this->assertTrue(self::getFtpCommandInstance()->site('HELP'));
     }
 
-    /**
-     * @depends testConstructor
-     */
-    public function testSiteInvalidCommand()
+    public function testSiteWithInvalidCommand()
     {
         $this->setExpectedException(CommandException::class);
-        self::getFtpCommand()->site('UNKNOWN');
+        self::getFtpCommandInstance()->site('UNKNOWN');
     }
 
-    /**
-     * @depends testConstructor
-     */
-    public function testExecEmptyStringCommand()
+    public function testExecWithEmptyStringCommand()
     {
-        $command = self::getFtpCommand();
+        $command = self::getFtpCommandInstance();
 
         if (in_array('exec', $command->supportedSiteCommands())) {
             $this->assertFalse($command->exec(''));
@@ -93,12 +64,9 @@ class FtpCommandTest extends TestCase
         }
     }
 
-    /**
-     * @depends testConstructor
-     */
-    public function testExecSpacesStringCommand()
+    public function testExecWithSpacesStringCommand()
     {
-        $command = self::getFtpCommand();
+        $command = self::getFtpCommandInstance();
 
         if (in_array('exec', $command->supportedSiteCommands())) {
             $this->assertFalse($command->exec('    '));
@@ -106,5 +74,10 @@ class FtpCommandTest extends TestCase
             $this->setExpectedException(CommandException::class);
             $this->assertTrue($command->exec('    '));
         }
+    }
+
+    protected function getFtpCommandInstance()
+    {
+        return new FtpCommand(ConnectionHelper::getConnection());
     }
 }

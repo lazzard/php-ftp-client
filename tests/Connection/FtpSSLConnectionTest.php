@@ -8,11 +8,14 @@ use PHPUnit\Framework\TestCase;
 
 class FtpSSLConnectionTest extends TestCase
 {
+    /** @var FtpSSLConnection */
+    protected static $connection;
+
     public function testIfOpensslExtensionNotLoaded()
     {
         if (!extension_loaded('openssl')) {
             $this->setExpectedException(ConnectionException::class);
-            new FtpSSLConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
+            $this->getFtpSSLConnectionInstance();
         }
     }
 
@@ -20,46 +23,33 @@ class FtpSSLConnectionTest extends TestCase
     {
         if (!function_exists('ftp_ssl_connect')) {
             $this->setExpectedException(ConnectionException::class);
-            new FtpSSLConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
+            $this->getFtpSSLConnectionInstance();
         }
     }
 
-    public function testIfOpensslLoadedAndFtpSslConnectExists()
+    public function testIfOpensslLoadedAndFtpSslConnectFunctionExists()
     {
         if (extension_loaded('openssl') && function_exists('ftp_ssl_connect')) {
-            $this->assertInstanceOf(FtpSSLConnection::class, new FtpSSLConnection(
-                HOST,
-                USERNAME,
-                PASSWORD,
-                PORT,
-                TIMEOUT
-            ));
+            $this->assertInstanceOf(FtpSSLConnection::class, $this->getFtpSSLConnectionInstance());
         } else {
             $this->markTestSkipped();
         }
     }
 
     /**
-     * @depends testIfOpensslLoadedAndFtpSslConnectExists
+     * @depends testIfOpensslLoadedAndFtpSslConnectFunctionExists
      */
-    public function testCreationConnection()
+    public function test_constructor()
     {
-        $this->assertInstanceOf(FtpSSLConnection::class, new FtpSSLConnection(
-            HOST,
-            USERNAME,
-            PASSWORD,
-            PORT,
-            TIMEOUT
-        ));
+        $this->assertInstanceOf(FtpSSLConnection::class, $this->getFtpSSLConnectionInstance());
     }
 
     /**
-     * @depends testCreationConnection
+     * @depends testConstructor
      */
     public function testOpenConnection()
     {
-        $connection = new FtpSSLConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
-        $this->assertTrue($connection->open());
+        $this->assertTrue($this->getFtpSSLConnectionInstance()->open());
     }
 
     /**
@@ -67,54 +57,15 @@ class FtpSSLConnectionTest extends TestCase
      */
     public function testCloseConnection()
     {
-        $connection = new FtpSSLConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
-        $connection->open();
-        $this->assertTrue($connection->close());
+        $this->assertTrue($this->getFtpSSLConnectionInstance()->close());
     }
 
-    /**
-     * @depends testOpenConnection
-     */
-    public function testOpenWithWrongHost()
+    protected function getFtpSSLConnectionInstance()
     {
-        $this->setExpectedException(ConnectionException::class);
-        (new FtpSSLConnection('foo.website.com', USERNAME, PASSWORD, PORT, TIMEOUT))->open();
-    }
+        if (!self::$connection) {
+            self::$connection = new FtpSSLConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
+        }
 
-    /**
-     * @depends testOpenConnection
-     */
-    public function testOpenWithWrongUsername()
-    {
-        $this->setExpectedException(ConnectionException::class);
-        (new FtpSSLConnection(HOST, 'U&!', PASSWORD, PORT, TIMEOUT))->open();
-    }
-
-    /**
-     * @depends testOpenConnection
-     */
-    public function testOpenWithWrongPassword()
-    {
-        $this->setExpectedException(ConnectionException::class);
-        (new FtpSSLConnection(HOST, USERNAME, 'P&!', PORT, TIMEOUT))->open();
-    }
-
-
-    /**
-     * @depends testOpenConnection
-     */
-    public function testOpenWithWrongPort()
-    {
-        $this->setExpectedException(ConnectionException::class);
-        (new FtpSSLConnection(HOST, USERNAME, PASSWORD, -1, TIMEOUT))->open();
-    }
-
-    /**
-     * @depends testOpenConnection
-     */
-    public function testOpenWithWrongTimeout()
-    {
-        $this->setExpectedException(ConnectionException::class);
-        (new FtpSSLConnection(HOST, USERNAME, PASSWORD, PORT, 0))->open();
+        return self::$connection;
     }
 }

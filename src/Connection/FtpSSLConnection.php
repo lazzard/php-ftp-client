@@ -14,7 +14,7 @@ namespace Lazzard\FtpClient\Connection;
 use Lazzard\FtpClient\Exception\ConnectionException;
 
 /**
- * Represents an -Explicit FTP over TLS/SSL- FTP connection.
+ * FtpSSLConnection represents an -Explicit FTP over TLS/SSL- FTP connection.
  *
  * @since  1.0
  * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>
@@ -29,12 +29,12 @@ class FtpSSLConnection extends FtpConnection
     public function __construct($host, $username, $password, $port = 21, $timeout = 90)
     {
         if (!extension_loaded('openssl')) {
-            throw new ConnectionException("openssl extension required to establish a secure connection, 
-            please enable it.");
+            throw new ConnectionException(
+                "openssl extension required to establish a secure connection, please enable it.");
         } elseif (!function_exists('ftp_ssl_connect')) {
-            throw new ConnectionException("It seems that either the FTP module or openssl extension are not 
-            statically built into your PHP. If you have to use an SSL-FTP connection, you must compile your 
-            own PHP binaries using the right configuration options.");
+            throw new ConnectionException("It seems that either the FTP module or openssl extension are
+                not statically built into your PHP. If you have to use an SSL-FTP connection, you must 
+                compile your own PHP binaries using the right configuration options.");
         }
 
         parent::__construct($host, $username, $password, $port, $timeout);
@@ -46,8 +46,8 @@ class FtpSSLConnection extends FtpConnection
      */
     protected function connect()
     {
-        if (!$this->stream = $this->wrapper->sslConnect($this->getHost(), $this->getPort(), $this->getTimeout())) {
-            throw new ConnectionException(ConnectionException::getFtpServerError()
+        if (!$this->stream = $this->wrapper->ssl_connect($this->getHost(), $this->getPort(), $this->getTimeout())) {
+            throw new ConnectionException($this->wrapper->getFtpErrorMessage()
                 ?: "SSL connection failed to the FTP server.");
         }
 

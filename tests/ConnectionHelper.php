@@ -7,7 +7,7 @@ use Lazzard\FtpClient\Connection\FtpConnection;
 use Lazzard\FtpClient\Connection\FtpSSLConnection;
 
 /**
- * Singleton class to avoid multiple FTP connections for each depending module.
+ * A singleton class to avoid multiple FTP connections for each depending module.
  */
 class ConnectionHelper
 {
@@ -23,14 +23,11 @@ class ConnectionHelper
         return self::$connection;
     }
 
-    public static function open()
+    protected static function open()
     {
-        if (!USESSL) {
-            self::$connection = new FtpConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
-        } else {
-            self::$connection = new FtpSSLConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
-        }
-
+        $class = USESSL ? FtpSSLConnection::class : FtpConnection::class;
+        $reflection = new \ReflectionClass($class);
+        self::$connection = $reflection->newInstanceArgs([HOST, USERNAME, PASSWORD, PORT, TIMEOUT]);
         self::$connection->open();
     }
 }

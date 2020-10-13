@@ -11,26 +11,17 @@ class FtpConnectionTest extends TestCase
     /** @var FtpConnection */
     protected static $connection;
 
-    public static function getFtpConnection()
+    public function test__constructor()
     {
-        if (!self::$connection) {
-            return self::$connection = new FtpConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
-        }
-
-        return self::$connection;
-    }
-
-    public function testCreationConnection()
-    {
-        $this->assertInstanceOf(FtpConnection::class, self::getFtpConnection());
+        $this->assertInstanceOf(FtpConnection::class, self::getFtpConnectionInstance());
     }
 
     /**
-     * @depends testCreationConnection
+     * @depends test__constructor
      */
     public function testOpenConnection()
     {
-        $this->assertTrue(self::getFtpConnection()->open());
+        $this->assertTrue(self::getFtpConnectionInstance()->open());
     }
 
     /**
@@ -38,7 +29,7 @@ class FtpConnectionTest extends TestCase
      */
     public function testCloseConnection()
     {
-        $this->assertTrue(self::getFtpConnection()->close());
+        $this->assertTrue(self::getFtpConnectionInstance()->close());
     }
 
     /**
@@ -84,5 +75,14 @@ class FtpConnectionTest extends TestCase
     {
         $this->setExpectedException(ConnectionException::class);
         (new FtpConnection(HOST, USERNAME, PASSWORD, PORT, 0))->open();
+    }
+
+    protected function getFtpConnectionInstance()
+    {
+        if (!self::$connection) {
+            self::$connection = new FtpConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
+        }
+
+        return self::$connection;
     }
 }
