@@ -184,18 +184,16 @@ class FtpClient
      *
      * @see FtpClient::listDirectoryDetails()
      *
-     * @param int    $filter     [optional]
-     * @param bool   $ignoreDots [optional]
-     *
-     * @param string $directory
-     *
-     * @param bool   $recursive  [optional]
+     * @param string $directory  The remote directory.
+     * @param bool   $recursive  [optional] Whether to count the files recursively or not.
+     * @param int    $filter     [optional] Specifies the files type to count.
+     * @param bool   $ignoreDots [optional] Whether to ignore dots files.
      *
      * @return int Returns the files count as an integer.
      *
      * @throws FtpClientException
      */
-    public function getCount($directory, $recursive = false, $filter = self::FILE_DIR_TYPE, $ignoreDots = false)
+    public function getCount($directory, $recursive = false, $filter = self::FILE_DIR_TYPE, $ignoreDots = true)
     {
         return count($this->listDirectoryDetails(
             $directory,
@@ -216,7 +214,7 @@ class FtpClient
      * @param int    $filter     [optional] Specifies the type of the returned files, the default is
      *                           {@link FtpClient::FILE_DIR_TYPE} for files only or dirs only use
      *                           {@link FtpClient::FILE_TYPE} and {@link FtpClient::DIR_TYPE}.
-     * @param bool   $ignoreDots [optional] Ignore dots files ['.', '..'], default sets to false.
+     * @param bool   $ignoreDots [optional] Ignore dots files ['.', '..'], default sets to true.
      *
      * @return array Returns a detailed list of the files in the giving directory.
      *
@@ -347,7 +345,7 @@ class FtpClient
     }
 
     /**
-     * Checks whether the giving file or directory exists.
+     * Checks whether the giving file/directory exists.
      *
      * @param string $remoteFile The remote file path.
      *
@@ -355,14 +353,11 @@ class FtpClient
      */
     public function isExists($remoteFile)
     {
-        /**
-         * Trying to get the files list of the remote file parent directory, this
-         * check is basically to avoid passing false to the next 'in_array' function
-         * below, so we don't want to get an error because of this.
-         *
-         * The str_replace because of dirname in windows gives '\' instead of '/'
-         * if the path matches for example '/foo/'.
-         */
+        // Trying to get the files list of the remote file parent directory, this check 
+        // is basically to avoid passing false to the next 'in_array' function
+        // below, so we don't want to get an error because of this.
+        // The str_replace because of dirname in windows gives '\' instead of '/'
+        // if the path matches for example '/foo/'.
         if (!$list = $this->wrapper->nlist(str_replace('\\', '/', dirname($remoteFile)))) {
             return false;
         }
@@ -401,7 +396,7 @@ class FtpClient
     }
 
     /**
-     * Gets last modified time of a remote file/directory.
+     * Gets last modified time of a remote file.
      *
      * @param string      $remoteFile The remote file name.
      * @param string|null $format     [optional] A date format string to be passed to {@link date()} function.
@@ -415,7 +410,7 @@ class FtpClient
     {
         // 'MDTM' command is not a standardized in the basic FTP protocol as defined in RFC 959.
         if (!$this->isFeatureSupported('MDTM')) {
-            throw new FtpClientException("This feature not supported by the remote server.");
+            throw new FtpClientException("This feature is not supported by the remote server.");
         }
 
         if (!$this->isFile($remoteFile)) {
@@ -538,9 +533,7 @@ class FtpClient
      */
     public function isEmpty($remoteFile)
     {
-        if (!$this->isExists($remoteFile)) {
-            throw new FtpClientException("$remoteFile does not exists on the server.");
-        }
+        $this->throwIfNotExists($remoteFile);
 
         if ($this->isDir($remoteFile)) {
             return empty($this->listDirectory($remoteFile));
@@ -588,7 +581,7 @@ class FtpClient
     /**
      * Moves a file or a directory to another path.
      *
-     * @param string $source      The remote file to be moved.
+     * @param string $source            The remote file to be moved.
      * @param string $destinationFolder The destination remote directory.
      *
      * @return bool Returns true in success, an exception throws otherwise.
@@ -597,9 +590,7 @@ class FtpClient
      */
     public function move($source, $destinationFolder)
     {
-        if (!$this->isExists($source)) {
-            throw new FtpClientException("[{$source}] source file does not exists.");
-        }
+        $this->throwIfNotExists($remoteFile);
 
         if (!$this->isDir($destinationFolder)) {
             throw new FtpClientException("[{$destinationFolder}] must be an existing directory.");
@@ -620,10 +611,9 @@ class FtpClient
      */
     public function rename($remoteFile, $newName)
     {
-        if (!$this->isExists($remoteFile)) {
-            throw new FtpClientException("[{$remoteFile}] doesn't exists.");
-        }
+        $this->throwIfNotExists($remoteFile);
 
+        // TODO Consider to remove this check
         if ($this->isExists($newName)) {
             throw new FtpClientException("[{$newName}] is already exists.");
         }
@@ -699,9 +689,7 @@ class FtpClient
      */
     public function download($remoteFile, $localFile, $resume = true, $mode = FTP_BINARY)
     {
-        if (!$this->isExists($remoteFile)) {
-            throw new FtpClientException("[{$remoteFile}] does not exists.");
-        }
+        $this->throwIfNotExists($remoteFile);
 
         $startPos = 0;
         if ($resume) {
@@ -719,6 +707,7 @@ class FtpClient
     /**
      * Retrieves a remote file asynchronously (non-blocking).
      *
+     * @param string   $remoteFile         The remote file to download.
      * @param string   $localFile          The local file path.
      * @param callback $doWhileDownloading A callback function performed asynchronously while downloading the remote
      *                                     file.
@@ -729,8 +718,6 @@ class FtpClient
      * @param int      $mode               [optional] The mode which will be used to transfer the file, the default is
      *                                     the binary mode, if you don't know which mode you can use
      *                                     {@link FtpClient::getTransferMode()}.
-     *
-     * @param string   $remoteFile         The remote file to download.
      *
      * @return bool Return bool if the transfer operation was successfully complete, if somethings goes wrong during
      *              the transfer an exception throws.
@@ -745,9 +732,7 @@ class FtpClient
         $interval = 1,
         $mode = FTP_BINARY
     ) {
-        if (!$this->isExists($remoteFile)) {
-            throw new FtpClientException("[{$remoteFile}] does not exists.");
-        }
+        $this->throwIfNotExists($remoteFile);
 
         $startPos = 0;
         if ($resume) {
@@ -905,10 +890,10 @@ class FtpClient
     /**
      * Starts uploading the giving local file to the FTP server.
      *
-     * @param string|int $localFile
-     * @param            $remoteFile
-     * @param bool       $resume
-     * @param int        $mode
+     * @param string|int $localFile  The local file to upload.
+     * @param string     $remoteFile The remote file to upload data into.
+     * @param bool       $resume     [optional] Specifies whether to resume the upload operation.
+     * @param int        $mode       [optional] Specifies the transfer mode.
      *
      * @return bool
      *
@@ -1078,6 +1063,21 @@ class FtpClient
         }
 
         return true;
+    }
+
+    /**
+     * @param string      $remoteFile
+     * @param string|null $message
+     * 
+     * @return void
+     * 
+     * @throws FtpClientException
+     */
+    protected function throwIfNotExists($remoteFile, $message = null) 
+    {
+        if (!$this->isExists($remoteFile)) {
+            throw new FtpClientException($message ?: "$remoteFile not exists on the server.");
+        }
     }
 
     /**
