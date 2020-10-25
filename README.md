@@ -5,9 +5,9 @@
 [![Minimum PHP version](https://img.shields.io/packagist/php-v/lazzard/php-ftp-client)](https://packagist.org/packages/lazzard/php-ftp-client)
 [![Downlaods](https://img.shields.io/packagist/dt/lazzard/php-ftp-client?color=blueviolet&style=social)](https://packagist.org/packages/lazzard/php-ftp-client)
 
-> **Lazzard/FtpClient** provides high flexibility to deal with FTP transfer mechanisms in PHP, and allows you to communicate with FTP servers in a more comfortable way than using FTP extension functions directly, in addition to many great features.
+A PHP FTP Client library that wraps the FTP Extension functions in an OOP way.
 
-*Note: This library aimed to be a full FTP/SFTP client solution for old (5.5+) and newer PHP releases (7.2+) that support FTP extension.*
+*Note: This library aimed to be a full FTP/SFTP client solution for the old (5.5+) and newer PHP releases (7.2+) that support FTP extension.*
 
 ## Requirements
 
