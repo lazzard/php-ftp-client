@@ -5,9 +5,9 @@
 [![Minimum PHP version](https://img.shields.io/packagist/php-v/lazzard/php-ftp-client)](https://packagist.org/packages/lazzard/php-ftp-client)
 [![Downlaods](https://img.shields.io/packagist/dt/lazzard/php-ftp-client?color=blueviolet&style=social)](https://packagist.org/packages/lazzard/php-ftp-client)
 
-A PHP FTP Client library that wraps the FTP Extension functions in an OOP way.
+An FTP Client library that wraps the FTP extension functions in an OOP way.
 
-*Note: This library aimed to be a full FTP/SFTP client solution for the old (5.5+) and newer PHP releases (7.2+) that support FTP extension.*
+*Note: This library aimed to be a full FTP/FTPS client solution for the old (5.5+) and newer PHP releases (7.2+) that support FTP extension.*
 
 ## Requirements
 
@@ -28,7 +28,7 @@ composer require lazzard/php-ftp-client
 git clone https://github.com/lazzard/php-ftp-client
 ```
 
-### Autoloder
+### Autoloader
 
 This library uses the PSR-4 autoloading mechanism, to generate the autoloader class run this command:
 
@@ -253,7 +253,3 @@ vendor/bin/phpunit
 ## Contribution
 
 All contributions are welcome, for features/improvements ideas check `TODO.md`. Thank you!
-
-## Maintainer
-
-Developed with ❤ by [El Amrani Chakir](https://github.com/AmraniCh).
