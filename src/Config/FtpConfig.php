@@ -67,7 +67,8 @@ class FtpConfig
     public function setPassive($value)
     {
         if (!$this->wrapper->pasv($value)) {
-            throw new ConfigException($this->wrapper->getFtpErrorMessage() ?: "Unable to switch FTP mode.");
+            throw new ConfigException($this->wrapper->getFtpErrorMessage()
+                ?: "Unable to switch FTP mode.");
         }
 
         return true;
@@ -85,8 +86,7 @@ class FtpConfig
     public function setTimeout($value)
     {
         if (!is_int($value) || $value < 0) {
-            throw new ConfigException(
-                "[{$value}] Timeout option value must be of type integer and greater than 0.");
+            throw new ConfigException("[{$value}] Timeout option value must be of type integer and greater than 0.");
         }
 
         if (!$this->wrapper->set_option(FTP_TIMEOUT_SEC, $value)) {

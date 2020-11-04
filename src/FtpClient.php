@@ -158,8 +158,8 @@ class FtpClient
      *
      * @param string $remoteFile The remote file path.
      *
-     * @return bool Return true if the giving file is a directory or not exists,
-     *              otherwise returns false.
+     * @return bool Returns true if the giving file is a directory or not exists, false if it
+     *              a file or doesn't exists.
      */
     public function isDir($remoteFile)
     {
@@ -171,8 +171,8 @@ class FtpClient
      *
      * @param string $remoteFile The remote file path.
      *
-     * @return bool Return true if the giving remote file is a regular file,
-     *              otherwise returns false.
+     * @return bool Returns true if the giving remote file is a regular file, false if it
+     *              a directory or doesn't exists.
      */
     public function isFile($remoteFile)
     {
@@ -353,7 +353,7 @@ class FtpClient
      */
     public function isExists($remoteFile)
     {
-        // Trying to get the files list of the remote file parent directory, this check 
+        // Trying to get the files list of the remote file parent directory, this check
         // is basically to avoid passing false to the next 'in_array' function
         // below, so we don't want to get an error because of this.
         // The str_replace because of dirname in windows gives '\' instead of '/'
@@ -560,7 +560,7 @@ class FtpClient
         /**
          * 'SIZE' command is not a standardized in the basic FTP protocol as defined in RFC 959, therefore
          * many FTP servers may not implement this command, to work around this we use the listDirectoryDetails()
-         * method which uses the ftp_rawlist FTP extension function, in turn this function uses the LIST command 
+         * method which uses the ftp_rawlist FTP extension function, in turn this function uses the LIST command
          * to get the directory files information includes the files size.
          *
          * @link https://tools.ietf.org/html/rfc959
@@ -590,7 +590,7 @@ class FtpClient
      */
     public function move($source, $destinationFolder)
     {
-        $this->throwIfNotExists($remoteFile);
+        $this->throwIfNotExists($source, "The source remote file [$source] must be exists to be moved.");
 
         if (!$this->isDir($destinationFolder)) {
             throw new FtpClientException("[{$destinationFolder}] must be an existing directory.");
@@ -742,8 +742,6 @@ class FtpClient
             }
         }
 
-        $remoteFileSize = $this->fileSize($remoteFile);
-
         $download = $this->wrapper->nb_get(
             $localFile,
             $remoteFile,
@@ -751,8 +749,8 @@ class FtpClient
             $startPos
         );
 
-        $startTime = microtime(true);
-
+        $remoteFileSize = $this->fileSize($remoteFile);
+        $startTime      = microtime(true);
         $sizeTmp        = $startPos;
         $elapsedTimeTmp = 0;
         while ($download === FTP_MOREDATA) {
@@ -760,21 +758,16 @@ class FtpClient
 
             $elapsedTime = ceil(microtime(true) - $startTime);
 
-            /**
-             * The first condition : perform the callback function only once every interval time.
-             * The second one      : perform the callback function every interval time.
-             *
-             * The integer cast inside the is_int is the second condition is because
-             * the elapsedTime is a float number.
-             *
-             * A small simulation of the first 2 seconds supposing the interval is sets to 1 :
-             *
-             * Time(0.5s)  : (0 !== 1 && is_int( (int) 0.5f  / 1) => false
-             * Time(1.01s) : (1 !== 2 && is_int( (int) 1.01f / 1) => true
-             * Time(1.5s)  : (2 !== 2 && is_int( (int) 1.5f  / 1) => false
-             * Time(2s)    : (2 !== 2 && is_int( (int) 2f    / 1) => false
-             * Time(2.01s) : (2 !== 3 && is_int( (int) 2.01f / 1) => true
-             */
+            // The first condition : perform the callback function only once every interval time.
+            // The second one      : perform the callback function every interval time.
+            // The integer cast inside the is_int in the second condition is because
+            // of the '$elapsedTime' is a float number.
+            // A small simulation of the first 2 seconds supposing the interval is sets to 1 :
+            // Time(0.5s)  : (0 !== 1 && is_int( (int) 0.5f  / 1) => false
+            // Time(1.01s) : (1 !== 2 && is_int( (int) 1.01f / 1) => true
+            // Time(1.5s)  : (2 !== 2 && is_int( (int) 1.5f  / 1) => false
+            // Time(2s)    : (2 !== 2 && is_int( (int) 2f    / 1) => false
+            // Time(2.01s) : (2 !== 3 && is_int( (int) 2.01f / 1) => true
             if ($elapsedTimeTmp !== $elapsedTime && is_int((int)$elapsedTime / $interval)) {
                 clearstatcache();
                 $localFileSize = filesize($localFile);
@@ -828,7 +821,7 @@ class FtpClient
     }
 
     /**
-     * Creates a file on the FTP server and inserting the giving content to it.
+     * Creates file on the FTP server.
      *
      * @param string     $remoteFile
      * @param mixed|null $content
@@ -872,7 +865,6 @@ class FtpClient
 
         $dirs  = explode('/', $directory);
         $count = count($dirs);
-
         for ($i = 1; $i <= $count; $i++) {
             $dir = join("/", array_slice($dirs, 0, $i));
 
@@ -958,14 +950,10 @@ class FtpClient
             }
         }
 
-        $localFileSize = filesize($localFile);
-        $handle        = fopen($localFile, 'r');
-
-        /**
-         * To check asynchronously the uploading state we use the ftp_nb_fput function instead
-         * of ftp_nb_put, by passing the local file pointer to this function we will
-         * be able to know the remote file size every time using the ftell function.
-         */
+        // To check asynchronously the uploading state we use the ftp_nb_fput function instead
+        // of ftp_nb_put, by passing the local file pointer to this function we will
+        // be able to know the remote file size every time using the ftell function.
+        $handle = fopen($localFile, 'r');
         $download = $this->wrapper->nb_fput(
             $remoteFile,
             $handle,
@@ -973,8 +961,8 @@ class FtpClient
             $startPos
         );
 
-        $startTime = microtime(true);
-
+        $localFileSize  = filesize($localFile);
+        $startTime      = microtime(true);
         $sizeTmp        = null;
         $elapsedTimeTmp = null;
         while ($download === FTP_MOREDATA) {
@@ -1068,12 +1056,12 @@ class FtpClient
     /**
      * @param string      $remoteFile
      * @param string|null $message
-     * 
+     *
      * @return void
-     * 
+     *
      * @throws FtpClientException
      */
-    protected function throwIfNotExists($remoteFile, $message = null) 
+    protected function throwIfNotExists($remoteFile, $message = null)
     {
         if (!$this->isExists($remoteFile)) {
             throw new FtpClientException($message ?: "$remoteFile not exists on the server.");
