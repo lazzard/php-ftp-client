@@ -98,6 +98,29 @@ class FtpConfig
     }
 
     /**
+     * Specifies if the IP address returned via the PASV command will be used to open the data channel.
+     *
+     * @param bool $value
+     *
+     * @return bool Returns true in success, if not an exception throws.
+     *
+     * @throws ConfigException
+     */
+    public function usePassiveAddress($value)
+    {
+        if (!is_bool($value)) {
+            throw new ConfigException("[{$value}] usePassiveAddress option value must be of type boolean.");
+        }
+
+        if (!$this->wrapper->set_option(FTP_USEPASVADDRESS, $value)) {
+            throw new ConfigException($this->wrapper->getFtpErrorMessage()
+                ?: "Unable to set usePassiveAddress runtime option.");
+        }
+
+        return true;
+    }
+
+    /**
      * Sets the autoSeek option on/off.
      *
      * @param bool $value
@@ -145,5 +168,18 @@ class FtpConfig
     public function isAutoSeek()
     {
         return $this->wrapper->get_option(FTP_AUTOSEEK);
+    }
+
+    /**
+     * Checks if the passive address returned in the PASV response
+     * is used by the control channel or not.
+     *
+     * @return bool
+     *
+     * @throws ConfigException
+     */
+    public function isUsePassiveAddress()
+    {
+        return $this->wrapper->get_option(FTP_USEPASVADDRESS);
     }
 }
