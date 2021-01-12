@@ -1,8 +1,9 @@
 # Lazzard/FtpClient
 
 [![Stable Version](https://img.shields.io/packagist/v/lazzard/php-ftp-client?color=success&label=stable)](https://packagist.org/packages/lazzard/php-ftp-client)
-![Tested on](https://img.shields.io/badge/tested-5.6.4-blue)
+![Tested on](https://img.shields.io/badge/tested-5.6.4-lightgray)
 [![Minimum PHP version](https://img.shields.io/packagist/php-v/lazzard/php-ftp-client)](https://packagist.org/packages/lazzard/php-ftp-client)
+[![Release date](https://img.shields.io/github/release-date/lazzard/php-ftp-client?color=red&label=last%20version)](https://packagist.org/packages/lazzard/php-ftp-client)
 [![Downlaods](https://img.shields.io/packagist/dt/lazzard/php-ftp-client?color=blueviolet&style=social)](https://packagist.org/packages/lazzard/php-ftp-client)
 
 An FTP Client library that wraps the FTP extension functions in an OOP way.
@@ -11,7 +12,7 @@ An FTP Client library that wraps the FTP extension functions in an OOP way.
 
 ## Requirements
 
-* PHP version >= 5.5.0.
+* PHP version >= 5.6.0.
 * FTP extension enabled.
 
 ## Installation
@@ -54,12 +55,12 @@ $connection->open();
 
 After creating an FTP connection you may need to set some options like turning the connection to the passive mode, well for that we provide the `FtpConfig` class that includes methods to manage the FTP connection and set its runtime options.
 
-
-**option**       | default | description
----              |---      |---
-passive          | false   | Turning the passive mode ON/OFF.
-timeout          | 90      | Sets timeout value of all FTP transfer operations.
-autoSeek         | true    | Should be sets to true.
+option            | class method      | default | description
+---               |---                |---      |---
+passive           | setPassive        | false   | Turning the passive mode ON/OFF.
+timeout           | setTimeout        | 90      | Sets timeout value of all FTP transfer operations.
+autoSeek          | setAutoSeek       | true    | Should be sets to true to resume transfer operations.
+usePassiveAddress | usePassiveAddress | true    | Whether or not to use the passive IP address returned after sending the passive command through the control channel.
 
 **Example of turning on the passive mode:**
 
