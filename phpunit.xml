@@ -11,7 +11,6 @@
 
     <testsuites>
         <testsuite name="Lazzard/FtpClient">
-            <directory>./tests/Connection</directory>
             <directory>./tests/</directory>
         </testsuite>
     </testsuites>
