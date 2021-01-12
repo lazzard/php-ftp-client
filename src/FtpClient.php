@@ -865,18 +865,21 @@ class FtpClient
 
         $dirs  = explode('/', $directory);
         $count = count($dirs);
-        for ($i = 1; $i <= $count; $i++) {
-            $dir = join("/", array_slice($dirs, 0, $i));
+        if ($count > 0) {
+            for ($i = 1; $i <= $count; $i++) {
+                $dir = join("/", array_slice($dirs, 0, $i));
 
-            if (!$this->isExists($dir)) {
-                if (!$this->wrapper->mkdir($dir)) {
-                    throw new FtpClientException($this->wrapper->getFtpErrorMessage()
+                if (!$this->isExists($dir)) {
+                    if (!$this->wrapper->mkdir($dir)) {
+                        throw new FtpClientException($this->wrapper->getFtpErrorMessage()
                         ?: 'Unable to create directory ['.$dir.']');
+                    }
                 }
             }
+            return true;
         }
 
-        return true;
+        return $this->wrapper->mkdir($directory);
     }
 
     /**
