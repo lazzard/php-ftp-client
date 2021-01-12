@@ -1,5 +1,12 @@
 # Change Log
 
+## v1.2.0 (2021-01-12)
+
+* Upgraded to PHP 5.6.0 version.
+* Supported the `usePassiveAddress` runtime option. 
+* Added more options for unit testing (`PASSIVE`, `INITIAL_DIR`).
+* Removed `USESSL` option for unit testing.
+
 ## v1.1.0 (2020-10-13)
 
 ### Removed
