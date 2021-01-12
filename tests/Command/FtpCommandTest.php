@@ -11,50 +11,50 @@ class FtpCommandTest extends TestCase
 {    
     public function test__constructor()
     {
-        $this->assertInstanceOf(FtpCommand::class, self::getFtpCommandInstance());
+        $this->assertInstanceOf(FtpCommand::class, $this->getFtpCommandInstance());
     }
 
     public function testRawWithEmptyStringCommand()
     {
-        $this->assertFalse(self::getFtpCommandInstance()->raw(''));
+        $this->assertFalse($this->getFtpCommandInstance()->raw(''));
     }
 
     public function testRawWithSpacesStringCommand()
     {
-        $this->assertFalse(self::getFtpCommandInstance()->raw('    '));
+        $this->assertFalse($this->getFtpCommandInstance()->raw('    '));
     }
 
     public function testRawWithValidCommand()
     {
-        $this->assertInternalType('array', self::getFtpCommandInstance()->raw('SITE HELP'));
+        $this->assertInternalType('array', $this->getFtpCommandInstance()->raw('SITE HELP'));
     }
 
     public function testSiteWithEmptyStringCommand()
     {
         $this->setExpectedException(CommandException::class);
-        self::getFtpCommandInstance()->site('');
+        $this->getFtpCommandInstance()->site('');
     }
 
     public function testSiteWithSpacesStringCommand()
     {
         $this->setExpectedException(CommandException::class);
-        self::getFtpCommandInstance()->site('    ');
+        $this->getFtpCommandInstance()->site('    ');
     }
 
     public function testSiteWithValidCommand()
     {
-        $this->assertTrue(self::getFtpCommandInstance()->site('HELP'));
+        $this->assertTrue($this->getFtpCommandInstance()->site('HELP'));
     }
 
     public function testSiteWithInvalidCommand()
     {
         $this->setExpectedException(CommandException::class);
-        self::getFtpCommandInstance()->site('UNKNOWN');
+        $this->getFtpCommandInstance()->site('UNKNOWN');
     }
 
     public function testExecWithEmptyStringCommand()
     {
-        $command = self::getFtpCommandInstance();
+        $command = $this->getFtpCommandInstance();
 
         if (in_array('exec', $command->supportedSiteCommands())) {
             $this->assertFalse($command->exec(''));
@@ -66,7 +66,7 @@ class FtpCommandTest extends TestCase
 
     public function testExecWithSpacesStringCommand()
     {
-        $command = self::getFtpCommandInstance();
+        $command = $this->getFtpCommandInstance();
 
         if (in_array('exec', $command->supportedSiteCommands())) {
             $this->assertFalse($command->exec('    '));

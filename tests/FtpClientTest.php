@@ -9,8 +9,8 @@ use Lazzard\FtpClient\FtpWrapper;
 
 class FtpClientTest extends \PHPUnit_Framework_TestCase
 {
-    protected $testFile = 'lazzard_ftp_client_test_file.txt';
-    protected $testDir  = 'lazzard_ftp_client_test_directory';
+    protected $testFile = INITIAL_DIR . '/lazzard_ftp_client_test_file.txt';
+    protected $testDir  = INITIAL_DIR . '/lazzard_ftp_client_test_directory';
 
     public function test__constructor()
     {
@@ -25,48 +25,67 @@ class FtpClientTest extends \PHPUnit_Framework_TestCase
     public function testCreateFileWithoutContent()
     {
         $this->assertTrue($this->getFtpClientInstance()->createFile($this->testFile));
+        $this->getFtpClientInstance()->removeFile($this->testFile);
     }
 
     public function testCreateFileWithContent()
     {
-        $this->assertTrue($this->getFtpClientInstance()->createFile($this->testFile, "content ...!"));
+        if ($this->getFtpClientInstance()->createFile($this->testFile, "content ...!")) {
+            $this->assertTrue(true);
+            $this->getFtpClientInstance()->removeFile($this->testFile);
+        }
     }
 
     public function testCreateDirectory()
     {
-        $this->assertTrue($this->getFtpClientInstance()->createDirectory($this->testDir));
+        if ($this->getFtpClientInstance()->createDirectory($this->testDir)) {
+            $this->assertTrue(true);
+            $this->getFtpClientInstance()->removeDirectory($this->testDir);
+        }
     }
 
     public function testFileSize()
     {
-        $this->assertInternalType('int', $this->getFtpClientInstance()->fileSize($this->testFile));
+        if ($this->getFtpClientInstance()->createFile($this->testFile)) {
+            $this->assertInternalType('int', $this->getFtpClientInstance()->fileSize($this->testFile));
+            $this->getFtpClientInstance()->removeFile($this->testFile);
+        }
     }
 
     public function testDirSize()
     {
-        $this->assertInternalType('int', $this->getFtpClientInstance()->dirSize($this->testDir));
+        if ($this->getFtpClientInstance()->createDirectory($this->testDir)) {
+            $this->assertInternalType('int', $this->getFtpClientInstance()->dirSize($this->testDir));
+            $this->getFtpClientInstance()->removeDirectory($this->testDir);
+        }
     }
 
     public function testDownload()
     {
-        $localFile = tempnam(sys_get_temp_dir(), 'test.txt');
-        $this->assertTrue($this->getFtpClientInstance()->download($this->testFile, $localFile));
+        if ($this->getFtpClientInstance()->createFile($this->testFile)) {
+            $localFile = tempnam(sys_get_temp_dir(), 'test.txt');
+            $this->assertTrue($this->getFtpClientInstance()->download($this->testFile, $localFile));
+            $this->getFtpClientInstance()->removeFile($this->testFile);
+        }
     }
 
     public function testAsyncDownload()
     {
-        $localFile = tempnam(sys_get_temp_dir(), 'test2.txt');
-        $this->assertTrue($this->getFtpClientInstance()->asyncDownload($this->testFile, $localFile, function (){
-            // Do something
-        }));
+        if ($this->getFtpClientInstance()->createFile($this->testFile)) {
+            $localFile = tempnam(sys_get_temp_dir(), 'test2.txt');
+            $this->assertTrue($this->getFtpClientInstance()->asyncDownload($this->testFile, $localFile, function() {}));
+            $this->getFtpClientInstance()->removeFile($this->testFile);
+        }
     }
 
     public function testMove()
     {
-        $testFile = 'test_move.txt';
-        $this->getFtpClientInstance()->createFile($testFile);
-        $this->assertTrue($this->getFtpClientInstance()->move($testFile, $this->testDir));
-        $this->getFtpClientInstance()->removeFile("$this->testDir/$testFile");
+        $testFile = INITIAL_DIR . '/test_move.txt';
+        if ($this->getFtpClientInstance()->createFile($testFile)
+            && $this->getFtpClientInstance()->createDirectory($this->testDir)) {
+                $this->assertTrue($this->getFtpClientInstance()->move($testFile, $this->testDir));
+                $this->getFtpClientInstance()->removeDirectory($this->testDir);
+        }
     }
 
     public function testSetPermissionsFailure()
@@ -89,55 +108,79 @@ class FtpClientTest extends \PHPUnit_Framework_TestCase
 
     public function testSetPermissionsWithArrayParameter()
     {
-        $this->assertTrue($this->getFtpClientInstance()->setPermissions($this->testFile, [
-            'owner' => 'r-w',
-            'group' => 'e',
-            'other' => 'w-r'
-        ]));
+        if ($this->getFtpClientInstance()->createFile($this->testFile)) {
+            $this->assertTrue($this->getFtpClientInstance()->setPermissions($this->testFile, [
+                'owner' => 'r-w',
+                'group' => 'e',
+                'other' => 'w-r'
+            ]));
+            $this->getFtpClientInstance()->removeFile($this->testFile);
+        }
     }
 
     public function testSetPermissionsWithNumericParameter()
     {
-        $this->assertTrue($this->getFtpClientInstance()->setPermissions($this->testFile, 777));
+        if ($this->getFtpClientInstance()->createFile($this->testFile)) {
+            $this->assertTrue($this->getFtpClientInstance()->setPermissions($this->testFile, 777));
+            $this->getFtpClientInstance()->removeFile($this->testFile);
+        }
     }
 
     public function testIsEmptyWithAnEmptyFile()
     {
-        $this->getFtpClientInstance()->createFile($this->testFile);
-        $this->assertTrue($this->getFtpClientInstance()->isEmpty($this->testFile));
+        if ($this->getFtpClientInstance()->createFile($this->testFile)) {
+            $this->assertTrue($this->getFtpClientInstance()->isEmpty($this->testFile));
+            $this->getFtpClientInstance()->removeFile($this->testFile);
+        }   
     }
 
     public function testIsEmptyWithANonEmptyFile()
     {
-        $this->getFtpClientInstance()->createFile($this->testFile, 'content ...!');
-        $this->assertFalse($this->getFtpClientInstance()->isEmpty($this->testFile));
+        if ($this->getFtpClientInstance()->createFile($this->testFile, "content...!")) {
+            $this->assertFalse($this->getFtpClientInstance()->isEmpty($this->testFile));
+            $this->getFtpClientInstance()->removeFile($this->testFile);
+        }   
     }
 
     public function testIsEmptyWithAnEmptyDirectory()
     {
-        $this->assertTrue($this->getFtpClientInstance()->isEmpty($this->testDir));
+        if ($this->getFtpClientInstance()->createDirectory($this->testDir)) {
+            $this->assertTrue($this->getFtpClientInstance()->isEmpty($this->testDir));
+            $this->getFtpClientInstance()->removeDirectory($this->testDir);
+        }
     }
 
     public function testIsEmptyWithANonEmptyDirectory()
     {
-        $this->getFtpClientInstance()->createDirectory($this->testDir);
-        $this->getFtpClientInstance()->createFile("$this->testDir/$this->testFile");
-        $this->assertFalse($this->getFtpClientInstance()->isEmpty($this->testDir));
+        if ($this->getFtpClientInstance()->createDirectory($this->testDir)
+            && $this->getFtpClientInstance()->createFile($this->testDir . '/test.txt')) {
+                $this->assertFalse($this->getFtpClientInstance()->isEmpty($this->testDir));
+                $this->getFtpClientInstance()->removeDirectory($this->testDir);
+        }
     }
 
     public function testIsFile()
     {
-        $this->assertTrue($this->getFtpClientInstance()->isFile($this->testFile));
+        if ($this->getFtpClientInstance()->createFile($this->testFile)) {
+            $this->assertTrue($this->getFtpClientInstance()->isFile($this->testFile));
+            $this->getFtpClientInstance()->removeFile($this->testFile);
+        }
     }
 
     public function testIsDir()
     {
-        $this->assertTrue($this->getFtpClientInstance()->isDir($this->testDir));
+        if ($this->getFtpClientInstance()->createDirectory($this->testDir)) {
+            $this->assertTrue($this->getFtpClientInstance()->isDir($this->testDir));
+            $this->getFtpClientInstance()->removeDirectory($this->testDir);
+        }
     }
 
     public function testGetFileContent()
     {
-        $this->assertInternalType('string', $this->getFtpClientInstance()->getFileContent($this->testFile));
+        if ($this->getFtpClientInstance()->createFile($this->testFile)) {
+            $this->assertInternalType('string', $this->getFtpClientInstance()->getFileContent($this->testFile));
+            $this->getFtpClientInstance()->removeFile($this->testFile);
+        }
     }
 
     public function testLastMTime()
@@ -145,35 +188,40 @@ class FtpClientTest extends \PHPUnit_Framework_TestCase
         if (!$this->getFtpClientInstance()->isFeatureSupported('MDTM')) {
             $this->setExpectedException(FtpClientException::class);
             $this->getFtpClientInstance()->lastMTime($this->testFile);
-        } else {
+        } elseif ($this->getFtpClientInstance()->createFile($this->testFile)) {
             $this->assertInternalType('int', $this->getFtpClientInstance()->lastMTime($this->testFile));
+            $this->getFtpClientInstance()->removeFile($this->testFile);
         }
     }
 
     public function testRemoveFile()
     {
-        $this->assertTrue($this->getFtpClientInstance()->removeFile($this->testFile));
+        if ($this->getFtpClientInstance()->createFile($this->testFile)) {
+            $this->assertTrue($this->getFtpClientInstance()->removeFile($this->testFile));
+        }
     }
 
     public function testRemoveDirectoryRecursive()
     {
-        $this->getFtpClientInstance()->createDirectory($this->testDir);
-        $this->getFtpClientInstance()->createFile("$this->testDir/$this->testFile");
-        //$this->assertTrue($this->getFtpClientInstance()->removeDirectory($this->testDir));
+        if ($this->getFtpClientInstance()->createDirectory($this->testDir)
+            && $this->getFtpClientInstance()->createFile($this->testDir . '/test.txt')) {
+                $this->assertTrue($this->getFtpClientInstance()->removeDirectory($this->testDir));
+        }
     }
 
     public function testRemoveDirectory()
     {
-        $this->assertTrue($this->getFtpClientInstance()->removeDirectory($this->testDir));
+        if ($this->getFtpClientInstance()->createDirectory($this->testDir)) {
+            $this->assertTrue($this->getFtpClientInstance()->removeDirectory($this->testDir));
+        }
     }
 
     public function testAsyncUpload()
     {
         $localFile = tempnam(sys_get_temp_dir(), 'test.txt');
         file_put_contents($localFile, 'Hi there!');
-        $this->assertTrue($this->getFtpClientInstance()->asyncUpload($localFile, $this->testFile, function () {
-            // Do something
-        }));
+        $this->assertTrue($this->getFtpClientInstance()->asyncUpload($localFile, $this->testFile, function() {}));
+        $this->getFtpClientInstance()->removeFile($this->testFile);
     }
 
     public function testUpload()
@@ -186,10 +234,11 @@ class FtpClientTest extends \PHPUnit_Framework_TestCase
 
     public function testRename()
     {
-        $this->getFtpClientInstance()->createFile($this->testFile);
-        $newName = $this->testFile . '_renamed';
-        $this->assertTrue($this->getFtpClientInstance()->rename($this->testFile, $newName));
-        $this->getFtpClientInstance()->removeFile($newName);
+        if ($this->getFtpClientInstance()->createFile($this->testFile)) {
+            $newName = $this->testFile . '_renamed';
+            $this->assertTrue($this->getFtpClientInstance()->rename($this->testFile, $newName));
+            $this->getFtpClientInstance()->removeFile($newName);
+        }
     }
 
     public function testKeepConnectionAlive()

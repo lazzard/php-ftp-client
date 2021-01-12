@@ -13,7 +13,7 @@ class FtpConnectionTest extends TestCase
 
     public function test__constructor()
     {
-        $this->assertInstanceOf(FtpConnection::class, self::getFtpConnectionInstance());
+        $this->assertInstanceOf(FtpConnection::class, $this->getFtpConnectionInstance());
     }
 
     /**
@@ -21,7 +21,7 @@ class FtpConnectionTest extends TestCase
      */
     public function testOpenConnection()
     {
-        $this->assertTrue(self::getFtpConnectionInstance()->open());
+        $this->assertTrue($this->getFtpConnectionInstance()->open());
     }
 
     /**
@@ -29,7 +29,7 @@ class FtpConnectionTest extends TestCase
      */
     public function testCloseConnection()
     {
-        $this->assertTrue(self::getFtpConnectionInstance()->close());
+        $this->assertTrue($this->getFtpConnectionInstance()->close());
     }
 
     /**

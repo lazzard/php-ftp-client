@@ -2,6 +2,7 @@
 
 namespace Lazzard\FtpClient\Tests;
 
+use Lazzard\FtpClient\Config\FtpConfig;
 use Lazzard\FtpClient\Connection\ConnectionInterface;
 use Lazzard\FtpClient\Connection\FtpConnection;
 use Lazzard\FtpClient\Connection\FtpSSLConnection;
@@ -14,20 +15,26 @@ class ConnectionHelper
     /** @var ConnectionInterface */
     protected static $connection;
 
+    /**
+     * @return ConnectionInterface
+     */
     public static function getConnection()
     {
         if (!self::$connection) {
-            self::open();
+            self::open(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
+            self::passive(PASSIVE);
         }
-
         return self::$connection;
     }
 
     protected static function open()
     {
-        $class = USESSL ? FtpSSLConnection::class : FtpConnection::class;
-        $reflection = new \ReflectionClass($class);
-        self::$connection = $reflection->newInstanceArgs([HOST, USERNAME, PASSWORD, PORT, TIMEOUT]);
+        self::$connection = new FtpConnection(...func_get_args());
         self::$connection->open();
+    }
+
+    protected static function passive($passive) 
+    {
+        (new FtpConfig(self::$connection))->setPassive($passive);
     }
 }

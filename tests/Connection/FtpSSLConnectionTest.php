@@ -11,26 +11,20 @@ class FtpSSLConnectionTest extends TestCase
     /** @var FtpSSLConnection */
     protected static $connection;
 
-    public function testIfOpensslExtensionNotLoaded()
-    {
-        if (!extension_loaded('openssl')) {
-            $this->setExpectedException(ConnectionException::class);
-            $this->getFtpSSLConnectionInstance();
-        }
-    }
-
-    public function testIfFtpSslConnectFunctionNotExists()
-    {
-        if (!function_exists('ftp_ssl_connect')) {
-            $this->setExpectedException(ConnectionException::class);
-            $this->getFtpSSLConnectionInstance();
-        }
-    }
-
     public function testIfOpensslLoadedAndFtpSslConnectFunctionExists()
     {
         if (extension_loaded('openssl') && function_exists('ftp_ssl_connect')) {
             $this->assertInstanceOf(FtpSSLConnection::class, $this->getFtpSSLConnectionInstance());
+        } else {
+            $this->markTestSkipped();
+        }
+    }
+
+    public function testIfOpensslLoadedAndFtpSslConnectFunctionNotExists()
+    {
+        if (!extension_loaded('openssl') || !function_exists('ftp_ssl_connect')) {
+            $this->setExpectedException(ConnectionException::class);
+            $this->getFtpSSLConnectionInstance();
         } else {
             $this->markTestSkipped();
         }
@@ -65,7 +59,6 @@ class FtpSSLConnectionTest extends TestCase
         if (!self::$connection) {
             self::$connection = new FtpSSLConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
         }
-
         return self::$connection;
     }
 }
