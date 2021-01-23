@@ -190,7 +190,7 @@ $client->allocateSpace(2048);
 $client->keepConnectionAlive();
 ```
 
-You can see all the methods [here](blob/master/docs/FtpClient.md).
+You can see all the methods [here](docs/FtpClient.md).
 
 ## More documentation
 
@@ -200,12 +200,12 @@ You can see all the methods [here](blob/master/docs/FtpClient.md).
  * [Sending commands with FtpCommand][4]
  * [Using the FtpWrapper][5]
  
-[1]: blob/master/docs/FtpConnectionInterface.md
-[2]: blob/master/docs/FtpConfig.md
-[3]: blob/master/docs/FtpClient.md
-[4]: blob/master/docs/FtpCommand.md
-[5]: blob/master/docs/FtpWrapper.md
+[1]: docs/FtpConnectionInterface.md
+[2]: docs/FtpConfig.md
+[3]: docs/FtpClient.md
+[4]: docs/FtpCommand.md
+[5]: docs/FtpWrapper.md
 
 ## License
 
-MIT License. please see the [LICENSE FILE](blob/master/LICENSE) for more information. 
+MIT License. please see the [LICENSE FILE](LICENSE) for more information. 
