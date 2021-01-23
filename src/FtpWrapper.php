@@ -49,7 +49,7 @@ class FtpWrapper
     /**
      * @param ConnectionInterface $connection
      */
-    public function setConnection($connection)
+    public function setConnection(ConnectionInterface $connection)
     {
         $this->connection = $connection;
     }

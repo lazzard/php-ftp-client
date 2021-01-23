@@ -175,8 +175,6 @@ class FtpConfig
      * is used by the control channel or not.
      *
      * @return bool
-     *
-     * @throws ConfigException
      */
     public function isUsePassiveAddress()
     {

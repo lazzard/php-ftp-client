@@ -1,256 +1,211 @@
 # Lazzard/FtpClient
 
 [![Stable Version](https://img.shields.io/packagist/v/lazzard/php-ftp-client?color=success&label=stable)](https://packagist.org/packages/lazzard/php-ftp-client)
-![Tested on](https://img.shields.io/badge/tested-5.6.4-lightgray)
 [![Minimum PHP version](https://img.shields.io/packagist/php-v/lazzard/php-ftp-client)](https://packagist.org/packages/lazzard/php-ftp-client)
-[![Release date](https://img.shields.io/github/release-date/lazzard/php-ftp-client?color=red&label=last%20version)](https://packagist.org/packages/lazzard/php-ftp-client)
-[![Downlaods](https://img.shields.io/packagist/dt/lazzard/php-ftp-client?color=blueviolet&style=social)](https://packagist.org/packages/lazzard/php-ftp-client)
+![Tested on](https://img.shields.io/badge/tested-5.6.4-lightgray)
+[![Downloads](https://img.shields.io/packagist/dt/lazzard/php-ftp-client?color=blueviolet&style=social)](https://packagist.org/packages/lazzard/php-ftp-client)
 
-An FTP Client library that wraps the FTP extension functions in an OOP way.
+A library that wraps the PHP FTP functions in an OOP way.
 
-*Note: This library aimed to be a full FTP/FTPS client solution for the old (5.5+) and newer PHP releases (7.2+) that support FTP extension.*
+**Note: This library aimed to be a full FTP/FTPS client solution for the old (5.5+) and newer PHP releases (7.2+) that support FTP extension.**
 
 ## Requirements
 
-* PHP version >= 5.6.0.
-* FTP extension enabled.
+ * PHP version >= 5.6.0.
+ * FTP extension enabled.
 
 ## Installation
 
-### Via composer (recommended)
+The recommended way to install this package is by composer:
 
 ```console
 composer require lazzard/php-ftp-client
 ```
 
-### Using git
+or just clone the repo using git:
 
 ```bash
 git clone https://github.com/lazzard/php-ftp-client
 ```
 
-### Autoloader
+## Getting Started
 
-This library uses the PSR-4 autoloading mechanism, to generate the autoloader class run this command:
-
-```console
-composer dumpautoload
-```
-
-## Create an FTP connection
-
-To uses this library you need first to create an FTP connection using one of  these classes:
-
-* `FtpConnection`    : Regular FTP connection (Not secure). 
-* `FtpSSLConnection` : FTP over TLS/SSL connection (Secure).
-
-**A simple example would be:**
-
+### Usage
 ```php
-$connection = new FtpConnection('localhost', 'foo', '1234');
+// Create an FTP connection
+$connection = new FtpConnection("localhost", "foo", "12345");
 $connection->open();
-```
 
-## Configure an FTP connection
-
-After creating an FTP connection you may need to set some options like turning the connection to the passive mode, well for that we provide the `FtpConfig` class that includes methods to manage the FTP connection and set its runtime options.
-
-option            | class method      | default | description
----               |---                |---      |---
-passive           | setPassive        | false   | Turning the passive mode ON/OFF.
-timeout           | setTimeout        | 90      | Sets timeout value of all FTP transfer operations.
-autoSeek          | setAutoSeek       | true    | Should be sets to true to resume transfer operations.
-usePassiveAddress | usePassiveAddress | true    | Whether or not to use the passive IP address returned after sending the passive command through the control channel.
-
-**Example of turning on the passive mode:**
-
-```php
+// Configure an FtpConnection
 $config = new FtpConfig($connection);
 $config->setPassive(true);
+
+$client = new FtpClient($connection);
 ```
 
-## FtpClient
-
-**FtpClient** class is the base class of the library, it contains all the methods you need to start working with your FTP server.
+#### upload/download
 
 ```php
-$ftp = new FtpClient($connection);
+// download a remote file
+$client->download('public_html/commands.xlsx', 'commands.xlsx');
+
+// upload a local file to remote server
+$client->upload('assets/image.png', 'public_html/images/image.png');
+
+// download a remote file asynchronously
+$client->asyncDownload('illustrations/assets.zip', 'assets.zip', function ($state) {
+    // do something every second while downloading this file
+});
+
+// Upload a remote file asynchronously
+$client->asyncUpload('wallpapers.zip', 'public_html', function ($state) {
+    // do something
+});
 ```
 
-### FtpClient methods
+#### listing
 
-**Method**         | Description
----                |---
-`allocateSpace($bytes)` | Sends a request to FTP server to allocate a space for the next file transfer.
-`asyncDownload($remoteFile, $localFile, $doWhileDownloading, $resume = true, $interval = 1, $mode = FTP_BINARY)` | Retrieves a remote file asynchronously (non-blocking).
-`asyncUpload($remoteFile, $localFile, $doWhileDownloading, $resume = true, $interval = 1, $mode = FTP_BINARY)` | Uploading a local file asynchronously to the remote server.
-`back()`             | Back to the parent directory.    
-`createDirectory($directory)`  | Creates a directory on the FTP server.
-`createFile($fileName, $content = null)`       | Create a file on the FTP server and inserting the giving content to it.
-`dirSize($directory)`          | Gets remote directory size.
-`download($remoteFile, $localFile, $resume = true, $mode = FTP_BINARY)`  | Starts downloading a remote file.
-`fileSize($remoteFile)` | Gets a regular remote file size.
-`getConnection()`    | Gets FtpClient connection.
-`getCount($directory, $recursive = false, $filter = self::FILE_DIR_TYPE, $ignoreDots = false)` | Gets files count in the giving directory.
-`getCurrentDir()`    | Gets current working directory.
-`getDefaultTransferType()` | Gets the default transfer type of the FTP server.
-`getFeatures()` | Gets additional commands supported by the FTP server outside the basic commands defined in RFC959.
-`getFileContent($remoteFile)` | Reads the remote file content and returns the data as a string.
-`getParent()` | Gets parent directory of the current working directory.
-`getSystem()` | Gets operating system type of the FTP server.
-`isDir($remoteFile)` | Checks whether if the giving file is a directory or not.
-`isEmpty($remoteFile)` | Checks whether if the giving file/directory is empty or not.
-`isExists($remoteFile)` | Checks whether the giving file or directory exists.
-`isFeatureSupported($feature)` | Determines if the giving feature is supported by the remote server or not.
-`isFile($remoteFile)` | Checks if the giving file is a regular file.
-`keepConnectionAlive()` | Sends a request to the server to keep the control channel alive and prevent the server from disconnecting the session.
-`lastMTime($remoteFile, $format = null)` | Gets last modified time of an FTP remote regular file.
-`listDirectory($directory, $filter = self::FILE_DIR_TYPE, $ignoreDots = true)` | Gets list of files names in the giving directory.
-`listDirectoryDetails($directory, $recursive = false, $filter = self::FILE_DIR_TYPE, $ignoreDots = true)` | Gets detailed list of the files in the giving directory.
-`move($source, $destination)` | Moves file or a directory to another path.
-`removeDirectory($directory)` | Deletes a directory on the FTP server.
-`removeFile($remoteFile)` | Deletes regular remote file.
-`rename($remoteFile, $newName)` | Renames file/directory on the FTP server.
-`setCurrentDir($directory)` | Changes current working directory to the specified directory.
-`setPermissions($filename, $mode)` | Sets permissions on FTP file or directory.
-`upload($localFile, $remoteFile, $resume = true, $mode = FTP_BINARY)` | Starts uploading the giving local file to the FTP server.
+```php
+// Get files names within an FTP directory
+$client->listDirectory('public_html');
 
-### Asynchronous transfer operations
+// Get only directories
+$client->listDirectory('public_html', FtpClient::DIR_TYPE);
 
-`FtpClient::asyncDownload` & `FtpClient::asyncUpload` methods accepts a callback function as a third parameter, it will execute every specified `interval`. If no `interval` specified the default sets to **1 second**, the callback function also accepts **an array** that provides some useful information about the transfer operation at the specified interval.
+// Get detailed information of each file within an FTP directory including the file path
+$client->listDirectoryDetails('public_html');
+
+// Recursively
+$client->listDirectoryDetails('public_html', true);
+```
+
+#### size
+
+```php
+// Get file size
+$client->fileSize('public_html/presentation.docx');
+
+// Get directory size
+$client->dirSize('public_html/presentation.docx');
+```
+
+#### file/directory creating
  
-**An example of downloading an FTP file asynchronously:** 
+```php
+// create an FTP file
+$client->createFile('public_html/example.txt');
+
+// create a file with content
+$client->createFile('public_html/example.txt', 'Hello world!!');
+
+// Get directory size
+$client->createDirectory('public_html/presentation.docx');
+```
+
+#### remove/rename
 
 ```php
-$interval = 1;
-$ftp->asyncDownload('illustrations/assets.zip', 'assets.zip', function ($stat) use ($interval) {
-    ob_end_clean();
-    ob_start();
+// remove an FTP file
+$client->removeFile($remoteFile);
 
-    echo sprintf(
-        "speed : %s KB/%ss | percentage : %s%% | transferred : %s KB | second now : %s <br>",
-        $stat['speed'],
-        $interval,
-        $stat['percentage'],
-        $stat['transferred'],
-        $stat['seconds']
-    );
+// remove a directory (this will remove all the file within the directory)
+$client->removeDirectory($directory);
 
-    ob_flush();
-    flush();
-}, true, $interval);
+// rename an FTP file/directory
+$client->rename($remoteFile, $newName);
 ```
 
-**Result in the browser :** 
-
-![asyncDownload](https://user-images.githubusercontent.com/49124992/82462957-bed5f700-9aab-11ea-95e3-2821254570a6.gif).
-
-## FtpCommand
-
-`FtpCommand` class provides a simple interface to the FTP extension raw functions.
-
-
-**An Example of `raw($command)` method**: 
+#### move
 
 ```php
-$command = new FtpCommand($connection);
-$response = $command->raw('SITE HELP');
-var_dump($response);
+// move an FTP file or directory to another folder
+$client->move($remoteFile, $destinationFolder);
 ```
 
-**Output:** 
-
-```text
-array (size=5)
-  'response' => 
-    array (size=6)
-      0 => string '214-The following SITE commands are recognized' (length=46)
-      1 => string ' ALIAS' (length=6)
-      2 => string ' CHMOD' (length=6)
-      3 => string ' IDLE' (length=5)
-      4 => string ' UTIME' (length=6)
-      5 => string '214 Pure-FTPd - http://pureftpd.org/' (length=36)
-  'code' => int 214
-  'message' => string '-The following SITE commands are recognized' (length=43)
-  'body' => 
-    array (size=4)
-      0 => string ' ALIAS' (length=6)
-      1 => string ' CHMOD' (length=6)
-      2 => string ' IDLE' (length=5)
-      3 => string ' UTIME' (length=6)
-  'success' => boolean true
-```
-
-## Using the FtpWrapper
-
-You can also just use the `FtpWrapper` for calling FTP extension functions (ftp_*).
+#### count
 
 ```php
-$connection = new FtpConnection('localhost', 'foo', '1234');
-$connection->open();
+// get the count of all the files within a directory
+$client->getCount($directory);
 
-$wrapper = new FtpWrapper($connection);
-$wrapper->pasv(true);
+// recursively
+$client->getCount($directory, true);
 
-if (!$wrapper->nlist('www/public_html')) {
-    // The 'FtpWrapper' detects and catch FTP errors sent by the server
-    // and you can get the last error message by calling the 'getFtpErrorMessage' method
-    throw new FtpClientException($wrapper->getFtpErrorMessage());
-}
+// recursively and files type only
+$client->getCount($directory, true, FtpClient::FILE_TYPE);
 ```
 
-## Full Example
+#### permissions 
 
 ```php
-try {
-    // Connection
-    $connection = new FtpConnection("localhost", "foo", "12345");
-    $connection->open();
-    
-    // Configuration
-    $config = new FtpConfig($connection);
-    $config->setPassive(true);
-    
-     // FtpClient
-    $client = new FtpClient($connection);
-    
-    // Start working
-    var_dump($client->getFeatures());
-    
-    // Close connection
-    $connection->close();
-} catch (FtpClientException $ex) { // Exceptions handling
-    echo $ex->getMessage();
-}
+// set a permissions on the giving FTP file/directory 
+$client->setPermissions($remoteFile, [
+    'owner' => 'r-w', // read & write
+    'group' => 'w',
+    'world' => 'w-r-e'
+]);
+
+// or you can use the UNIX file permission digits 
+$client->setPermissions($remoteFile, 777);
 ```
 
-## Tests
+#### is methods
 
-This library uses PHPUnit for testing.
+```php
+// is an ftp directory ?
+$client->isDir($remoteDir);
 
-### Requirements
+// is a file type ?
+$client->isFile($remoteFile);
 
-* phpUnit 4.x.x
-* php >= 5.5
+// is an empty file/directory ?
+$client->isEmpty($remoteFile);
 
-### Install
+// is exists on the FTP server ?
+$client->isExists($remoteFile);
 
-If you don't have PHPUnit installed globally, or you have a different PHPUnit version then run this: 
-
-```console
-composer install --dev
+// is the server support the size feature ?
+$client->isFeatureSupported('SIZE');
 ```
 
-### Configs
+#### others 
 
-Edit **tests/config.php** with your FTP credentials.
+```php
+// get the last modified time of the giving file (not working with directories)
+$client->lastMTime($remoteFile);
 
-### Run tests
+// get a content of an FTP file
+$client->getFileContent($remoteFile);
 
-```console
-vendor/bin/phpunit
+// get all supported features by the FTP server
+$client->getFeatures();
+
+// get the server system
+$client->getSystem();
+
+// send a request to allocate a space of bytes for the next transfer operation (not all servers requires this)
+$client->allocateSpace(2048);
+
+// prevent the server from closing the connection and keeping it alive
+$client->keepConnectionAlive();
 ```
 
-## Contribution
+You can see all the methods [here](blob/master/docs/FtpClient.md).
 
-All contributions are welcome, for features/improvements ideas check `TODO.md`. Thank you!
+## More documentation
+
+ * [FtpConnectionInterface][1]
+ * [Configure the connection with FtpConfig][2]
+ * [The base class FtpClient][3]
+ * [Sending commands with FtpCommand][4]
+ * [Using the FtpWrapper][5]
+ 
+[1]: blob/master/docs/FtpConnectionInterface.md
+[2]: blob/master/docs/FtpConfig.md
+[3]: blob/master/docs/FtpClient.md
+[4]: blob/master/docs/FtpCommand.md
+[5]: blob/master/docs/FtpWrapper.md
+
+## License
+
+MIT License. please see the [LICENSE FILE](blob/master/LICENSE) for more information. 
