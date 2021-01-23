@@ -16,7 +16,7 @@ A library that wraps the PHP FTP functions in an OOP way.
 
 ## Installation
 
-The recommended way to install this package is by composer:
+The recommended way to install this library is through composer:
 
 ```console
 composer require lazzard/php-ftp-client
@@ -32,11 +32,11 @@ git clone https://github.com/lazzard/php-ftp-client
 
 ### Usage
 ```php
-// Create an FTP connection
+// create an FTP connection
 $connection = new FtpConnection("localhost", "foo", "12345");
 $connection->open();
 
-// Configure an FtpConnection
+// configure an FtpConnection
 $config = new FtpConfig($connection);
 $config->setPassive(true);
 
@@ -57,7 +57,7 @@ $client->asyncDownload('illustrations/assets.zip', 'assets.zip', function ($stat
     // do something every second while downloading this file
 });
 
-// Upload a remote file asynchronously
+// upload a remote file asynchronously
 $client->asyncUpload('wallpapers.zip', 'public_html', function ($state) {
     // do something
 });
@@ -66,26 +66,26 @@ $client->asyncUpload('wallpapers.zip', 'public_html', function ($state) {
 #### listing
 
 ```php
-// Get files names within an FTP directory
+// get files names within an FTP directory
 $client->listDirectory('public_html');
 
-// Get only directories
+// get only directories
 $client->listDirectory('public_html', FtpClient::DIR_TYPE);
 
-// Get detailed information of each file within an FTP directory including the file path
+// get detailed information of each file within an FTP directory including the file path
 $client->listDirectoryDetails('public_html');
 
-// Recursively
+// recursively
 $client->listDirectoryDetails('public_html', true);
 ```
 
 #### size
 
 ```php
-// Get file size
+// get file size
 $client->fileSize('public_html/presentation.docx');
 
-// Get directory size
+// get directory size
 $client->dirSize('public_html/presentation.docx');
 ```
 
@@ -98,7 +98,7 @@ $client->createFile('public_html/example.txt');
 // create a file with content
 $client->createFile('public_html/example.txt', 'Hello world!!');
 
-// Get directory size
+// get directory size
 $client->createDirectory('public_html/presentation.docx');
 ```
 
@@ -131,7 +131,7 @@ $client->getCount($directory);
 // recursively
 $client->getCount($directory, true);
 
-// recursively and files type only
+// recursively and files only
 $client->getCount($directory, true, FtpClient::FILE_TYPE);
 ```
 
@@ -199,12 +199,14 @@ You can see all the methods [here](docs/FtpClient.md).
  * [The base class FtpClient][3]
  * [Sending commands with FtpCommand][4]
  * [Using the FtpWrapper][5]
+ * [How i can run tests ?][6]
  
 [1]: docs/FtpConnectionInterface.md
 [2]: docs/FtpConfig.md
 [3]: docs/FtpClient.md
 [4]: docs/FtpCommand.md
 [5]: docs/FtpWrapper.md
+[6]: docs/tests.md
 
 ## License
 
