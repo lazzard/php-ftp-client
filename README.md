@@ -31,15 +31,27 @@ git clone https://github.com/lazzard/php-ftp-client
 ## Getting Started
 
 ### Usage
-```php
-// create an FTP connection
-$connection = new FtpConnection("localhost", "foo", "12345");
-$connection->open();
 
-// configure an FtpConnection
+Create an FTP connection
+```php
+$connection = new FtpConnection('host', 'foo', '1234');
+$connection->open();
+```
+
+Create a secure FTP connection
+```php
+$connection = new FtpSSLConnection('host', 'bar', '1234');
+$connection->open();
+```
+
+Configure the connection
+```php
 $config = new FtpConfig($connection);
 $config->setPassive(true);
+```
 
+Start working with `FtpClient`
+```php
 $client = new FtpClient($connection);
 ```
 
@@ -183,7 +195,8 @@ $client->getFeatures();
 // get the server system
 $client->getSystem();
 
-// send a request to allocate a space of bytes for the next transfer operation (not all servers requires this)
+// send a request to allocate a space of bytes for the next transfer operation
+// note: not all servers requires this
 $client->allocateSpace(2048);
 
 // prevent the server from closing the connection and keeping it alive
@@ -194,11 +207,11 @@ You can see all the methods [here](docs/FtpClient.md).
 
 ## More documentation
 
- * [FtpConnectionInterface][1]
- * [Configure the connection with FtpConfig][2]
- * [The base class FtpClient][3]
- * [Sending commands with FtpCommand][4]
- * [Using the FtpWrapper][5]
+ * [Manipulate an FTP connection with **FtpConnectionInterface**][1]
+ * [Configure the connection with **FtpConfig**][2]
+ * [The base class **FtpClient**][3]
+ * [Sending FTP raw commands with **FtpCommand**][4]
+ * [Using the **FtpWrapper** Directly][5]
  * [How i can run tests ?][6]
  
 [1]: docs/FtpConnectionInterface.md
