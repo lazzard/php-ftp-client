@@ -1,5 +1,9 @@
 # Change Log
 
+## v1.2.2 (2021-01-24)
+
+* README documentation improved.
+
 ## v1.2.0 (2021-01-12)
 
 * Upgraded to PHP 5.6.0 version.
