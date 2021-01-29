@@ -98,7 +98,7 @@ $client->listDirectoryDetails('public_html', true);
 $client->fileSize('public_html/presentation.docx');
 
 // get directory size
-$client->dirSize('public_html/presentation.docx');
+$client->dirSize('public_html/assets');
 ```
 
 #### file/directory creating
@@ -111,7 +111,7 @@ $client->createFile('public_html/example.txt');
 $client->createFile('public_html/example.txt', 'Hello world!!');
 
 // get directory size
-$client->createDirectory('public_html/presentation.docx');
+$client->createDirectory('public_html/assets');
 ```
 
 #### remove/rename
