@@ -91,6 +91,25 @@ $client->listDirectoryDetails('public_html');
 $client->listDirectoryDetails('public_html', true);
 ```
 
+#### remove/rename
+
+```php
+// remove an FTP file
+$client->removeFile($remoteFile);
+
+// remove a directory (this will remove all the file within the directory)
+$client->removeDirectory($directory);
+
+// rename an FTP file/directory
+$client->rename($remoteFile, $newName);
+```
+
+#### copy file/directory from local
+```php
+// copy a local directory to the giving path in the server
+$client->copyFromLocal('media/images', 'htdocs'); 
+```
+
 #### size
 
 ```php
@@ -98,7 +117,7 @@ $client->listDirectoryDetails('public_html', true);
 $client->fileSize('public_html/presentation.docx');
 
 // get directory size
-$client->dirSize('public_html/presentation.docx');
+$client->dirSize('public_html/assets');
 ```
 
 #### file/directory creating
@@ -111,20 +130,7 @@ $client->createFile('public_html/example.txt');
 $client->createFile('public_html/example.txt', 'Hello world!!');
 
 // get directory size
-$client->createDirectory('public_html/presentation.docx');
-```
-
-#### remove/rename
-
-```php
-// remove an FTP file
-$client->removeFile($remoteFile);
-
-// remove a directory (this will remove all the file within the directory)
-$client->removeDirectory($directory);
-
-// rename an FTP file/directory
-$client->rename($remoteFile, $newName);
+$client->createDirectory('public_html/assets');
 ```
 
 #### move
