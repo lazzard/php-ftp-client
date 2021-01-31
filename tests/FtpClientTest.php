@@ -301,6 +301,32 @@ class FtpClientTest extends \PHPUnit_Framework_TestCase
         $this->assertInternalType('array', $this->getFtpClientInstance()->listDirectoryDetails('.'));
     }
 
+    public function testCopyFromLocalWithDirectorySource()
+    {
+        $dirName    = date('m_d_y_h_m_s');
+        $tempDirPah = sys_get_temp_dir() . "/$dirName";
+        $tempFile   = "$tempDirPah/hello.txt";
+
+        if (!mkdir($tempDirPah) || file_put_contents($tempFile, 'hello world!!') === false) {
+            self::markTestSkipped();
+        }
+
+        $this->assertTrue($this->getFtpClientInstance()->copyFromLocal($tempDirPah, INITIAL_DIR));
+        $this->getFtpClientInstance()->removeDirectory(INITIAL_DIR . "/$dirName");
+    }
+
+    public function testCopyFromLocalWithFileSource()
+    {
+        $tempFile = sys_get_temp_dir() . "/hello.txt";
+
+        if (file_put_contents($tempFile, 'hello world!!') === false) {
+            self::markTestSkipped();
+        }
+
+        $this->assertTrue($this->getFtpClientInstance()->copyFromLocal($tempFile, INITIAL_DIR));
+        $this->getFtpClientInstance()->removeFile(INITIAL_DIR . "/$tempFile");
+    }
+
     protected function getFtpClientInstance()
     {
         return new FtpClient(ConnectionHelper::getConnection());
