@@ -91,6 +91,25 @@ $client->listDirectoryDetails('public_html');
 $client->listDirectoryDetails('public_html', true);
 ```
 
+#### remove/rename
+
+```php
+// remove an FTP file
+$client->removeFile($remoteFile);
+
+// remove a directory (this will remove all the file within the directory)
+$client->removeDirectory($directory);
+
+// rename an FTP file/directory
+$client->rename($remoteFile, $newName);
+```
+
+#### copy file/directory from local
+```php
+// copy a local directory to the giving path in the server
+$client->copyFromLocal('media/images', 'htdocs'); 
+```
+
 #### size
 
 ```php
