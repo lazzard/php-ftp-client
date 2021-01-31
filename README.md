@@ -133,6 +133,19 @@ $client->createFile('public_html/example.txt', 'Hello world!!');
 $client->createDirectory('public_html/assets');
 ```
 
+#### remove/rename
+
+```php
+// remove an FTP file
+$client->removeFile($remoteFile);
+
+// remove a directory (this will remove all the file within the directory)
+$client->removeDirectory($directory);
+
+// rename an FTP file/directory
+$client->rename($remoteFile, $newName);
+```
+
 #### move
 
 ```php
