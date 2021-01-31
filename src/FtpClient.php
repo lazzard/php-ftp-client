@@ -387,9 +387,9 @@ class FtpClient
         foreach ($_list as $fileInfo) {
             if ($fileInfo['type'] === 'file') {
                 $this->wrapper->delete($fileInfo['path']);
-            } else {
-                $this->wrapper->rmdir($fileInfo['path']);
+                continue;
             }
+            $this->wrapper->rmdir($fileInfo['path']);
         }
 
         return $this->wrapper->rmdir($directory);
@@ -1057,11 +1057,46 @@ class FtpClient
     }
 
     /**
+     * Copy a local file/directory to the remote server.
+     *
+     * @param string $source            The path of the source file/directory.
+     * @param string $destinationFolder The remote destination folder.
+     *
+     * @return bool
+     * @throws FtpClientException
+     */
+    public function copyFromLocal($source, $destinationFolder)
+    {
+        // get the base name of the source (the filename without the path).
+        $sourceBase = basename($source);
+        // remove the slashes if founded from $destinationFolder to prevent any issues after.
+        $destinationFolder = trim($destinationFolder, '/');
+
+        // if the source is a file.
+        if (is_file($source)) {
+            $remotePath = $destinationFolder . "/$sourceBase";
+            return $this->upload($source, $remotePath);
+        }
+
+        // handle if the giving source is a directory.
+        if (is_dir($source) && is_readable($source)) {
+            $destinationFolder = "$destinationFolder/$sourceBase";
+            $this->createDirectory($destinationFolder);
+            foreach (scandir($source) as $file) {
+                if (in_array($file, ['.', '..'])) continue;
+                $this->copyFromLocal($source . '/' . $file, $destinationFolder);
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * @param string      $remoteFile
      * @param string|null $message
      *
      * @return void
-     *
      * @throws FtpClientException
      */
     protected function throwIfNotExists($remoteFile, $message = null)
