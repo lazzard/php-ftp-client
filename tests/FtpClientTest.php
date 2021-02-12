@@ -303,28 +303,30 @@ class FtpClientTest extends \PHPUnit_Framework_TestCase
 
     public function testCopyFromLocalWithDirectorySource()
     {
-        $dirName    = date('m_d_y_h_m_s');
-        $tempDirPah = sys_get_temp_dir() . "/$dirName";
-        $tempFile   = "$tempDirPah/hello.txt";
+        $testDir    = basename($this->testDir);
+        $testFile   = basename($this->testFile);
+        $tempDirPah = sys_get_temp_dir() . "/$testDir";
+        $tempFile   = "$tempDirPah/$testFile";
 
         if (!mkdir($tempDirPah) || file_put_contents($tempFile, 'hello world!!') === false) {
             self::markTestSkipped();
         }
 
         $this->assertTrue($this->getFtpClientInstance()->copyFromLocal($tempDirPah, INITIAL_DIR));
-        $this->getFtpClientInstance()->removeDirectory(INITIAL_DIR . "/$dirName");
+        $this->getFtpClientInstance()->removeDirectory(INITIAL_DIR . "/$testDir");
     }
 
     public function testCopyFromLocalWithFileSource()
     {
-        $tempFile = sys_get_temp_dir() . "/hello.txt";
+        $testFile = basename($this->testFile);
+        $tempFile = sys_get_temp_dir() . "/$testFile";
 
         if (file_put_contents($tempFile, 'hello world!!') === false) {
             self::markTestSkipped();
         }
 
         $this->assertTrue($this->getFtpClientInstance()->copyFromLocal($tempFile, INITIAL_DIR));
-        $this->getFtpClientInstance()->removeFile(INITIAL_DIR . "/$tempFile");
+        $this->getFtpClientInstance()->removeFile(INITIAL_DIR . "/$testFile");
     }
 
     protected function getFtpClientInstance()
