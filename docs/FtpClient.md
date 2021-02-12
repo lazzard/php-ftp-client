@@ -62,7 +62,8 @@ FtpClient::upload($localFile, $remoteFile, $resume = true, $mode = FTP_BINARY)
 
 ```php
 $interval = 1;
-$client->asyncDownload('illustrations/assets.zip', 'assets.zip', function ($state) use ($interval) {
+$client->setCurrentDir('illustrations');
+$client->asyncDownload('assets.zip', 'assets.zip', function ($state) use ($interval) {
     ob_end_clean();
     ob_start();
 
