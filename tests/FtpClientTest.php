@@ -324,7 +324,7 @@ class FtpClientTest extends \PHPUnit_Framework_TestCase
         }
 
         $this->assertTrue($this->getFtpClientInstance()->copyFromLocal($tempFile, INITIAL_DIR));
-        $this->getFtpClientInstance()->removeFile(INITIAL_DIR . "/$tempFile");
+        $this->getFtpClientInstance()->removeFile(INITIAL_DIR . "/" . basename($tempFile));
     }
 
     protected function getFtpClientInstance()
