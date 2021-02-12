@@ -1,7 +1,13 @@
 ## FtpCommand
 
-`FtpCommand` class provides a simple interface to the FTP extension raw functions.
+`FtpCommand` class provides a simple interface to the FTP extension command functions.
 
+**method**       | description
+---              |---     
+`raw($command)`  | Sends an arbitrary command to the FTP server.
+`site($command)` | Sends a request to execute a SITE command.
+`exec($command)` | Sends a request to execute the provided executable on the server.
+`supprtedSiteCommands()` | Sends a SITE HELP command to the FTP server and returns the supported SITE commands.
 
 **An Example of `raw($command)` method**: 
 
@@ -33,3 +39,5 @@ array (size=5)
       3 => string ' UTIME' (length=6)
   'success' => boolean true
 ```
+
+**Note** : the success value depends on the FTP reply code, generally if the command not accepted temporary (4yz) or permanently (5yz) by the FTP server it will considered unsuccessful command, some commands are considered as unsuccessful on (3yz) code series reply as well- see RFC959 for more information.

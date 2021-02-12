@@ -7,7 +7,7 @@
 
 A library that wraps the PHP FTP functions in an OOP way.
 
-**Note: This library aimed to be a full FTP/FTPS client solution for the old (5.5+) and newer PHP releases (7.2+) that support FTP extension.**
+**Note: This library aimed to be a full FTP/FTPS client solution for the old (5.5+) and newer PHP releases (7.2+) that support the FTP extension.**
 
 ## Requirements
 
@@ -221,17 +221,41 @@ $client->allocateSpace(2048);
 // prevent the server from closing the connection and keeping it alive
 $client->keepConnectionAlive();
 ```
+You can see all available methods [here](docs/FtpClient.md).
 
-You can see all the methods [here](docs/FtpClient.md).
+## Full example
+
+```php
+try {
+    // Connection
+    $connection = new FtpConnection("localhost", "foo", "12345");
+    $connection->open();
+    
+    // Configuration
+    $config = new FtpConfig($connection);
+    $config->setPassive(true);
+    
+     // FtpClient
+    $client = new FtpClient($connection);
+    
+    // Start working
+    var_dump($client->getFeatures());
+    
+    // Close connection
+    $connection->close();
+} catch (FtpClientException $ex) { // Use FtpClientException interface to handle this library exceptions
+    echo($ex->getMessage());
+}
+```
 
 ## More documentation
 
  * [Manipulate an FTP connection with **FtpConnectionInterface**][1]
- * [Configure the connection with **FtpConfig**][2]
- * [The base class **FtpClient**][3]
- * [Sending FTP raw commands with **FtpCommand**][4]
+ * [Configure the connection instance with **FtpConfig**][2]
+ * [Start working with the base class **FtpClient**][3]
+ * [Sending FTP commands with **FtpCommand**][4]
  * [Using the **FtpWrapper** Directly][5]
- * [How i can run tests ?][6]
+ * [How i can run test units ?][6]
  
 [1]: docs/FtpConnectionInterface.md
 [2]: docs/FtpConfig.md

@@ -47,10 +47,6 @@ FtpClient::setCommand($command)
 FtpClient::setCurrentDir($directory)
 FtpClient::setPermissions($filename, $mode)
 FtpClient::setWrapper($wrapper)
-FtpClient::throwIfNotExists($remoteFile, $message = NULL)
-FtpClient::transferPercentage($size, $totalSize)
-FtpClient::transferredBytes($size, $previousSize)
-FtpClient::transferSpeed($size, $elapsedTime)
 FtpClient::upload($localFile, $remoteFile, $resume = true, $mode = FTP_BINARY)
 ```
 
