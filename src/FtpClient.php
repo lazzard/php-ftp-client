@@ -362,10 +362,7 @@ class FtpClient
             return false;
         }
 
-        return in_array(
-            basename($remoteFile),
-            $list
-        );
+        return in_array(basename($remoteFile), $list);
     }
 
     /**
@@ -693,6 +690,7 @@ class FtpClient
 
         $startPos = 0;
         if ($resume) {
+            // TODO filesize localfile not exists.
             $startPos = filesize($localFile);
         }
 
@@ -741,7 +739,9 @@ class FtpClient
                 $startPos = filesize($localFile);
             }
         }
-
+        
+        $remoteFileSize = $this->fileSize($remoteFile);
+        
         $download = $this->wrapper->nb_get(
             $localFile,
             $remoteFile,
@@ -749,7 +749,6 @@ class FtpClient
             $startPos
         );
 
-        $remoteFileSize = $this->fileSize($remoteFile);
         $startTime      = microtime(true);
         $sizeTmp        = $startPos;
         $elapsedTimeTmp = 0;
