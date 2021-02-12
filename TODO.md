@@ -16,6 +16,7 @@
 - [ ] `FtpClient::lastMTime()` directory supporting.  
 - [ ] Add `FtpClient::append($remoteFile, $content)` method.
 - [ ] Implement a method that allows to download all the files within the giving directory.
+- [ ] Add `FtpClient::copy` that serves to copy a remote file or a whole directory to the local machine. 
 
 ## Not wrapped FTP extension functions - why ?
 
