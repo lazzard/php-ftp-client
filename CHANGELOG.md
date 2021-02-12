@@ -1,5 +1,11 @@
 # Change Log
 
+## v1.2.4 (2021-02-12)
+
+* Introduced `FtpClient::copyFromLocal`.
+* Fixed `FtpClient::asyncDownload` method. (#8)
+* Improved markdown documentation.
+
 ## v1.2.2 (2021-01-24)
 
 * README documentation improved.
