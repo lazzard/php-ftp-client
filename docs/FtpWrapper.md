@@ -1,6 +1,6 @@
 ## Using the FtpWrapper
 
-You can use the `FtpWrapper` for all calling the FTP functions (ftp_*), this class handle the FTP errors whenever an error occurs, and you can get the error message sent by the remote server using the `getFtpErrorMessage` method.
+You can use the `FtpWrapper` as a proxy class to the FTP extension functions (ftp_*), this class handle the FTP errors whenever an error occurs, and you can get the error message sent by the remote server using the `getFtpErrorMessage` method.
 
 ```php
 $wrapper = new FtpWrapper($connection);
@@ -21,7 +21,7 @@ Sometimes when an error occurs the remote server may not send any specific messa
 $wrapper = new FtpWrapper($connection);
 
 if (!$wrapper->pasv()) {
-    throw new FtpClientException($wrapper->getFtpErrorMessage() 
+    throw new RuntimeException($wrapper->getFtpErrorMessage() 
         ?: "Unable to turn on the passive mode.");
 }
 ```
