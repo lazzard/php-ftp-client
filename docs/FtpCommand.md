@@ -40,4 +40,4 @@ array (size=5)
   'success' => boolean true
 ```
 
-**Note** : the success value depends on the FTP reply code, generally if the command not accepted temporary (4yz) or permanently (5yz) by the FTP server it will considered unsuccessful command, some commands are considered as unsuccessful on (3yz) code series reply as well- see RFC959 for more information.
+**Note** : the success value depends on the FTP reply code, generally if the command not accepted temporary (4yz) or permanently (5yz) by the FTP server it will considered unsuccessful command, some commands are considered as unsuccessful on (3yz) code series reply as well- see [RFC959](https://tools.ietf.org/html/rfc959) for more information.
