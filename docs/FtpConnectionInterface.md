@@ -25,4 +25,6 @@ $connection->getTimeout();
 $connection->getTimeout();
 $connection->getUsername();
 $connection->getPassword();
+$connection->isSecure();
+$connection->isConnected();
 ```
