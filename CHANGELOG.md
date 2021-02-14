@@ -1,5 +1,11 @@
 # Change Log
 
+## v1.2.6 (2021-02-12)
+
+* Added `Lazzard\Connection\Connection`.
+* Introduced `ConnectionInterface::isSecure`.
+* Introduced `ConnectionInterface::isConnected`.
+
 ## v1.2.4 (2021-02-12)
 
 * Introduced `FtpClient::copyFromLocal`.
