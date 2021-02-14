@@ -19,7 +19,7 @@ use Lazzard\FtpClient\Exception\ConnectionException;
  * @since  1.0
  * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>
  */
-class FtpSSLConnection extends FtpConnection
+class FtpSSLConnection extends Connection
 {
     /**
      * {@inheritDoc}
