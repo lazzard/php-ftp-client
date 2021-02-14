@@ -43,6 +43,9 @@ abstract class Connection implements ConnectionInterface
     /* @var string */
     protected $password;
 
+    /** @var bool */
+    protected $isSecure;
+
     /**
      * Prepares an FTP connection.
      *
@@ -52,6 +55,8 @@ abstract class Connection implements ConnectionInterface
      * @param int    $port     [optional] Specifies the port to be used to open the control channel.
      * @param int    $timeout  [optional] The connection timeout in seconds, the default sets to 90,
      *                         you can set this option any time using the {@link FtpConfig::setTimeout()} method.
+     * 
+     * @throws ConnectionException
      */
     public function __construct($host, $username, $password, $port = 21, $timeout = 90)
     {
@@ -111,7 +116,7 @@ abstract class Connection implements ConnectionInterface
     }
 
     /**
-     * @return string
+     * @inheritDoc
      */
     public function getUsername()
     {
@@ -119,11 +124,19 @@ abstract class Connection implements ConnectionInterface
     }
 
     /**
-     * @return string
+     * @inheritDoc
      */
     public function getPassword()
     {
         return $this->password;
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    public function isSecure()
+    {
+        return $this->isSecure;
     }
 
     /**
@@ -166,8 +179,6 @@ abstract class Connection implements ConnectionInterface
 
     /**
      * @return bool
-     *
-     * @throws ConnectionException
      */
     abstract protected function connect();
 }

@@ -62,4 +62,9 @@ interface ConnectionInterface
      * @return string
      */
     public function getPassword();
+
+    /**
+     * @return bool
+     */
+    public function isSecure();
 }

@@ -22,15 +22,12 @@ use Lazzard\FtpClient\Exception\ConnectionException;
 class FtpSSLConnection extends Connection
 {
     /**
-     * {@inheritDoc}
-     *
-     * @throws ConnectionException
+     * @inheritDoc
      */
     public function __construct($host, $username, $password, $port = 21, $timeout = 90)
     {
         if (!extension_loaded('openssl')) {
-            throw new ConnectionException(
-                "openssl extension required to establish a secure connection, please enable it.");
+            throw new ConnectionException("The openssl extension is required to establish a secure FTP connection.");
         } elseif (!function_exists('ftp_ssl_connect')) {
             throw new ConnectionException("It seems that either the FTP module or openssl extension are
                 not statically built into your PHP. If you have to use an SSL-FTP connection, you must 
@@ -42,7 +39,9 @@ class FtpSSLConnection extends Connection
 
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
+     * 
+     * @throws ConnectionException
      */
     protected function connect()
     {
@@ -50,6 +49,8 @@ class FtpSSLConnection extends Connection
             throw new ConnectionException($this->wrapper->getFtpErrorMessage()
                 ?: "SSL connection failed to the FTP server.");
         }
+
+        $this->isSecure = true;
 
         $this->wrapper->setConnection($this);
 
