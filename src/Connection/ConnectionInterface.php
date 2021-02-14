@@ -11,8 +11,6 @@
 
 namespace Lazzard\FtpClient\Connection;
 
-use Lazzard\FtpClient\Exception\ConnectionException;
-
 /**
  * An interface that's all FTP connection classes must implements.
  *
@@ -25,17 +23,13 @@ interface ConnectionInterface
      * Opens an FTP connection.
      *
      * @return bool
-     *
-     * @throws ConnectionException
      */
     public function open();
 
     /**
-     * Close the FTP connection.
+     * Closes an FTP connection.
      *
      * @return bool
-     *
-     * @throws ConnectionException
      */
     public function close();
 
