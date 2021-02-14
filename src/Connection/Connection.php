@@ -60,6 +60,10 @@ abstract class Connection implements ConnectionInterface
      */
     public function __construct($host, $username, $password, $port = 21, $timeout = 90)
     {
+        if (!filter_var(gethostbyname($host), FILTER_VALIDATE_IP)) {
+            throw new ConnectionException("[$host] is not a valid host name/IP.");
+        }
+        
         $this->host     = $host;
         $this->username = $username;
         $this->password = $password;
