@@ -5,8 +5,9 @@ namespace Lazzard\FtpClient\Tests\Config;
 use Lazzard\FtpClient\Config\FtpConfig;
 use Lazzard\FtpClient\Exception\ConfigException;
 use Lazzard\FtpClient\Tests\ConnectionHelper;
+use PHPUnit\Framework\TestCase;
 
-class FtpConfigTest extends \PHPUnit_Framework_TestCase
+class FtpConfigTest extends TestCase
 {
     public function test__constructor()
     {
