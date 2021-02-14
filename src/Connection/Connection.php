@@ -17,7 +17,7 @@ use Lazzard\FtpClient\Exception\ConnectionException;
 /**
  * Abstract an FTP connection class implementations.
  *
- * @since  1.2.4
+ * @since  1.2.5
  * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>
  */
 abstract class Connection implements ConnectionInterface
@@ -45,6 +45,9 @@ abstract class Connection implements ConnectionInterface
 
     /** @var bool */
     protected $isSecure;
+
+    /** @var bool */
+    protected $isConnected;
 
     /**
      * Prepares an FTP connection.
@@ -141,6 +144,14 @@ abstract class Connection implements ConnectionInterface
     public function isSecure()
     {
         return $this->isSecure;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function isConnected()
+    {
+        return $this->isConnected;
     }
 
     /**

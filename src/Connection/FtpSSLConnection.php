@@ -50,7 +50,8 @@ class FtpSSLConnection extends Connection
                 ?: "SSL connection failed to the FTP server.");
         }
 
-        $this->isSecure = true;
+        $this->isConnected = true;
+        $this->isSecure    = true;
 
         $this->wrapper->setConnection($this);
 

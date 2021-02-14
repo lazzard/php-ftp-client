@@ -67,4 +67,9 @@ interface ConnectionInterface
      * @return bool
      */
     public function isSecure();
+
+    /**
+     * @return bool
+     */
+    public function isConnected();
 }
