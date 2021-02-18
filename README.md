@@ -38,7 +38,7 @@ $connection = new FtpConnection('host', 'foo', '1234');
 $connection->open();
 ```
 
-Create a secure FTP connection
+Or create a secure FTP connection
 ```php
 $connection = new FtpSSLConnection('host', 'bar', '1234');
 $connection->open();
@@ -129,7 +129,8 @@ $client->createFile('public_html/example.txt');
 // create a file with content
 $client->createFile('public_html/example.txt', 'Hello world!!');
 
-// get directory size
+// create an FTP directory
+// note: this method supports recursive directory creation
 $client->createDirectory('public_html/assets');
 ```
 
@@ -139,7 +140,7 @@ $client->createDirectory('public_html/assets');
 // remove an FTP file
 $client->removeFile($remoteFile);
 
-// remove a directory (this will remove all the file within the directory)
+// remove an FTP directory (be careful all the files within this directory will be removed)
 $client->removeDirectory($directory);
 
 // rename an FTP file/directory
@@ -243,7 +244,7 @@ try {
     
     // Close connection
     $connection->close();
-} catch (FtpClientException $ex) { // Use FtpClientException interface to handle this library exceptions
+} catch (FtpClientException $ex) { // Use FtpClientException to catch this library exceptions
     echo($ex->getMessage());
 }
 ```
