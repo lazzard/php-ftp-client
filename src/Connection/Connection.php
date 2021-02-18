@@ -156,16 +156,21 @@ abstract class Connection implements ConnectionInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws ConnectionException
      */
     public function open()
     {
         $this->connect();
         $this->login();
+        $this->isConnected = true;
         return true;
     }
 
     /**
      * @inheritDoc
+     *
+     * @throws ConnectionException
      */
     public function close()
     {
@@ -173,6 +178,8 @@ abstract class Connection implements ConnectionInterface
             throw new ConnectionException($this->wrapper->getFtpErrorMessage()
                 ?: "Unable to close the FTP connection.");
         }
+
+        $this->isConnected = false;
 
         return true;
     }
