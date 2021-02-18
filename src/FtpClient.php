@@ -411,7 +411,9 @@ class FtpClient
         }
 
         if (!$this->isFile($remoteFile)) {
-            throw new FtpClientException(sprintf("%s::%s() does not work with directories.", self::class, __FUNCTION__));
+            throw new FtpClientException(sprintf("%s::%s() does not work with directories.",
+                self::class,
+                __FUNCTION__));
         }
 
         if (!$time = $this->wrapper->mdtm($remoteFile)) {
@@ -690,7 +692,7 @@ class FtpClient
 
         $startPos = 0;
         if ($resume) {
-            // TODO filesize localfile not exists.
+            // TODO filesize local file not exists.
             $startPos = filesize($localFile);
         }
 
@@ -733,11 +735,9 @@ class FtpClient
         $this->throwIfNotExists($remoteFile);
 
         $startPos = 0;
-        if ($resume) {
-            if (file_exists($localFile)) {
-                clearstatcache();
-                $startPos = filesize($localFile);
-            }
+        if ($resume && file_exists($localFile)) {
+            clearstatcache();
+            $startPos = filesize($localFile);
         }
         
         $remoteFileSize = $this->fileSize($remoteFile);
@@ -820,25 +820,25 @@ class FtpClient
     }
 
     /**
-     * Creates file on the FTP server.
+     * Creates an FTP file.
      *
-     * @param string     $remoteFile
+     * @param string     $filename
      * @param mixed|null $content
+     * @param int        $mode
      *
      * @return bool
-     *
      * @throws FtpClientException
      */
-    public function createFile($remoteFile, $content = null)
+    public function createFile($filename, $content = null, $mode = FTP_BINARY)
     {
         // Create a file pointer to a temp file
         $handle = fopen('php://temp', 'a');
         fwrite($handle, (string)$content);
         rewind($handle); // Rewind position
 
-        if (!$this->wrapper->fput($remoteFile, $handle, FTP_ASCII)) {
+        if (!$this->wrapper->fput($filename, $handle, $mode)) {
             throw new FtpClientException($this->wrapper->getFtpErrorMessage() ?:
-                "Failed to create file [{$remoteFile}].");
+                "Failed to create file [{$filename}] on the server.");
         }
 
         return true;
@@ -884,10 +884,10 @@ class FtpClient
     /**
      * Starts uploading the giving local file to the FTP server.
      *
-     * @param string|int $localFile  The local file to upload.
-     * @param string     $remoteFile The remote file to upload data into.
-     * @param bool       $resume     [optional] Specifies whether to resume the upload operation.
-     * @param int        $mode       [optional] Specifies the transfer mode.
+     * @param string|resource $localFile  The local file to upload.
+     * @param string          $remoteFile The remote file to upload data into.
+     * @param bool            $resume     [optional] Specifies whether to resume the upload operation.
+     * @param int             $mode       [optional] Specifies the transfer mode.
      *
      * @return bool
      *
@@ -896,14 +896,12 @@ class FtpClient
     public function upload($localFile, $remoteFile, $resume = true, $mode = FTP_BINARY)
     {
         if (!file_exists($localFile)) {
-            throw new FtpClientException("Cannot uploading the file [{$localFile}] because is not exists.");
+            throw new FtpClientException("Cannot uploading [{$localFile}] because is not exists.");
         }
 
         $startPos = 0;
-        if ($resume) {
-            if ($this->isExists($remoteFile)) {
-                $startPos = $this->fileSize($remoteFile);
-            }
+        if ($resume && $this->isExists($remoteFile)) {
+            $startPos = $this->fileSize($remoteFile);
         }
 
         if (!$this->wrapper->put($remoteFile, $localFile, $mode, $startPos)) {
@@ -946,10 +944,8 @@ class FtpClient
         }
 
         $startPos = 0;
-        if ($resume) {
-            if ($this->isExists($remoteFile)) {
-                $startPos = $this->fileSize($remoteFile);
-            }
+        if ($resume && $this->isExists($remoteFile)) {
+            $startPos = $this->fileSize($remoteFile);
         }
 
         // To check asynchronously the uploading state we use the ftp_nb_fput function instead
