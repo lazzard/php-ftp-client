@@ -16,7 +16,7 @@ FtpClient::asyncDownload($remoteFile, $localFile, $doWhileDownloading, $resume =
 FtpClient::asyncUpload($localFile, $remoteFile, $doWhileDownloading, $resume = true, $interval = 1, $mode = FTP_BINARY)
 FtpClient::back()
 FtpClient::createDirectory($directory)
-FtpClient::createFile($remoteFile, $content = NULL)
+FtpClient::createFile($remoteFile, $content = NULL, $mode = FTP_BINARY)
 FtpClient::dirSize($directory)
 FtpClient::download($remoteFile, $localFile, $resume = true, $mode = FTP_BINARY)
 FtpClient::fileSize($remoteFile)
