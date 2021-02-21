@@ -1,5 +1,15 @@
 # Change Log
 
+## v1.2.7 (2021-02-22)
+
+* Added `$mode` parameter for `FtpClient::createFile`  method.
+
+## v1.2.6 (2021-02-12)
+
+* Added `FtpClient\Connection\Connection` abstract class.
+* Introduced `ConnectionInterface::isSecure`.
+* Introduced `ConnectionInterface::isConnected`.
+
 ## v1.2.4 (2021-02-12)
 
 * Introduced `FtpClient::copyFromLocal`.
