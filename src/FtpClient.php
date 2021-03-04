@@ -163,7 +163,11 @@ class FtpClient
      */
     public function isDir($remoteFile)
     {
-        return $this->wrapper->size($remoteFile) === -1;
+        try {
+            return is_array($this->listDirectory($remoteFile));
+        } catch (FtpClientException $e) {
+            return false;
+        }
     }
 
     /**
