@@ -226,11 +226,8 @@ class FtpClient
         $filter = self::FILE_DIR_TYPE,
         $ignoreDots = true
     ) {
-        if (!$this->isDir($directory)) {
-            throw new FtpClientException("[{$directory}] is not a directory.");
-        }
-
-        if (!($details = $this->wrapper->rawlist(str_replace(' ', '\ ', $directory), $recursive))) {
+        $escapedDir = str_replace(' ', '\ ', $directory);
+        if (!($details = $this->wrapper->rawlist($escapedDir, $recursive))) {
             throw new FtpClientException($this->wrapper->getFtpErrorMessage()
                 ?: "Unable to get files list for [{$directory}] directory.");
         }
@@ -239,40 +236,30 @@ class FtpClient
         $info    = [];
         foreach ($details as $detail) {
             $chunks = preg_split('/[\s]+/', $detail, 9);
-
-            if (strlen($chunks[0]) !== 0 && count($chunks) < 8) { // catch directory path
+            // catch directory path
+            if (strlen($chunks[0]) !== 0 && count($chunks) < 8) {
                 $pathTmp = substr($detail, 0, -1);
-                // Fix the two slashes
                 $pathTmp = preg_replace('/(\/\/)/', '/', $pathTmp);
             }
 
             if (count($chunks) === 9) {
-                $type = $this->chmodToFileType($chunks[0]);
+                $type     = $this->chmodToFileType($chunks[0]);
+                $filename = $chunks[8];
 
-                if ($filter === self::FILE_TYPE) {
-                    if ($type === 'dir') {
-                        continue;
-                    }
-                } elseif ($filter === self::DIR_TYPE) {
-                    if ($type !== 'dir') {
-                        continue;
-                    }
-                }
-
-                if ($ignoreDots) {
-                    if (in_array($chunks[8], ['.', '..'])) {
-                        continue;
-                    }
+                if ($filter === self::FILE_TYPE && $type === 'dir'
+                    || $filter === self::DIR_TYPE && $type !== 'dir'
+                    || $ignoreDots && in_array($filename, ['.', '..'])) {
+                    continue;
                 }
 
                 if (!$pathTmp) {
-                    $path = $directory !== '/' ? $directory . '/' . $chunks[8] : $chunks[8];
+                    $path = $escapedDir !== '/' && $escapedDir
+                        ? "$escapedDir/$filename" : $filename;
                 } else {
-                    $path = $pathTmp . '/' . $chunks[8];
+                    $path = "$pathTmp/$filename";
                 }
 
                 $info[$path] = [
-                    'name'  => $chunks[8],
                     'chmod' => $chunks[0],
                     'num'   => $chunks[1],
                     'owner' => $chunks[2],
@@ -281,6 +268,7 @@ class FtpClient
                     'month' => $chunks[5],
                     'day'   => $chunks[6],
                     'time'  => $chunks[7],
+                    'name'  => $filename,
                     'type'  => $type,
                     'path'  => $path
                 ];
