@@ -356,9 +356,7 @@ class FtpClient
         // Trying to get the files list of the remote file parent directory, this check
         // is basically to avoid passing false to the next 'in_array' function
         // below, so we don't want to get an error because of this.
-        // The str_replace because of dirname in windows gives '\' instead of '/'
-        // if the path matches for example '/foo/'.
-        if (!$list = $this->wrapper->nlist(str_replace('\\', '/', dirname($remoteFile)))) {
+        if (!$list = $this->wrapper->nlist($this->dirname($remoteFile))) {
             return false;
         }
 
@@ -1189,5 +1187,18 @@ class FtpClient
         }
 
         return $numeric;
+    }
+
+    /**
+     * Gives the valid parent directory of an FTP path.
+     *
+     * @param string $dirname
+     *
+     * @return string
+     */
+    protected function dirname($dirname)
+    {
+        // Fix dirname in windows which gives '\' instead of '/' if the path matches for example '/foo/'.
+        return trim(dirname($dirname), '\\');
     }
 }
