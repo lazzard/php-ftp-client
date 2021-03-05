@@ -7,7 +7,7 @@
 
 A library that wraps the PHP FTP functions in an OOP way.
 
-**Note: This library aimed to be a full FTP/FTPS client solution for the old (5.5+) and newer PHP releases (7.2+) that support the FTP extension.**
+*Note: This library aimed to be a full FTP/FTPS client solution for the old (5.5+) and newer PHP releases (7.2+) that support FTP extension.*
 
 ## Requirements
 

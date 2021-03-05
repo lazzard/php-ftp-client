@@ -16,7 +16,7 @@ use Lazzard\FtpClient\Exception\CommandException;
 use Lazzard\FtpClient\FtpWrapper;
 
 /**
- * Wrapping the FTP extension raw commands.
+ * Wrapping the FTP extension functions that can be used to send FTP commands to the server.
  *
  * @since  1.0
  * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>
