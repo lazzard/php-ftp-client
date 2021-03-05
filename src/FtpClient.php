@@ -271,7 +271,7 @@ class FtpClient
                     $path = $pathTmp . '/' . $chunks[8];
                 }
 
-                $info[] = [
+                $info[$path] = [
                     'name'  => $chunks[8],
                     'chmod' => $chunks[0],
                     'num'   => $chunks[1],
