@@ -12,13 +12,14 @@ $client = new FtpClient($connection);
 ```php
 FtpClient::__construct($connection)
 FtpClient::allocateSpace($bytes)
-FtpClient::asyncDownload($remoteFile, $localFile, $doWhileDownloading, $resume = true, $interval = 1, $mode = FTP_BINARY)
-FtpClient::asyncUpload($localFile, $remoteFile, $doWhileDownloading, $resume = true, $interval = 1, $mode = FTP_BINARY)
+FtpClient::asyncDownload($remoteFile, $localFile, $doWhileDownloading, $resume = true, $interval = 1, $mode = FtpWrapper::BINARY)
+FtpClient::asyncUpload($localFile, $remoteFile, $doWhileDownloading, $resume = true, $interval = 1, $mode = FtpWrapper::BINARY)
 FtpClient::back()
+FtpClient::copyFromLocal($source, $destinationFolder)
 FtpClient::createDirectory($directory)
-FtpClient::createFile($remoteFile, $content = NULL, $mode = FTP_BINARY)
+FtpClient::createFile($remoteFile, $content = NULL, $mode = FtpWrapper::BINARY)
 FtpClient::dirSize($directory)
-FtpClient::download($remoteFile, $localFile, $resume = true, $mode = FTP_BINARY)
+FtpClient::download($remoteFile, $localFile, $resume = true, $mode = FtpWrapper::BINARY)
 FtpClient::fileSize($remoteFile)
 FtpClient::getConnection()
 FtpClient::getCount($directory, $recursive = false, $filter = self::FILE_DIR_TYPE, $ignoreDots = true)
@@ -45,12 +46,12 @@ FtpClient::setCommand($command)
 FtpClient::setCurrentDir($directory)
 FtpClient::setPermissions($filename, $mode)
 FtpClient::setWrapper($wrapper)
-FtpClient::upload($localFile, $remoteFile, $resume = true, $mode = FTP_BINARY)
+FtpClient::upload($localFile, $remoteFile, $resume = true, $mode = FtpWrapper::BINARY)
 ```
 
 ### Asynchronous transfer operations
 
-`FtpClient::asyncDownload` & `FtpClient::asyncUpload` methods accepts a callback function as a third parameter, it will execute every specified `interval`. If no `interval` specified the default sets to **1 second**, the callback function also accepts **an array** that provides some useful information about the transfer operation at the specified interval.
+`FtpClient::asyncDownload` & `FtpClient::asyncUpload` methods accepts a callback function as a third parameter, this callback function will execute every specified `interval`. If no `interval` specified the default sets to **1 second**, the callback function also accepts **an array** that provides some useful information about the transfer operation at the specified interval.
  
 **This is an example of downloading an FTP file asynchronously:** 
 
