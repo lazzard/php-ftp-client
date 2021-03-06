@@ -15,13 +15,25 @@ use Lazzard\FtpClient\Connection\ConnectionInterface;
 use Lazzard\FtpClient\Exception\FtpClientException;
 
 /**
- * A simple class wrapper to FTP extension functions (ftp_*).
+ * A simple class wrapper for the FTP extension functions (ftp_*).
  *
  * @since  1.0
  * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>
  */
 class FtpWrapper
 {
+    /**
+     * Php FTP predefined constants aliases
+     */
+    const TIMEOUT_SEC    = FTP_TIMEOUT_SEC;
+    const AUTOSEEK       = FTP_AUTOSEEK;
+    const USEPASVADDRESS = FTP_USEPASVADDRESS;
+    const ASCII          = FTP_ASCII;
+    const BINARY         = FTP_BINARY;
+    const FAILED         = FTP_FAILED;
+    const FINISHED       = FTP_FINISHED;
+    const MOREDATA       = FTP_MOREDATA;
+
     /** @var ConnectionInterface */
     protected $connection;
 
