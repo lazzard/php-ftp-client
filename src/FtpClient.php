@@ -672,14 +672,13 @@ class FtpClient
      *
      * @throws FtpClientException
      */
-    public function download($remoteFile, $localFile, $resume = true, $mode = FTP_BINARY)
+    public function download($remoteFile, $localFile, $resume = true, $mode = FtpWrapper::BINARY)
     {
         $this->throwIfNotExists($remoteFile);
 
         $startPos = 0;
-        if ($resume) {
-            // TODO filesize local file not exists.
-            $startPos = filesize($localFile);
+        if ($resume && file_exists($localFile) && $size = @filesize($localFile)) {
+            $startPos = $size;
         }
 
         if (!$this->wrapper->get($localFile, $remoteFile, $mode, $startPos)) {
@@ -721,9 +720,8 @@ class FtpClient
         $this->throwIfNotExists($remoteFile);
 
         $startPos = 0;
-        if ($resume && file_exists($localFile)) {
-            clearstatcache();
-            $startPos = filesize($localFile);
+        if ($resume && file_exists($localFile) && $size = @filesize($localFile)) {
+            $startPos = $size;
         }
         
         $remoteFileSize = $this->fileSize($remoteFile);
@@ -741,7 +739,6 @@ class FtpClient
         while ($download === FtpWrapper::MOREDATA) {
             $download    = $this->wrapper->nb_continue();
             $elapsedTime = ceil(microtime(true) - $startTime);
-
             // The first condition : perform the callback function only once every interval time.
             // The second one      : perform the callback function every interval time.
             // The integer cast inside the is_int in the second condition is because
