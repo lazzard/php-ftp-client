@@ -265,6 +265,18 @@ try {
 [5]: docs/FtpWrapper.md
 [6]: docs/tests.md
 
+## Version Guidance
+
+| Version    | Status        | Last Release | PHP Version |
+|------------|---------------|--------------|-------------|
+| 1.0.x      | EOL           | [v1.0.2][7] | >= 5.5      |
+| 1.1.x      | EOL           | [v1.1.0][8] | >= 5.5      |
+| 1.2.x      | Latest        | [v1.2.7][9] | >= 5.6      |
+
+[7]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.0.2
+[8]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.1.0
+[9]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.2.7
+
 ## License
 
 MIT License. please see the [LICENSE FILE](LICENSE) for more information. 
