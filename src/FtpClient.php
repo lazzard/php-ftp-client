@@ -47,8 +47,8 @@ class FtpClient
     public function __construct(ConnectionInterface $connection)
     {
         $this->connection = $connection;
-        $this->command = new FtpCommand($connection);
-        $this->wrapper = new FtpWrapper($connection);
+        $this->command    = new FtpCommand($connection);
+        $this->wrapper    = new FtpWrapper($connection);
     }
 
     /**
@@ -85,8 +85,9 @@ class FtpClient
     public function getParent()
     {
         $originalDir = $this->getCurrentDir();
+        $parent      = $this->getCurrentDir();
+
         $this->back();
-        $parent = $this->getCurrentDir();
         $this->setCurrentDir($originalDir);
 
         if ($parent !== '/') {
@@ -141,10 +142,6 @@ class FtpClient
      */
     public function setCurrentDir($directory)
     {
-        if (!$this->isDir($directory)) {
-            throw new FtpClientException("[{$directory}] is not a directory.");
-        }
-
         if (!$this->wrapper->chdir($directory)) {
             throw new FtpClientException($this->wrapper->getFtpErrorMessage()
                 ?: "Unable to change the current directory to [{$directory}].");
@@ -158,7 +155,7 @@ class FtpClient
      *
      * @param string $remoteFile The remote file path.
      *
-     * @return bool Returns true if the giving file is a directory or not exists, false if it
+     * @return bool Returns true if the giving file is a directory type, false if it
      *              a file or doesn't exists.
      */
     public function isDir($remoteFile)
@@ -296,7 +293,7 @@ class FtpClient
     }
 
     /**
-     * Gets the default transfer type of the FTP server.
+     * Gets the default transfer type on FTP server.
      *
      * @see FtpCommand::raw()
      *
@@ -314,7 +311,7 @@ class FtpClient
     }
 
     /**
-     * Deletes regular remote file.
+     * Deletes a regular remote file on the server.
      *
      * @param string $remoteFile The remote file path.
      *
@@ -381,6 +378,8 @@ class FtpClient
     /**
      * Gets last modified time of a remote file.
      *
+     * Note: this method not working with directories.
+     *
      * @param string      $remoteFile The remote file name.
      * @param string|null $format     [optional] A date format string to be passed to {@link date()} function.
      *
@@ -391,17 +390,6 @@ class FtpClient
      */
     public function lastMTime($remoteFile, $format = null)
     {
-        // 'MDTM' command is not a standardized in the basic FTP protocol as defined in RFC 959.
-        if (!$this->isFeatureSupported('MDTM')) {
-            throw new FtpClientException("This feature is not supported by the remote server.");
-        }
-
-        if (!$this->isFile($remoteFile)) {
-            throw new FtpClientException(sprintf("%s::%s() does not work with directories.",
-                self::class,
-                __FUNCTION__));
-        }
-
         if (!$time = $this->wrapper->mdtm($remoteFile)) {
             throw new FtpClientException($this->wrapper->getFtpErrorMessage()
                 ?: "Could not get last modified time for [{$remoteFile}].");
@@ -454,10 +442,6 @@ class FtpClient
      */
     public function dirSize($directory)
     {
-        if (!$this->isDir($directory)) {
-            throw new FtpClientException("[{$directory}] must be an existing directory.");
-        }
-
         return array_sum(
             array_column($this->listDirectoryDetails(
                 $directory,
@@ -518,8 +502,6 @@ class FtpClient
      */
     public function isEmpty($remoteFile)
     {
-        $this->throwIfNotExists($remoteFile);
-
         if ($this->isDir($remoteFile)) {
             return empty($this->listDirectory($remoteFile));
         }
@@ -538,10 +520,6 @@ class FtpClient
      */
     public function fileSize($remoteFile)
     {
-        if ($this->isDir($remoteFile)) {
-            throw new FtpClientException("[{$remoteFile}] must be an existing file.");
-        }
-
         /**
          * 'SIZE' command is not a standardized in the basic FTP protocol as defined in RFC 959, therefore
          * many FTP servers may not implement this command, to work around this we use the listDirectoryDetails()
@@ -550,7 +528,6 @@ class FtpClient
          *
          * @link https://tools.ietf.org/html/rfc959
          */
-
         if (!$this->isFeatureSupported('SIZE')) {
             $list = $this->listDirectoryDetails('/');
             foreach (range(0, count($list) - 1) as $i) {
@@ -575,12 +552,6 @@ class FtpClient
      */
     public function move($source, $destinationFolder)
     {
-        $this->throwIfNotExists($source, "The source remote file [$source] must be exists to be moved.");
-
-        if (!$this->isDir($destinationFolder)) {
-            throw new FtpClientException("[{$destinationFolder}] must be an existing directory.");
-        }
-
         return $this->rename($source, $destinationFolder . '/' . basename($source));
     }
 
@@ -596,13 +567,6 @@ class FtpClient
      */
     public function rename($remoteFile, $newName)
     {
-        $this->throwIfNotExists($remoteFile);
-
-        // TODO Consider to remove this check
-        if ($this->isExists($newName)) {
-            throw new FtpClientException("[{$newName}] is already exists.");
-        }
-
         if (!$this->wrapper->rename($remoteFile, $newName)) {
             throw new FtpClientException($this->wrapper->getFtpErrorMessage()
                 ?: sprintf(
@@ -674,8 +638,6 @@ class FtpClient
      */
     public function download($remoteFile, $localFile, $resume = true, $mode = FtpWrapper::BINARY)
     {
-        $this->throwIfNotExists($remoteFile);
-
         $startPos = 0;
         if ($resume && file_exists($localFile) && $size = @filesize($localFile)) {
             $startPos = $size;
@@ -717,8 +679,6 @@ class FtpClient
         $interval = 1,
         $mode = FtpWrapper::BINARY
     ) {
-        $this->throwIfNotExists($remoteFile);
-
         $startPos = 0;
         if ($resume && file_exists($localFile) && $size = @filesize($localFile)) {
             $startPos = $size;
@@ -784,10 +744,6 @@ class FtpClient
      */
     public function getFileContent($remoteFile)
     {
-        if ($this->isDir($remoteFile)) {
-            throw new FtpClientException("[{$remoteFile}] is a directory.");
-        }
-
         // Create a temporary file in the system temp
         $tempFile = tempnam(sys_get_temp_dir(), $remoteFile);
         if (!$this->wrapper->get($tempFile, $remoteFile, FtpWrapper::ASCII)) {
@@ -848,13 +804,10 @@ class FtpClient
         $count = count($dirs);
         if ($count > 0) {
             for ($i = 1; $i <= $count; $i++) {
-                $dir = join("/", array_slice($dirs, 0, $i));
-
-                if (!$this->isExists($dir)) {
-                    if (!$this->wrapper->mkdir($dir)) {
-                        throw new FtpClientException($this->wrapper->getFtpErrorMessage()
-                        ?: 'Unable to create directory ['.$dir.']');
-                    }
+                $dir = join('/', array_slice($dirs, 0, $i));
+                if (!$this->isExists($dir) && !$this->wrapper->mkdir($dir)) {
+                    throw new FtpClientException($this->wrapper->getFtpErrorMessage()
+                        ?: "Unable to create directory [$dir] on the server.");
                 }
             }
             return true;
@@ -877,10 +830,6 @@ class FtpClient
      */
     public function upload($localFile, $remoteFile, $resume = true, $mode = FtpWrapper::BINARY)
     {
-        if (!file_exists($localFile)) {
-            throw new FtpClientException("Cannot uploading [{$localFile}] because is not exists.");
-        }
-
         $startPos = 0;
         if ($resume && $this->isExists($remoteFile)) {
             $startPos = $this->fileSize($remoteFile);
@@ -921,10 +870,6 @@ class FtpClient
         $interval = 1,
         $mode = FtpWrapper::BINARY
     ) {
-        if (!file_exists($localFile)) {
-            throw new FtpClientException("[{$localFile}] doesn't exists to upload.");
-        }
-
         $startPos = 0;
         if ($resume && $this->isExists($remoteFile)) {
             $startPos = $this->fileSize($remoteFile);
@@ -1067,20 +1012,6 @@ class FtpClient
         }
 
         return false;
-    }
-
-    /**
-     * @param string      $remoteFile
-     * @param string|null $message
-     *
-     * @return void
-     * @throws FtpClientException
-     */
-    protected function throwIfNotExists($remoteFile, $message = null)
-    {
-        if (!$this->isExists($remoteFile)) {
-            throw new FtpClientException($message ?: "$remoteFile not exists on the server.");
-        }
     }
 
     /**
