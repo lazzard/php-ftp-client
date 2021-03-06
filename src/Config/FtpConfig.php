@@ -89,7 +89,7 @@ class FtpConfig
             throw new ConfigException("[{$value}] Timeout option value must be of type integer and greater than 0.");
         }
 
-        if (!$this->wrapper->set_option(FTP_TIMEOUT_SEC, $value)) {
+        if (!$this->wrapper->set_option(FtpWrapper::TIMEOUT_SEC, $value)) {
             throw new ConfigException($this->wrapper->getFtpErrorMessage()
                 ?: "Unable to set Timeout runtime option.");
         }
@@ -112,7 +112,7 @@ class FtpConfig
             throw new ConfigException("[{$value}] usePassiveAddress option value must be of type boolean.");
         }
 
-        if (!$this->wrapper->set_option(FTP_USEPASVADDRESS, $value)) {
+        if (!$this->wrapper->set_option(FtpWrapper::USEPASVADDRESS, $value)) {
             throw new ConfigException($this->wrapper->getFtpErrorMessage()
                 ?: "Unable to set usePassiveAddress runtime option.");
         }
@@ -135,7 +135,7 @@ class FtpConfig
             throw new ConfigException("[{$value}] AutoSeek option value must be of type boolean.");
         }
 
-        if (!$this->wrapper->set_option(FTP_AUTOSEEK, $value)) {
+        if (!$this->wrapper->set_option(FtpWrapper::AUTOSEEK, $value)) {
             throw new ConfigException($this->wrapper->getFtpErrorMessage()
                 ?: "Unable to set AutoSeek runtime option.");
         }
@@ -152,7 +152,7 @@ class FtpConfig
      */
     public function getTimeout()
     {
-        if (!$optionValue = $this->wrapper->get_option(FTP_TIMEOUT_SEC)) {
+        if (!$optionValue = $this->wrapper->get_option(FtpWrapper::TIMEOUT_SEC)) {
             throw new ConfigException($this->wrapper->getFtpErrorMessage()
                 ?: "Unable to get FTP timeout option value.");
         }
@@ -167,7 +167,7 @@ class FtpConfig
      */
     public function isAutoSeek()
     {
-        return $this->wrapper->get_option(FTP_AUTOSEEK);
+        return $this->wrapper->get_option(FtpWrapper::AUTOSEEK);
     }
 
     /**
@@ -178,6 +178,6 @@ class FtpConfig
      */
     public function isUsePassiveAddress()
     {
-        return $this->wrapper->get_option(FTP_USEPASVADDRESS);
+        return $this->wrapper->get_option(FtpWrapper::USEPASVADDRESS);
     }
 }

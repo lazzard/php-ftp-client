@@ -716,7 +716,7 @@ class FtpClient
         $doWhileDownloading,
         $resume = true,
         $interval = 1,
-        $mode = FTP_BINARY
+        $mode = FtpWrapper::BINARY
     ) {
         $this->throwIfNotExists($remoteFile);
 
@@ -738,9 +738,8 @@ class FtpClient
         $startTime      = microtime(true);
         $sizeTmp        = $startPos;
         $elapsedTimeTmp = 0;
-        while ($download === FTP_MOREDATA) {
-            $download = $this->wrapper->nb_continue();
-
+        while ($download === FtpWrapper::MOREDATA) {
+            $download    = $this->wrapper->nb_continue();
             $elapsedTime = ceil(microtime(true) - $startTime);
 
             // The first condition : perform the callback function only once every interval time.
@@ -770,11 +769,11 @@ class FtpClient
             $elapsedTimeTmp = $elapsedTime;
         }
 
-        if ($download === FTP_FAILED) {
+        if ($download === FtpWrapper::FAILED) {
             throw new FtpClientException("Downloading the file [{$remoteFile}] was failed.");
         }
 
-        return (bool)FTP_FINISHED;
+        return (bool)FtpWrapper::FINISHED;
     }
 
     /**
@@ -794,7 +793,7 @@ class FtpClient
 
         // Create a temporary file in the system temp
         $tempFile = tempnam(sys_get_temp_dir(), $remoteFile);
-        if (!$this->wrapper->get($tempFile, $remoteFile, FTP_ASCII)) {
+        if (!$this->wrapper->get($tempFile, $remoteFile, FtpWrapper::ASCII)) {
             throw new FtpClientException($this->wrapper->getFtpErrorMessage()
                 ?: "Unable to get [{$remoteFile}] content.");
         }
@@ -815,7 +814,7 @@ class FtpClient
      * @return bool
      * @throws FtpClientException
      */
-    public function createFile($filename, $content = null, $mode = FTP_BINARY)
+    public function createFile($filename, $content = null, $mode = FtpWrapper::BINARY)
     {
         // Create a file pointer to a temp file
         $handle = fopen('php://temp', 'a');
@@ -879,7 +878,7 @@ class FtpClient
      *
      * @throws FtpClientException
      */
-    public function upload($localFile, $remoteFile, $resume = true, $mode = FTP_BINARY)
+    public function upload($localFile, $remoteFile, $resume = true, $mode = FtpWrapper::BINARY)
     {
         if (!file_exists($localFile)) {
             throw new FtpClientException("Cannot uploading [{$localFile}] because is not exists.");
@@ -923,7 +922,7 @@ class FtpClient
         $doWhileDownloading,
         $resume = true,
         $interval = 1,
-        $mode = FTP_BINARY
+        $mode = FtpWrapper::BINARY
     ) {
         if (!file_exists($localFile)) {
             throw new FtpClientException("[{$localFile}] doesn't exists to upload.");
@@ -949,7 +948,7 @@ class FtpClient
         $startTime      = microtime(true);
         $sizeTmp        = null;
         $elapsedTimeTmp = null;
-        while ($download === FTP_MOREDATA) {
+        while ($download === FtpWrapper::MOREDATA) {
             $download = $this->wrapper->nb_continue();
 
             $elapsedTime = ceil(microtime(true) - $startTime);
@@ -970,11 +969,11 @@ class FtpClient
             $elapsedTimeTmp = $elapsedTime;
         }
 
-        if ($download === FTP_FAILED) {
+        if ($download === FtpWrapper::FAILED) {
             throw new FtpClientException("Failed to upload the file [{$localFile}].");
         }
 
-        return (bool)FTP_FINISHED;
+        return (bool)FtpWrapper::FINISHED;
     }
 
     /**
