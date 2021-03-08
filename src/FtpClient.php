@@ -182,10 +182,16 @@ class FtpClient
      *
      * @return bool Returns true if the giving remote file is a regular file, false if it
      *              a directory or doesn't exists.
+     *
+     * @throws FtpClientException
      */
     public function isFile($remoteFile)
     {
-        return $this->wrapper->size($remoteFile) !== -1;
+        if ($this->isFeatureSupported('SIZE')) {
+            return $this->wrapper->size($remoteFile) !== -1;
+        }
+
+        return $this->isExists($remoteFile) && !$this->isDir($remoteFile);
     }
 
     /**
