@@ -157,10 +157,22 @@ class FtpClient
      *
      * @return bool Returns true if the giving file is a directory type, false if it
      *              a file or doesn't exists.
+     *
+     * @throws FtpClientException
      */
     public function isDir($remoteFile)
     {
-        return $this->wrapper->size($remoteFile) === -1;
+        if ($this->isFeatureSupported('SIZE')) {
+            return $this->wrapper->size($remoteFile) === -1;
+        }
+
+        if (($list = $this->listDirectoryDetails($this->dirname($remoteFile))) === false
+            || !array_key_exists($remoteFile, $list)
+            || ($type = $list[$remoteFile]['type']) === '') {
+            return false;
+        }
+
+        return $type === 'dir';
     }
 
     /**
@@ -1074,7 +1086,7 @@ class FtpClient
                 return 'link';
 
             default:
-                return 'unknown file type.';
+                return '';
         }
     }
 
