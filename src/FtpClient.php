@@ -361,10 +361,9 @@ class FtpClient
      */
     public function removeDirectory($directory)
     {
-        $list = $this->listDirectoryDetails($directory, true);
-
-        $_list = array_reverse($list);
-        foreach ($_list as $fileInfo) {
+        $list  = array_reverse($this->listDirectoryDetails($directory, true));
+        
+        foreach ($list as $fileInfo) {
             if ($fileInfo['type'] === 'file') {
                 $this->wrapper->delete($fileInfo['path']);
                 continue;
