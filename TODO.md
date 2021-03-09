@@ -1,14 +1,18 @@
 # TODO
 
+## Improvements
+
+- [ ] `FtpClient::isDir`&`FtpClient::isFile` : consider replacing the SIZE solution because the `ftp_size` returned -1 if an error occurs, and the same value returned if the giving file is a directory type, so we can't trust it.
+
 ## PHPUnit Upgrade
 - [ ] PHP v^5.6 => Upgrade phpunit to v^5.
 
 ## PHP Upgrade
 
 - [ ] 7.2v 
-    - [ ] Use `ftp_mlsd` function in `FtpConfig::listDirectoryDetails` method to get the Unix timestamps of files/directories.
+    - [ ] Use `ftp_mlsd` function in `FtpClient::listDirectoryDetails` method to get the Unix timestamps of files/directories.
     - [ ] Use `ftp_append` function to implement a client method allows for appending remote file content.
-    - [ ] Use `ftp_mlsd` function in `FtpConfig::lastMTime` to support directories type.
+    - [ ] Use `ftp_mlsd` function in `FtpClient::lastMTime` to support directories type.
 
 ## Upcoming client methods
 
