@@ -1,5 +1,12 @@
 # Change Log
 
+## v1.2.9 (2021-03-09)
+
+* Making methods more atomic.
+* Wrapped built-in FTP extension constants, all constants are available in the `FtpWrapper` class.
+* `FtpClient::listDirectoryDetails` is now returned an associative array with file paths instead of index integers.
+* Fixed `FtpClient::isDir` and `FtpClient::isFile` compatibility with servers that not support SIZE feature.
+
 ## v1.2.7 (2021-02-22)
 
 * Added `$mode` parameter for `FtpClient::createFile`  method.
