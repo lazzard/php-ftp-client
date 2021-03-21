@@ -13,6 +13,7 @@ namespace Lazzard\FtpClient;
 
 use Lazzard\FtpClient\Connection\ConnectionInterface;
 use Lazzard\FtpClient\Exception\FtpClientException;
+use Lazzard\FtpClient\Exception\WrapperException;
 
 /**
  * A simple class wrapper for the FTP extension functions (ftp_*).
@@ -82,13 +83,13 @@ class FtpWrapper
      *
      * @return mixed
      *
-     * @throws FtpClientException
+     * @throws WrapperException
      */
     public function __call($func, $args = null)
     {
         $funcName = "ftp_$func";
         if (!function_exists($funcName)) {
-            throw new FtpClientException("$funcName() doesn't exists.");
+            throw new WrapperException("$funcName() doesn't exists.");
         }
 
         if (!in_array($func, ['connect', 'ssl_connect'])) {
