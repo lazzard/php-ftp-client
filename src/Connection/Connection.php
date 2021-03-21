@@ -17,7 +17,7 @@ use Lazzard\FtpClient\Exception\ConnectionException;
 /**
  * Abstract an FTP connection class implementations.
  *
- * @since  1.2.5
+ * @since  1.2.6
  * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>
  */
 abstract class Connection implements ConnectionInterface
