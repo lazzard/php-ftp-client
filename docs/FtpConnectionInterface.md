@@ -1,6 +1,8 @@
 ## FtpConnectionInterface
 
-`FtpConnectionInterface` provides an easy way to manipulate an FTP connection instance, however you can use this too types of connections :
+`FtpConnectionInterface` provides an easy way to manipulate an FTP connection instance.
+
+You can use the following classes that implement the interface.
 
  * `FtpConnection`    : Regular FTP connection (Not secure). 
  * `FtpSSLConnection` : FTP over TLS/SSL connection (Secure).
@@ -22,9 +24,9 @@ $connection->getStream();
 $connection->getHost();
 $connection->getPort();
 $connection->getTimeout();
-$connection->getTimeout();
 $connection->getUsername();
 $connection->getPassword();
 $connection->isSecure();
 $connection->isConnected();
+$connection->isPassive();
 ```

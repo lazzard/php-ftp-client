@@ -4,8 +4,8 @@ This library uses PHPUnit for testing.
 
 ### Requirements
 
-* phpUnit 4.x.x
-* php >= 5.6
+* phpUnit ^4
+* php >= 5.3.3
 
 ### Install
 
