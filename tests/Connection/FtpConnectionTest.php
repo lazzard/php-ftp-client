@@ -2,8 +2,10 @@
 
 namespace Lazzard\FtpClient\Tests\Connection;
 
+use Lazzard\FtpClient\Config\FtpConfig;
 use Lazzard\FtpClient\Connection\FtpConnection;
 use Lazzard\FtpClient\Exception\ConnectionException;
+use Lazzard\FtpClient\Exception\FtpClientException;
 use PHPUnit\Framework\TestCase;
 
 class FtpConnectionTest extends TestCase
@@ -19,21 +21,21 @@ class FtpConnectionTest extends TestCase
     /**
      * @depends test__constructor
      */
-    public function testOpenConnection()
+    public function testOpen()
     {
         $this->assertTrue($this->getFtpConnectionInstance()->open());
     }
 
     /**
-     * @depends testOpenConnection
+     * @depends testOpen
      */
-    public function testCloseConnection()
+    public function testClose()
     {
         $this->assertTrue($this->getFtpConnectionInstance()->close());
     }
 
     /**
-     * @depends testOpenConnection
+     * @depends testOpen
      */
     public function testOpenWithWrongHost()
     {
@@ -42,7 +44,7 @@ class FtpConnectionTest extends TestCase
     }
 
     /**
-     * @depends testOpenConnection
+     * @depends testOpen
      */
     public function testOpenWithWrongUsername()
     {
@@ -51,7 +53,7 @@ class FtpConnectionTest extends TestCase
     }
 
     /**
-     * @depends testOpenConnection
+     * @depends testOpen
      */
     public function testOpenWithWrongPassword()
     {
@@ -60,7 +62,7 @@ class FtpConnectionTest extends TestCase
     }
 
     /**
-     * @depends testOpenConnection
+     * @depends testOpen
      */
     public function testOpenWithWrongPort()
     {
@@ -69,12 +71,40 @@ class FtpConnectionTest extends TestCase
     }
 
     /**
-     * @depends testOpenConnection
+     * @depends testOpen
      */
     public function testOpenWithWrongTimeout()
     {
         $this->setExpectedException(ConnectionException::class);
         (new FtpConnection(HOST, USERNAME, PASSWORD, PORT, 0))->open();
+    }
+
+    /**
+     * @depends testOpen
+     */
+    public function testIsPassiveWithPassiveMode()
+    {
+        $ftpConfig = new FtpConfig($this->getFtpConnectionInstance());
+        try {
+            $ftpConfig->setPassive(true);
+            self::assertTrue($this->getFtpConnectionInstance()->isPassive());
+        } catch (FtpClientException $e) {
+            self::markTestSkipped();
+        }
+    }
+
+    /**
+     * @depends testOpen
+     */
+    public function testIsPassiveWithActiveMode()
+    {
+        $ftpConfig = new FtpConfig($this->getFtpConnectionInstance());
+        try {
+            $ftpConfig->setPassive(false);
+            self::assertFalse($this->getFtpConnectionInstance()->isPassive());
+        } catch (FtpClientException $e) {
+            self::markTestSkipped();
+        }
     }
 
     protected function getFtpConnectionInstance()
