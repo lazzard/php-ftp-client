@@ -5,8 +5,9 @@ namespace Lazzard\FtpClient\Tests;
 use Lazzard\FtpClient\Connection\ConnectionInterface;
 use Lazzard\FtpClient\Exception\FtpClientException;
 use Lazzard\FtpClient\FtpWrapper;
+use PHPUnit\Framework\TestCase;
 
-class FtpWrapperTest extends \PHPUnit_Framework_TestCase
+class FtpWrapperTest extends TestCase
 {
     public function test__construct()
     {

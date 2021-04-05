@@ -41,15 +41,15 @@ class FtpSSLConnectionTest extends TestCase
     /**
      * @depends testConstructor
      */
-    public function testOpenConnection()
+    public function testOpen()
     {
         $this->assertTrue($this->getFtpSSLConnectionInstance()->open());
     }
 
     /**
-     * @depends testOpenConnection
+     * @depends testOpen
      */
-    public function testCloseConnection()
+    public function testClose()
     {
         $this->assertTrue($this->getFtpSSLConnectionInstance()->close());
     }
