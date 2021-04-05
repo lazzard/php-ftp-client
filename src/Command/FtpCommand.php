@@ -36,7 +36,8 @@ class FtpCommand
      */
     public function __construct(ConnectionInterface $connection)
     {
-        $this->wrapper = new FtpWrapper($connection);
+        $this->connection = $connection;
+        $this->wrapper    = new FtpWrapper($connection);
     }
 
     /**

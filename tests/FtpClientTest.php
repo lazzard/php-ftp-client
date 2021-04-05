@@ -6,9 +6,8 @@ use Lazzard\FtpClient\Connection\ConnectionInterface;
 use Lazzard\FtpClient\Exception\FtpClientException;
 use Lazzard\FtpClient\FtpClient;
 use Lazzard\FtpClient\FtpWrapper;
-use PHPUnit\Framework\TestCase;
 
-class FtpClientTest extends TestCase
+class FtpClientTest extends \PHPUnit_Framework_TestCase
 {
     protected $testFile = INITIAL_DIR . '/lazzard_ftp_client_test_file.txt';
     protected $testDir  = INITIAL_DIR . '/lazzard_ftp_client_test_directory';

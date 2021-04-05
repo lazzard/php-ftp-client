@@ -85,9 +85,11 @@ class FtpClient
     public function getParent()
     {
         $originalDir = $this->getCurrentDir();
-        $parent      = $this->getCurrentDir();
 
         $this->back();
+
+        $parent = $this->getCurrentDir();
+
         $this->setCurrentDir($originalDir);
 
         if ($parent !== '/') {
@@ -569,7 +571,7 @@ class FtpClient
      */
     public function move($source, $destinationFolder)
     {
-        return $this->rename($source, $destinationFolder . '/' . basename($source));
+        return $this->rename($source, "$destinationFolder/" . basename($source));
     }
 
     /**
@@ -716,11 +718,13 @@ class FtpClient
         while ($download === FtpWrapper::MOREDATA) {
             $download    = $this->wrapper->nb_continue();
             $elapsedTime = ceil(microtime(true) - $startTime);
+
             // The first condition : perform the callback function only once every interval time.
             // The second one      : perform the callback function every interval time.
             // The integer cast inside the is_int in the second condition is because
             // of the '$elapsedTime' is a float number.
-            // A small simulation of the first 2 seconds supposing the interval is sets to 1 :
+
+            // This is a small simulation of the first 2 seconds and supposing the interval is sets to 1s :
             // Time(0.5s)  : (0 !== 1 && is_int( (int) 0.5f  / 1) => false
             // Time(1.01s) : (1 !== 2 && is_int( (int) 1.01f / 1) => true
             // Time(1.5s)  : (2 !== 2 && is_int( (int) 1.5f  / 1) => false
@@ -736,7 +740,7 @@ class FtpClient
                     'transferred' => $this->transferredBytes($localFileSize, $sizeTmp),
                     'seconds'     => $elapsedTime
                 ]);
-
+                
                 $sizeTmp = $localFileSize;
             }
 
