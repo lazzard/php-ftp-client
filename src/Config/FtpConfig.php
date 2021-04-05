@@ -16,7 +16,7 @@ use Lazzard\FtpClient\Exception\ConfigException;
 use Lazzard\FtpClient\FtpWrapper;
 
 /**
- * A simple class to manage an FTP connection.
+ * Manage an FTP connection instance.
  *
  * @since  1.0
  * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>
@@ -36,7 +36,8 @@ class FtpConfig
      */
     public function __construct(ConnectionInterface $connection)
     {
-        $this->wrapper = new FtpWrapper($connection);
+        $this->connection = $connection;
+        $this->wrapper    = new FtpWrapper($connection);
     }
 
     /**
@@ -70,6 +71,8 @@ class FtpConfig
             throw new ConfigException($this->wrapper->getFtpErrorMessage()
                 ?: "Unable to switch FTP mode.");
         }
+
+        $this->connection->setIsPassive($value);
 
         return true;
     }

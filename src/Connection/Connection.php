@@ -49,6 +49,9 @@ abstract class Connection implements ConnectionInterface
     /** @var bool */
     protected $isConnected;
 
+    /** @var bool */
+    protected $isPassive;
+
     /**
      * Prepares an FTP connection.
      *
@@ -67,11 +70,12 @@ abstract class Connection implements ConnectionInterface
             throw new ConnectionException("[$host] is not a valid host name/IP.");
         }
         
-        $this->host     = $host;
-        $this->username = $username;
-        $this->password = $password;
-        $this->port     = $port;
-        $this->timeout  = $timeout;
+        $this->host      = $host;
+        $this->username  = $username;
+        $this->password  = $password;
+        $this->port      = $port;
+        $this->timeout   = $timeout;
+        $this->isPassive = false;
 
         $this->wrapper = new FtpWrapper($this);
     }
@@ -156,6 +160,24 @@ abstract class Connection implements ConnectionInterface
 
     /**
      * @inheritDoc
+     */
+    public function isPassive()
+    {
+        return $this->isPassive;
+    }
+
+    /**
+     * @param bool $bool
+     * 
+     * @return void
+     */
+    public function setIsPassive($bool)
+    {
+        $this->isPassive = $bool;
+    }
+
+    /**
+     * {@inheritDoc}
      *
      * @throws ConnectionException
      */
@@ -168,7 +190,7 @@ abstract class Connection implements ConnectionInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      *
      * @throws ConnectionException
      */

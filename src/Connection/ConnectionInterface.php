@@ -20,14 +20,14 @@ namespace Lazzard\FtpClient\Connection;
 interface ConnectionInterface
 {
     /**
-     * Opens an FTP connection.
+     * Opens the FTP connection.
      *
      * @return bool
      */
     public function open();
 
     /**
-     * Closes an FTP connection.
+     * Closes the FTP connection.
      *
      * @return bool
      */
@@ -72,4 +72,9 @@ interface ConnectionInterface
      * @return bool
      */
     public function isConnected();
+
+    /**
+     * @return bool
+     */
+    public function isPassive();
 }
