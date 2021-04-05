@@ -1,5 +1,10 @@
 # Change Log
 
+## v1.3.0 (2021-04-05)
+
+* `WrapperException` Added.
+* `ConnectionInterface::isPassive` Introduced.
+
 ## v1.2.9 (2021-03-09)
 
 * Making methods more atomic.
