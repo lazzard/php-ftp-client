@@ -90,7 +90,7 @@ class FtpClient
 
         $parent = $this->getCurrentDir();
 
-        $this->setCurrentDir($originalDir);
+        $this->changeDir($originalDir);
 
         if ($parent !== '/') {
             return substr($parent, 1);
@@ -142,7 +142,7 @@ class FtpClient
      *
      * @throws FtpClientException
      */
-    public function setCurrentDir($directory)
+    public function changeDir($directory)
     {
         if (!$this->wrapper->chdir($directory)) {
             throw new FtpClientException($this->wrapper->getFtpErrorMessage()
