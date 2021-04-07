@@ -269,13 +269,12 @@ try {
 
 | Version    | Status        | Last Release | PHP Version |
 |------------|---------------|--------------|-------------|
-| 1.0.x      | EOL           | [v1.0.2][7] | >= 5.5      |
-| 1.1.x      | EOL           | [v1.1.0][8] | >= 5.5      |
-| 1.2.x      | Latest        | [v1.2.9][9] | >= 5.6      |
+| 1.0.x      | EOL           | [v1.0.2][7]  | >= 5.5      |
+| 1.3.x      | Latest        | [v1.3.0][9]  | >= 5.6      |
 
 [7]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.0.2
 [8]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.1.0
-[9]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.2.9
+[9]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.3.0
 
 ## License
 
