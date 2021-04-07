@@ -168,7 +168,7 @@ class FtpClient
             return $this->wrapper->size($remoteFile) === -1;
         }
 
-        if (($list = $this->listDirectoryDetails($this->dirname($remoteFile))) === false
+        if (($list = $this->listDirDetails($this->dirname($remoteFile))) === false
             || !array_key_exists($remoteFile, $list)
             || ($type = $list[$remoteFile]['type']) === '') {
             return false;
@@ -199,7 +199,7 @@ class FtpClient
     /**
      * Gets files count in the giving directory.
      *
-     * @see FtpClient::listDirectoryDetails()
+     * @see FtpClient::listDirDetails()
      *
      * @param string $directory  The remote directory.
      * @param bool   $recursive  [optional] Whether to count the files recursively or not.
@@ -212,7 +212,7 @@ class FtpClient
      */
     public function getCount($directory, $recursive = false, $filter = self::FILE_DIR_TYPE, $ignoreDots = true)
     {
-        return count($this->listDirectoryDetails(
+        return count($this->listDirDetails(
             $directory,
             $recursive,
             $filter,
@@ -237,7 +237,7 @@ class FtpClient
      *
      * @throws FtpClientException
      */
-    public function listDirectoryDetails(
+    public function listDirDetails(
         $directory,
         $recursive = false,
         $filter = self::FILE_DIR_TYPE,
@@ -381,7 +381,7 @@ class FtpClient
      */
     public function removeDir($directory)
     {
-        $list = array_reverse($this->listDirectoryDetails($directory, true));
+        $list = array_reverse($this->listDirDetails($directory, true));
         
         foreach ($list as $fileInfo) {
             if ($fileInfo['type'] === 'file') {
@@ -462,7 +462,7 @@ class FtpClient
     public function dirSize($directory)
     {
         return array_sum(
-            array_column($this->listDirectoryDetails(
+            array_column($this->listDirDetails(
                 $directory,
                 true,
                 self::DIR_TYPE
@@ -541,14 +541,14 @@ class FtpClient
     {
         /**
          * 'SIZE' command is not a standardized in the basic FTP protocol as defined in RFC 959, therefore
-         * many FTP servers may not implement this command, to work around this we use the listDirectoryDetails()
+         * many FTP servers may not implement this command, to work around this we use the listDirDetails()
          * method which uses the ftp_rawlist FTP extension function, in turn this function uses the LIST command
          * to get the directory files information includes the files size.
          *
          * @link https://tools.ietf.org/html/rfc959
          */
         if (!$this->isFeatureSupported('SIZE')) {
-            $list = $this->listDirectoryDetails('/');
+            $list = $this->listDirDetails('/');
             foreach (range(0, count($list) - 1) as $i) {
                 if ($list[$i]['name'] === $remoteFile) {
                     return (int)$list[$i]['size'];
