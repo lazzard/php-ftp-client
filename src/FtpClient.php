@@ -381,7 +381,7 @@ class FtpClient
      */
     public function removeDir($directory)
     {
-        $list  = array_reverse($this->listDirectoryDetails($directory, true));
+        $list = array_reverse($this->listDirectoryDetails($directory, true));
         
         foreach ($list as $fileInfo) {
             if ($fileInfo['type'] === 'file') {
@@ -815,7 +815,7 @@ class FtpClient
      *
      * @throws FtpClientException
      */
-    public function createDirectory($directory)
+    public function createDir($directory)
     {
         if ($this->isExists($directory) && $this->isDir($directory)) {
             return true;
@@ -1024,7 +1024,7 @@ class FtpClient
         // handle if the giving source is a directory.
         if (is_dir($source) && is_readable($source)) {
             $destinationFolder = "$destinationFolder/$sourceBase";
-            $this->createDirectory($destinationFolder);
+            $this->createDir($destinationFolder);
             foreach (scandir($source) as $file) {
                 if (in_array($file, ['.', '..'])) continue;
                 $this->copyFromLocal($source . '/' . $file, $destinationFolder);
