@@ -379,7 +379,7 @@ class FtpClient
      *
      * @throws FtpClientException
      */
-    public function removeDirectory($directory)
+    public function removeDir($directory)
     {
         $list  = array_reverse($this->listDirectoryDetails($directory, true));
         
