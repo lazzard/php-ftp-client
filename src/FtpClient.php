@@ -606,7 +606,7 @@ class FtpClient
      *
      * @return bool Return true in success, false otherwise.
      */
-    public function keepConnectionAlive()
+    public function keepAlive()
     {
         return $this->command->raw("NOOP")['success'];
     }
