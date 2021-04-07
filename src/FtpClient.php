@@ -321,7 +321,7 @@ class FtpClient
      *
      * @throws FtpClientException
      */
-    public function getDefaultTransferType()
+    public function getTransferType()
     {
         if (!$response = $this->command->raw("SYST")) {
             throw new FtpClientException($response['message']);
