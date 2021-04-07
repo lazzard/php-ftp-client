@@ -483,7 +483,7 @@ class FtpClient
      *
      * @throws FtpClientException
      */
-    public function listDirectory($directory, $filter = self::FILE_DIR_TYPE, $ignoreDots = true)
+    public function listDir($directory, $filter = self::FILE_DIR_TYPE, $ignoreDots = true)
     {
         if (!$files = $this->wrapper->nlist($directory)) {
             throw new FtpClientException($this->wrapper->getFtpErrorMessage()
@@ -522,7 +522,7 @@ class FtpClient
     public function isEmpty($remoteFile)
     {
         if ($this->isDir($remoteFile)) {
-            return empty($this->listDirectory($remoteFile));
+            return empty($this->listDir($remoteFile));
         }
 
         return $this->fileSize($remoteFile) === 0;
