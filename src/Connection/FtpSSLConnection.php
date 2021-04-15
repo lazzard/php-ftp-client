@@ -46,7 +46,7 @@ class FtpSSLConnection extends Connection
     protected function connect()
     {
         if (!$this->stream = $this->wrapper->ssl_connect($this->getHost(), $this->getPort(), $this->getTimeout())) {
-            throw new ConnectionException($this->wrapper->getFtpErrorMessage()
+            throw new ConnectionException($this->wrapper->getErrorMessage()
                 ?: "SSL connection failed to the FTP server.");
         }
 

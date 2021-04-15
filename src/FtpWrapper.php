@@ -39,7 +39,7 @@ class FtpWrapper
     protected $connection;
 
     /** @var string */
-    protected $ftpErrorMessage;
+    protected $errorMessage;
 
     /**
      * FtpWrapper constructor.
@@ -72,9 +72,9 @@ class FtpWrapper
      *
      * @return string|null Returns a string represent the FTP error message, null if no error detected.
      */
-    public function getFtpErrorMessage()
+    public function getErrorMessage()
     {
-        return $this->ftpErrorMessage;
+        return $this->errorMessage;
     }
 
     /**
@@ -97,7 +97,7 @@ class FtpWrapper
         }
 
         set_error_handler(function () {
-            $this->ftpErrorMessage = func_get_args()[1];
+            $this->errorMessage = func_get_args()[1];
         });
 
         try {

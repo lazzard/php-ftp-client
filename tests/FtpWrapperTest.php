@@ -18,7 +18,7 @@ class FtpWrapperTest extends TestCase
     {
         $wrapper = $this->getFtpWrapperInstance();
         $wrapper->chdir('foo/bar');
-        $this->assertInternalType('string', $wrapper->getFtpErrorMessage());
+        $this->assertInternalType('string', $wrapper->getErrorMessage());
     }
 
     public function testGetConnection()

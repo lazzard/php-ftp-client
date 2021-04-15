@@ -197,7 +197,7 @@ abstract class Connection implements ConnectionInterface
     public function close()
     {
         if (!$this->wrapper->close()) {
-            throw new ConnectionException($this->wrapper->getFtpErrorMessage()
+            throw new ConnectionException($this->wrapper->getErrorMessage()
                 ?: "Unable to close the FTP connection.");
         }
 
@@ -214,7 +214,7 @@ abstract class Connection implements ConnectionInterface
     protected function login()
     {
         if (!$this->wrapper->login($this->getUsername(), $this->getPassword())) {
-            throw new ConnectionException($this->wrapper->getFtpErrorMessage()
+            throw new ConnectionException($this->wrapper->getErrorMessage()
                 ?: "Logging into the FTP server was failed.");
         }
 

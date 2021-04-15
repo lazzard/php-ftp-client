@@ -68,7 +68,7 @@ class FtpConfig
     public function setPassive($value)
     {
         if (!$this->wrapper->pasv($value)) {
-            throw new ConfigException($this->wrapper->getFtpErrorMessage()
+            throw new ConfigException($this->wrapper->getErrorMessage()
                 ?: "Unable to switch FTP mode.");
         }
 
@@ -93,7 +93,7 @@ class FtpConfig
         }
 
         if (!$this->wrapper->set_option(FtpWrapper::TIMEOUT_SEC, $value)) {
-            throw new ConfigException($this->wrapper->getFtpErrorMessage()
+            throw new ConfigException($this->wrapper->getErrorMessage()
                 ?: "Unable to set Timeout runtime option.");
         }
 
@@ -116,7 +116,7 @@ class FtpConfig
         }
 
         if (!$this->wrapper->set_option(FtpWrapper::USEPASVADDRESS, $value)) {
-            throw new ConfigException($this->wrapper->getFtpErrorMessage()
+            throw new ConfigException($this->wrapper->getErrorMessage()
                 ?: "Unable to set usePassiveAddress runtime option.");
         }
 
@@ -139,7 +139,7 @@ class FtpConfig
         }
 
         if (!$this->wrapper->set_option(FtpWrapper::AUTOSEEK, $value)) {
-            throw new ConfigException($this->wrapper->getFtpErrorMessage()
+            throw new ConfigException($this->wrapper->getErrorMessage()
                 ?: "Unable to set AutoSeek runtime option.");
         }
 
@@ -156,7 +156,7 @@ class FtpConfig
     public function getTimeout()
     {
         if (!$optionValue = $this->wrapper->get_option(FtpWrapper::TIMEOUT_SEC)) {
-            throw new ConfigException($this->wrapper->getFtpErrorMessage()
+            throw new ConfigException($this->wrapper->getErrorMessage()
                 ?: "Unable to get FTP timeout option value.");
         }
 

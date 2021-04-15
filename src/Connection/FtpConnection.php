@@ -29,7 +29,7 @@ class FtpConnection extends Connection
     protected function connect()
     {
         if (!($this->stream = $this->wrapper->connect($this->getHost(), $this->getPort(), $this->getTimeout()))) {
-            throw new ConnectionException($this->wrapper->getFtpErrorMessage()
+            throw new ConnectionException($this->wrapper->getErrorMessage()
                 ?: "FTP connection failed to remote server.");
         }
 
