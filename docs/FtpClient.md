@@ -12,8 +12,8 @@ $client = new FtpClient($connection);
 ```php
 FtpClient::__construct($connection)
 FtpClient::allocateSpace($bytes)
-FtpClient::asyncDownload($remoteFile, $localFile, $doWhileDownloading, $resume = true, $interval = 1, $mode = FtpWrapper::BINARY)
-FtpClient::asyncUpload($localFile, $remoteFile, $doWhileDownloading, $resume = true, $interval = 1, $mode = FtpWrapper::BINARY)
+FtpClient::asyncDownload($remoteFile, $localFile, $callback, $resume = true, $interval = 1, $mode = FtpWrapper::BINARY)
+FtpClient::asyncUpload($localFile, $remoteFile, $callback, $resume = true, $interval = 1, $mode = FtpWrapper::BINARY)
 FtpClient::back()
 FtpClient::changeDir($directory)
 FtpClient::copyFromLocal($source, $destinationFolder)
