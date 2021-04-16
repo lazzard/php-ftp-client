@@ -996,6 +996,7 @@ class FtpClient
      * @param string $destinationFolder The remote destination folder.
      *
      * @return bool
+     *
      * @throws FtpClientException
      */
     public function copyFromLocal($source, $destinationFolder)
@@ -1019,6 +1020,41 @@ class FtpClient
                 foreach (scandir($source) as $file) {
                     if (in_array($file, ['.', '..'])) continue;
                     $this->copyFromLocal("$source/$file", $destinationFolder);
+                }
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Copies a remote file/directory to a local machine.
+     *
+     * @param string $remoteSource      The remote path of the source file/directory.
+     * @param string $destinationFolder The local destination folder.
+     *
+     * @return bool
+     *
+     * @throws FtpClientException
+     */
+    public function copy($remoteSource, $destinationFolder)
+    {
+        $sourceBase        = basename($remoteSource);
+        $destinationFolder = trim($destinationFolder, '/');
+
+        if ($this->isFile($remoteSource)) {
+            $localPath = "$destinationFolder/$sourceBase";
+            return $this->download($remoteSource, $localPath);
+        }
+
+        if ($this->isDir($remoteSource)) {
+            $destinationFolder = "$destinationFolder/$sourceBase";
+            if (mkdir($destinationFolder, 0777, true)) {
+                $files = $this->listDirDetails($remoteSource, true);
+                foreach($files as $file) {
+                    var_dump($file['path']);
+                    $this->copy($file['path'], $destinationFolder);
                 }
             }
             return true;
