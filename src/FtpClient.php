@@ -1053,7 +1053,6 @@ class FtpClient
             if (mkdir($destinationFolder, 0777, true)) {
                 $files = $this->listDirDetails($remoteSource, true);
                 foreach($files as $file) {
-                    var_dump($file['path']);
                     $this->copy($file['path'], $destinationFolder);
                 }
             }
@@ -1138,12 +1137,7 @@ class FtpClient
      */
     protected function chmodToNumeric($chmod)
     {
-        $actions = [
-            'r' => 4,
-            'w' => 2,
-            'e' => 1
-        ];
-
+        $actions = ['r' => 4, 'w' => 2, 'e' => 1];
         $chunks  = explode('-', $chmod);
         $numeric = 0;
         foreach ($chunks as $action) {
