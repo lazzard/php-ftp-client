@@ -1021,8 +1021,8 @@ class FtpClient
                     if (in_array($file, ['.', '..'])) continue;
                     $this->copyFromLocal("$source/$file", $destinationFolder);
                 }
+                return true;
             }
-            return true;
         }
 
         return false;
@@ -1055,8 +1055,8 @@ class FtpClient
                 foreach($files as $file) {
                     $this->copy($file['path'], $destinationFolder);
                 }
+                return true;
             }
-            return true;
         }
 
         return false;
