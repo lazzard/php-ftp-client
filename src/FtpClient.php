@@ -1050,13 +1050,16 @@ class FtpClient
 
         if ($this->isDir($remoteSource)) {
             $destinationFolder = "$destinationFolder/$sourceBase";
-            if (mkdir($destinationFolder, 0777, true)) {
-                $files = $this->listDirDetails($remoteSource, true);
-                foreach($files as $file) {
-                    $this->copy($file['path'], $destinationFolder);
-                }
-                return true;
+
+            if (!@mkdir($destinationFolder, 0777, true)) {
+                throw new FtpClientException(error_get_last()['message']);
             }
+
+            $files = $this->listDirDetails($remoteSource, true);
+            foreach($files as $file) {
+                $this->copy($file['path'], $destinationFolder);
+            }
+            return true;
         }
 
         return false;
