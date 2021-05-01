@@ -157,9 +157,8 @@ class FtpClient
      *
      * @param string $remoteFile The remote file path.
      *
-     * @return bool Returns true if the giving file is a directory type, false if it
-     *              a file or doesn't exists.
-     *
+     * @return bool Returns true if the giving file is a directory type, false if
+     *              is a file type or doesn't exist.
      * @throws FtpClientException
      */
     public function isDir($remoteFile)
@@ -182,9 +181,8 @@ class FtpClient
      *
      * @param string $remoteFile The remote file path.
      *
-     * @return bool Returns true if the giving remote file is a regular file, false if it
-     *              a directory or doesn't exists.
-     *
+     * @return bool Returns true if the giving remote file is a regular file, false if
+     *              is a directory type or does not exists.
      * @throws FtpClientException
      */
     public function isFile($remoteFile)
