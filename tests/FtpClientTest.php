@@ -309,10 +309,9 @@ class FtpClientTest extends TestCase
         $tempDirPah = sys_get_temp_dir() . "/$testDir";
         $tempFile   = "$tempDirPah/$testFile";
 
-        if (!file_exists($tempDirPah)) {
-            if (!mkdir($tempDirPah, 0777) || file_put_contents($tempFile, 'hello world!!') === false) {
+        if (!file_exists($tempDirPah) &&
+            !mkdir($tempDirPah, 0777) || file_put_contents($tempFile, 'hello world!!') === false) {
                 self::markTestSkipped();
-            }
         }
 
         $this->assertTrue($this->getFtpClientInstance()->copyFromLocal($tempDirPah, INITIAL_DIR));
@@ -330,6 +329,22 @@ class FtpClientTest extends TestCase
 
         $this->assertTrue($this->getFtpClientInstance()->copyFromLocal($tempFile, INITIAL_DIR));
         $this->getFtpClientInstance()->removeFile(INITIAL_DIR . "/$testFile");
+    }
+
+    public function testCopyWithFileSource()
+    {
+        $client = $this->getFtpClientInstance();
+        if($client->createFile($this->testFile, 'hello world!!')) {
+            $this->assertTrue($client->copy($this->testFile, sys_get_temp_dir()));
+        }
+    }
+
+    public function testCopyWithDirSource()
+    {
+        $client = $this->getFtpClientInstance();
+        if($client->createDir($this->testDir) && $client->createFile($this->testDir . '/hello.txt', 'hello world!!')) {
+            $this->assertTrue($client->copy($this->testDir, sys_get_temp_dir()));
+        }
     }
 
     protected function getFtpClientInstance()
