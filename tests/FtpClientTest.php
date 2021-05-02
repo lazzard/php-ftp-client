@@ -336,6 +336,7 @@ class FtpClientTest extends TestCase
         $client = $this->getFtpClientInstance();
         if($client->createFile($this->testFile, 'hello world!!')) {
             $this->assertTrue($client->copy($this->testFile, sys_get_temp_dir()));
+            $client->removeFile($this->testFile);
         }
     }
 
@@ -344,6 +345,32 @@ class FtpClientTest extends TestCase
         $client = $this->getFtpClientInstance();
         if($client->createDir($this->testDir) && $client->createFile($this->testDir . '/hello.txt', 'hello world!!')) {
             $this->assertTrue($client->copy($this->testDir, sys_get_temp_dir()));
+            $client->removeDir($this->testDir);
+        }
+    }
+
+    public function testFind()
+    {
+        $client = $this->getFtpClientInstance();
+        if($client->createFile($this->testFile, 'whatever!')) {
+            $this->assertNotEmpty($client->find('/.*\.txt$/i', INITIAL_DIR));
+            $client->removeFile($this->testFile);
+        }
+    }
+
+    public function testFindWithInvalidRegex()
+    {
+        $client = $this->getFtpClientInstance();
+        $this->setExpectedException(FtpClientException::class);
+        $client->find('.*\.txt$', INITIAL_DIR);
+    }
+
+    public function testFindRecursive()
+    {
+        $client = $this->getFtpClientInstance();
+        if($client->createDir($this->testDir) && $client->createFile($this->testDir . '/hello.txt', 'hello world!!')) {
+            $this->assertNotEmpty($client->find('/.*\.txt$/i', INITIAL_DIR, true));
+            $client->removeDir($this->testDir);
         }
     }
 
