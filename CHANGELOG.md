@@ -1,5 +1,27 @@
 # Change Log
 
+## v1.3.3 (2021-05-02)
+
+### Added
+
+* `FtpClient::copyToLocal` method added.
+* `FtpClient::find` method added.
+
+### Renamed 
+
+* `FtpClient::setCurrentDir` renamed to `FtpClient::changeDir`.
+* `FtpClient::createDirectory` renamed to `FtpClient::createDir`.
+* `FtpClient::removeDirectory` renamed to `FtpClient::removeDir`.
+* `FtpClient::getDefaultTransferType` renamed to `FtpClient::getTransferType`.
+* `FtpClient::keepConnectionAlive` renamed to `FtpClient::keepAlive`.
+* `FtpClient::listDirecory` renamed to `FtpClient::listDir`.
+* `FtpClient::listDirecoryDetails` renamed to `FtpClient::listDirDetails`.
+* `FtpWrapper::getFtpErrorMessage` renamed to `FtpWrapper::getErrorMessage`.
+
+### Others
+
+* Upgraded PHPUnits version to ^5.
+
 ## v1.3.0 (2021-04-05)
 
 * `WrapperException` Added.
