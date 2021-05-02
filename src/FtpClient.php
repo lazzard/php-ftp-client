@@ -1080,14 +1080,18 @@ class FtpClient
         $files   = array_keys($list);
         $results = [];
 
-        if ($matches = @preg_grep($pattern, $files)) {
-            foreach ($matches as $match) {
-                $results[] = $list[$match];
-            }
-            return $results;
+        if (($matches = @preg_grep($pattern, $files)) === false) {
+            throw new FtpClientException(sprintf("Invalid regex pattern given to %s() : %s",
+                __METHOD__,
+                error_get_last()['message']
+            ));
         }
 
-        return false;
+        foreach ($matches as $match) {
+            $results[] = $list[$match];
+        }
+
+        return $results;
     }
 
     /**
