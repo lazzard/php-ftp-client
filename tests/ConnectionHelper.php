@@ -5,7 +5,6 @@ namespace Lazzard\FtpClient\Tests;
 use Lazzard\FtpClient\Config\FtpConfig;
 use Lazzard\FtpClient\Connection\ConnectionInterface;
 use Lazzard\FtpClient\Connection\FtpConnection;
-use Lazzard\FtpClient\Connection\FtpSSLConnection;
 
 /**
  * A singleton class to avoid multiple FTP connections for each depending module.

@@ -103,7 +103,7 @@ class FtpClientTest extends TestCase
         $ftp = $this->getFtpClientInstance();
         $ftp->setWrapper($wrapper);
 
-        $this->setExpectedException(FtpClientException::class);
+        $this->expectException(FtpClientException::class);
         $ftp->setPermissions('file.txt', 744);
     }
 
@@ -187,7 +187,7 @@ class FtpClientTest extends TestCase
     public function testLastMTime()
     {
         if (!$this->getFtpClientInstance()->isFeatureSupported('MDTM')) {
-            $this->setExpectedException(FtpClientException::class);
+            $this->expectException(FtpClientException::class);
             $this->getFtpClientInstance()->lastMTime($this->testFile);
         } elseif ($this->getFtpClientInstance()->createFile($this->testFile)) {
             $this->assertInternalType('int', $this->getFtpClientInstance()->lastMTime($this->testFile));
@@ -361,7 +361,7 @@ class FtpClientTest extends TestCase
     public function testFindWithInvalidRegex()
     {
         $client = $this->getFtpClientInstance();
-        $this->setExpectedException(FtpClientException::class);
+        $this->expectException(FtpClientException::class);
         $client->find('.*\.txt$', INITIAL_DIR);
     }
 

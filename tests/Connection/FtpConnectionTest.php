@@ -39,7 +39,7 @@ class FtpConnectionTest extends TestCase
      */
     public function testOpenWithWrongHost()
     {
-        $this->setExpectedException(ConnectionException::class);
+        $this->expectException(ConnectionException::class);
         (new FtpConnection('foo.website.com', USERNAME, PASSWORD, PORT, TIMEOUT))->open();
     }
 
@@ -48,7 +48,7 @@ class FtpConnectionTest extends TestCase
      */
     public function testOpenWithWrongUsername()
     {
-        $this->setExpectedException(ConnectionException::class);
+        $this->expectException(ConnectionException::class);
         (new FtpConnection(HOST, 'U&!', PASSWORD, PORT, TIMEOUT))->open();
     }
 
@@ -57,7 +57,7 @@ class FtpConnectionTest extends TestCase
      */
     public function testOpenWithWrongPassword()
     {
-        $this->setExpectedException(ConnectionException::class);
+        $this->expectException(ConnectionException::class);
         (new FtpConnection(HOST, USERNAME, 'P&!', PORT, TIMEOUT))->open();
     }
 
@@ -66,7 +66,7 @@ class FtpConnectionTest extends TestCase
      */
     public function testOpenWithWrongPort()
     {
-        $this->setExpectedException(ConnectionException::class);
+        $this->expectException(ConnectionException::class);
         (new FtpConnection(HOST, USERNAME, PASSWORD, -1, TIMEOUT))->open();
     }
 
@@ -75,7 +75,7 @@ class FtpConnectionTest extends TestCase
      */
     public function testOpenWithWrongTimeout()
     {
-        $this->setExpectedException(ConnectionException::class);
+        $this->expectException(ConnectionException::class);
         (new FtpConnection(HOST, USERNAME, PASSWORD, PORT, 0))->open();
     }
 

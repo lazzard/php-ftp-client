@@ -23,7 +23,7 @@ class FtpSSLConnectionTest extends TestCase
     public function testIfOpensslLoadedOrFtpSslConnectFunctionNotExists()
     {
         if (!extension_loaded('openssl') || !function_exists('ftp_ssl_connect')) {
-            $this->setExpectedException(ConnectionException::class);
+            $this->expectException(ConnectionException::class);
             $this->getFtpSSLConnectionInstance();
         } else {
             $this->markTestSkipped();

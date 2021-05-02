@@ -33,7 +33,7 @@ class FtpWrapperTest extends TestCase
 
     public function test__callWithInvalidFtpFunction()
     {
-        $this->setExpectedException(FtpClientException::class);
+        $this->expectException(FtpClientException::class);
         $this->getFtpWrapperInstance()->ftp('foo@bar.com');
     }
 

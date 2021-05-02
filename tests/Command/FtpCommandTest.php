@@ -31,13 +31,13 @@ class FtpCommandTest extends TestCase
 
     public function testSiteWithEmptyStringCommand()
     {
-        $this->setExpectedException(CommandException::class);
+        $this->expectException(CommandException::class);
         $this->getFtpCommandInstance()->site('');
     }
 
     public function testSiteWithSpacesStringCommand()
     {
-        $this->setExpectedException(CommandException::class);
+        $this->expectException(CommandException::class);
         $this->getFtpCommandInstance()->site('    ');
     }
 
@@ -48,7 +48,7 @@ class FtpCommandTest extends TestCase
 
     public function testSiteWithInvalidCommand()
     {
-        $this->setExpectedException(CommandException::class);
+        $this->expectException(CommandException::class);
         $this->getFtpCommandInstance()->site('UNKNOWN');
     }
 
@@ -59,7 +59,7 @@ class FtpCommandTest extends TestCase
         if (in_array('exec', $command->supportedSiteCommands())) {
             $this->assertFalse($command->exec(''));
         } else {
-            $this->setExpectedException(CommandException::class);
+            $this->expectException(CommandException::class);
             $command->exec('');
         }
     }
@@ -71,7 +71,7 @@ class FtpCommandTest extends TestCase
         if (in_array('exec', $command->supportedSiteCommands())) {
             $this->assertFalse($command->exec('    '));
         } else {
-            $this->setExpectedException(CommandException::class);
+            $this->expectException(CommandException::class);
             $this->assertTrue($command->exec('    '));
         }
     }
