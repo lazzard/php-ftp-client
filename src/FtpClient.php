@@ -1055,7 +1055,10 @@ class FtpClient
 
             $files = $this->listDirDetails($remoteSource, true);
             foreach ($files as $file) {
-                $this->copy($file['path'], $destinationFolder);
+                if (preg_match('/' . preg_quote($remoteSource, '/') . '\/(.*)/', $file['path'], $matches) !== false) {
+                    $source = dirname($matches[1]);
+                    $this->copy($file['path'], "$destinationFolder/$source");
+                }
             }
 
             return true;
