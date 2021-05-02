@@ -335,7 +335,7 @@ class FtpClientTest extends TestCase
     {
         $client = $this->getFtpClientInstance();
         if($client->createFile($this->testFile, 'hello world!!')) {
-            $this->assertTrue($client->copy($this->testFile, sys_get_temp_dir()));
+            $this->assertTrue($client->copyToLocal($this->testFile, sys_get_temp_dir()));
             $client->removeFile($this->testFile);
         }
     }
@@ -344,7 +344,7 @@ class FtpClientTest extends TestCase
     {
         $client = $this->getFtpClientInstance();
         if($client->createDir($this->testDir) && $client->createFile($this->testDir . '/hello.txt', 'hello world!!')) {
-            $this->assertTrue($client->copy($this->testDir, sys_get_temp_dir()));
+            $this->assertTrue($client->copyToLocal($this->testDir, sys_get_temp_dir()));
             $client->removeDir($this->testDir);
         }
     }
