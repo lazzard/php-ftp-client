@@ -1082,7 +1082,7 @@ class FtpClient
 
         if ($matches = @preg_grep($pattern, $files)) {
             foreach ($matches as $match) {
-                $results[] = $files[$match];
+                $results[] = $list[$match];
             }
             return $results;
         }
