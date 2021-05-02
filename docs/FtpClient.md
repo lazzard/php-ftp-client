@@ -16,7 +16,7 @@ FtpClient::asyncDownload($remoteFile, $localFile, $callback, $resume = true, $in
 FtpClient::asyncUpload($localFile, $remoteFile, $callback, $resume = true, $interval = 1, $mode = FtpWrapper::BINARY)
 FtpClient::back()
 FtpClient::changeDir($directory)
-FtpClient::copy($remoteSource, $destinationFolder)
+FtpClient::copyToLocal($remoteSource, $destinationFolder)
 FtpClient::copyFromLocal($source, $destinationFolder)
 FtpClient::createDir($directory)
 FtpClient::createFile($remoteFile, $content = NULL, $mode = FtpWrapper::BINARY)

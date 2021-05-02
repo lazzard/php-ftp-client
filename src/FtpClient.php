@@ -1036,7 +1036,7 @@ class FtpClient
      *
      * @throws FtpClientException
      */
-    public function copy($remoteSource, $destinationFolder)
+    public function copyToLocal($remoteSource, $destinationFolder)
     {
         $sourceBase        = basename($remoteSource);
         $destinationFolder = trim($destinationFolder, '/');
