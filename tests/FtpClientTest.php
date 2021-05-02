@@ -34,6 +34,8 @@ class FtpClientTest extends TestCase
         if ($this->getFtpClientInstance()->createFile($this->testFile, "content ...!")) {
             $this->assertTrue(true);
             $this->getFtpClientInstance()->removeFile($this->testFile);
+        } else {
+            $this->markTestSkipped("Cannot create the testing file/directory.");
         }
     }
 
@@ -42,6 +44,8 @@ class FtpClientTest extends TestCase
         if ($this->getFtpClientInstance()->createDir($this->testDir)) {
             $this->assertTrue(true);
             $this->getFtpClientInstance()->removeDir($this->testDir);
+        } else {
+            $this->markTestSkipped("Cannot create the testing file/directory.");
         }
     }
 
@@ -50,6 +54,8 @@ class FtpClientTest extends TestCase
         if ($this->getFtpClientInstance()->createFile($this->testFile)) {
             $this->assertInternalType('int', $this->getFtpClientInstance()->fileSize($this->testFile));
             $this->getFtpClientInstance()->removeFile($this->testFile);
+        } else {
+            $this->markTestSkipped("Cannot create the testing file/directory.");
         }
     }
 
@@ -58,6 +64,8 @@ class FtpClientTest extends TestCase
         if ($this->getFtpClientInstance()->createDir($this->testDir)) {
             $this->assertInternalType('int', $this->getFtpClientInstance()->dirSize($this->testDir));
             $this->getFtpClientInstance()->removeDir($this->testDir);
+        } else {
+            $this->markTestSkipped("Cannot create the testing file/directory.");
         }
     }
 
@@ -67,6 +75,8 @@ class FtpClientTest extends TestCase
             $localFile = tempnam(sys_get_temp_dir(), 'test.txt');
             $this->assertTrue($this->getFtpClientInstance()->download($this->testFile, $localFile));
             $this->getFtpClientInstance()->removeFile($this->testFile);
+        } else {
+            $this->markTestSkipped("Cannot create the testing file/directory.");
         }
     }
 
@@ -76,6 +86,8 @@ class FtpClientTest extends TestCase
             $localFile = tempnam(sys_get_temp_dir(), 'test2.txt');
             $this->assertTrue($this->getFtpClientInstance()->asyncDownload($this->testFile, $localFile, function() {}));
             $this->getFtpClientInstance()->removeFile($this->testFile);
+        } else {
+            $this->markTestSkipped("Cannot create the testing file/directory.");
         }
     }
 
@@ -86,6 +98,8 @@ class FtpClientTest extends TestCase
             && $this->getFtpClientInstance()->createDir($this->testDir)) {
                 $this->assertTrue($this->getFtpClientInstance()->move($testFile, $this->testDir));
                 $this->getFtpClientInstance()->removeDir($this->testDir);
+        } else {
+            $this->markTestSkipped("Cannot create the testing file/directory.");
         }
     }
 
@@ -116,6 +130,8 @@ class FtpClientTest extends TestCase
                 'other' => 'w-r'
             ]));
             $this->getFtpClientInstance()->removeFile($this->testFile);
+        } else {
+            $this->markTestSkipped("Cannot create the testing file/directory.");
         }
     }
 
@@ -124,6 +140,8 @@ class FtpClientTest extends TestCase
         if ($this->getFtpClientInstance()->createFile($this->testFile)) {
             $this->assertTrue($this->getFtpClientInstance()->setPermissions($this->testFile, 777));
             $this->getFtpClientInstance()->removeFile($this->testFile);
+        } else {
+            $this->markTestSkipped("Cannot create the testing file/directory.");
         }
     }
 
@@ -132,7 +150,9 @@ class FtpClientTest extends TestCase
         if ($this->getFtpClientInstance()->createFile($this->testFile)) {
             $this->assertTrue($this->getFtpClientInstance()->isEmpty($this->testFile));
             $this->getFtpClientInstance()->removeFile($this->testFile);
-        }   
+        } else {
+            $this->markTestSkipped("Cannot create the testing file/directory.");
+        }
     }
 
     public function testIsEmptyWithANonEmptyFile()
@@ -140,7 +160,9 @@ class FtpClientTest extends TestCase
         if ($this->getFtpClientInstance()->createFile($this->testFile, "content...!")) {
             $this->assertFalse($this->getFtpClientInstance()->isEmpty($this->testFile));
             $this->getFtpClientInstance()->removeFile($this->testFile);
-        }   
+        } else {
+            $this->markTestSkipped("Cannot create the testing file/directory.");
+        }
     }
 
     public function testIsEmptyWithAnEmptyDirectory()
@@ -148,6 +170,8 @@ class FtpClientTest extends TestCase
         if ($this->getFtpClientInstance()->createDir($this->testDir)) {
             $this->assertTrue($this->getFtpClientInstance()->isEmpty($this->testDir));
             $this->getFtpClientInstance()->removeDir($this->testDir);
+        } else {
+            $this->markTestSkipped("Cannot create the testing file/directory.");
         }
     }
 
@@ -157,6 +181,8 @@ class FtpClientTest extends TestCase
             && $this->getFtpClientInstance()->createFile($this->testDir . '/test.txt')) {
                 $this->assertFalse($this->getFtpClientInstance()->isEmpty($this->testDir));
                 $this->getFtpClientInstance()->removeDir($this->testDir);
+        } else {
+            $this->markTestSkipped("Cannot create the testing file/directory.");
         }
     }
 
@@ -165,6 +191,8 @@ class FtpClientTest extends TestCase
         if ($this->getFtpClientInstance()->createFile($this->testFile)) {
             $this->assertTrue($this->getFtpClientInstance()->isFile($this->testFile));
             $this->getFtpClientInstance()->removeFile($this->testFile);
+        } else {
+            $this->markTestSkipped("Cannot create the testing file/directory.");
         }
     }
 
@@ -173,6 +201,8 @@ class FtpClientTest extends TestCase
         if ($this->getFtpClientInstance()->createDir($this->testDir)) {
             $this->assertTrue($this->getFtpClientInstance()->isDir($this->testDir));
             $this->getFtpClientInstance()->removeDir($this->testDir);
+        } else {
+            $this->markTestSkipped("Cannot create the testing file/directory.");
         }
     }
 
@@ -181,6 +211,8 @@ class FtpClientTest extends TestCase
         if ($this->getFtpClientInstance()->createFile($this->testFile)) {
             $this->assertInternalType('string', $this->getFtpClientInstance()->getFileContent($this->testFile));
             $this->getFtpClientInstance()->removeFile($this->testFile);
+        } else {
+            $this->markTestSkipped("Cannot create the testing file/directory.");
         }
     }
 
@@ -199,6 +231,8 @@ class FtpClientTest extends TestCase
     {
         if ($this->getFtpClientInstance()->createFile($this->testFile)) {
             $this->assertTrue($this->getFtpClientInstance()->removeFile($this->testFile));
+        } else {
+            $this->markTestSkipped("Cannot create the testing file/directory.");
         }
     }
 
@@ -207,6 +241,8 @@ class FtpClientTest extends TestCase
         if ($this->getFtpClientInstance()->createDir($this->testDir)
             && $this->getFtpClientInstance()->createFile($this->testDir . '/test.txt')) {
                 $this->assertTrue($this->getFtpClientInstance()->removeDir($this->testDir));
+        } else {
+            $this->markTestSkipped("Cannot create the testing file/directory.");
         }
     }
 
@@ -214,6 +250,8 @@ class FtpClientTest extends TestCase
     {
         if ($this->getFtpClientInstance()->createDir($this->testDir)) {
             $this->assertTrue($this->getFtpClientInstance()->removeDir($this->testDir));
+        } else {
+            $this->markTestSkipped("Cannot create the testing file/directory.");
         }
     }
 
@@ -239,6 +277,8 @@ class FtpClientTest extends TestCase
             $newName = $this->testFile . '_renamed';
             $this->assertTrue($this->getFtpClientInstance()->rename($this->testFile, $newName));
             $this->getFtpClientInstance()->removeFile($newName);
+        } else {
+            $this->markTestSkipped("Cannot create the testing file/directory.");
         }
     }
 
@@ -337,6 +377,8 @@ class FtpClientTest extends TestCase
         if($client->createFile($this->testFile, 'hello world!!')) {
             $this->assertTrue($client->copyToLocal($this->testFile, sys_get_temp_dir()));
             $client->removeFile($this->testFile);
+        } else {
+            $this->markTestSkipped("Cannot create the testing file/directory.");
         }
     }
 
@@ -346,6 +388,8 @@ class FtpClientTest extends TestCase
         if($client->createDir($this->testDir) && $client->createFile($this->testDir . '/hello.txt', 'hello world!!')) {
             $this->assertTrue($client->copyToLocal($this->testDir, sys_get_temp_dir()));
             $client->removeDir($this->testDir);
+        } else {
+            $this->markTestSkipped("Cannot create the testing file/directory.");
         }
     }
 
@@ -355,6 +399,8 @@ class FtpClientTest extends TestCase
         if($client->createFile($this->testFile, 'whatever!')) {
             $this->assertNotEmpty($client->find('/.*\.txt$/i', INITIAL_DIR));
             $client->removeFile($this->testFile);
+        } else {
+            $this->markTestSkipped("Cannot create the testing file/directory.");
         }
     }
 
@@ -371,6 +417,8 @@ class FtpClientTest extends TestCase
         if($client->createDir($this->testDir) && $client->createFile($this->testDir . '/hello.txt', 'hello world!!')) {
             $this->assertNotEmpty($client->find('/.*\.txt$/i', INITIAL_DIR, true));
             $client->removeDir($this->testDir);
+        } else {
+            $this->markTestSkipped("Cannot create the testing file/directory.");
         }
     }
 
