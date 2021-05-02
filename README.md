@@ -16,16 +16,22 @@ A library that wraps the PHP FTP functions in an OOP way.
 
 ## Installation
 
-The recommended way to install this library is through composer:
+The recommended way to install this library is through composer :
 
 ```console
 composer require lazzard/php-ftp-client
 ```
 
-or just clone the repo using git:
+or just clone the repo using git :
 
 ```bash
 git clone https://github.com/lazzard/php-ftp-client
+```
+
+then generate the autoload files :
+
+```console
+composer dump-autoload
 ```
 
 ## Getting Started
@@ -71,7 +77,7 @@ $client->asyncDownload('illustrations/assets.zip', 'assets.zip', function ($stat
 
 // upload a remote file asynchronously
 $client->asyncUpload('wallpapers.zip', 'public_html', function ($state) {
-    // do something
+    // do something 
 });
 ```
 
@@ -79,16 +85,16 @@ $client->asyncUpload('wallpapers.zip', 'public_html', function ($state) {
 
 ```php
 // get files names within an FTP directory
-$client->listDirectory('public_html');
+$client->listDir('public_html');
 
 // get only directories
-$client->listDirectory('public_html', FtpClient::DIR_TYPE);
+$client->listDir('public_html', FtpClient::DIR_TYPE);
 
 // get detailed information of each file within an FTP directory including the file path
-$client->listDirectoryDetails('public_html');
+$client->listDirDetails('public_html');
 
 // recursively
-$client->listDirectoryDetails('public_html', true);
+$client->listDirDetails('public_html', true);
 ```
 
 #### remove/rename
@@ -98,16 +104,29 @@ $client->listDirectoryDetails('public_html', true);
 $client->removeFile($remoteFile);
 
 // remove a directory (this will remove all the file within the directory)
-$client->removeDirectory($directory);
+$client->removeDir($directory);
 
 // rename an FTP file/directory
 $client->rename($remoteFile, $newName);
 ```
 
-#### copy file/directory from local
+#### copy
 ```php
-// copy a local directory to the giving path in the server
+// copy a local file/directory to server
 $client->copyFromLocal('media/images', 'htdocs'); 
+
+// copy a remote file/directory to local machine
+$client->copyToLocal('htdocs/images', 'images'); 
+```
+
+#### search
+
+```php
+// get all png files within the 'public_html' directory with their details
+$client->find('/.*\.png$/i', 'public_html'); 
+
+// recursively
+$client->find('/.*\.png$/i', 'public_html', true); 
 ```
 
 #### size
@@ -131,7 +150,7 @@ $client->createFile('public_html/example.txt', 'Hello world!!');
 
 // create an FTP directory
 // note: this method supports recursive directory creation
-$client->createDirectory('public_html/assets');
+$client->createDir('public_html/assets');
 ```
 
 #### remove/rename
@@ -141,7 +160,7 @@ $client->createDirectory('public_html/assets');
 $client->removeFile($remoteFile);
 
 // remove an FTP directory (be careful all the files within this directory will be removed)
-$client->removeDirectory($directory);
+$client->removeDir($directory);
 
 // rename an FTP file/directory
 $client->rename($remoteFile, $newName);
@@ -216,11 +235,11 @@ $client->getFeatures();
 $client->getSystem();
 
 // send a request to allocate a space of bytes for the next transfer operation
-// note: not all servers requires this
+// some FTP servers requires this before transfer operations 
 $client->allocateSpace(2048);
 
 // prevent the server from closing the connection and keeping it alive
-$client->keepConnectionAlive();
+$client->keepAlive();
 ```
 You can see all available methods [here](docs/FtpClient.md).
 
@@ -270,11 +289,11 @@ try {
 | Version    | Status        | Last Release | PHP Version |
 |------------|---------------|--------------|-------------|
 | 1.0.x      | EOL           | [v1.0.2][7]  | >= 5.5      |
-| 1.3.x      | Latest        | [v1.3.0][9]  | >= 5.6      |
+| 1.3.x      | Latest        | [v1.3.3][9]  | >= 5.6      |
 
 [7]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.0.2
 [8]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.1.0
-[9]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.3.0
+[9]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.3.3
 
 ## License
 
