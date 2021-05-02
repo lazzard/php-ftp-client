@@ -1043,7 +1043,7 @@ class FtpClient
 
         if ($this->isFile($remoteSource)) {
             $localPath = "$destinationFolder/$sourceBase";
-            return $this->download($remoteSource, $localPath);
+            return $this->download($remoteSource, $localPath, false);
         }
 
         if ($this->isDir($remoteSource)) {
@@ -1052,18 +1052,44 @@ class FtpClient
             if (!file_exists($destinationFolder) && !@mkdir($destinationFolder, 0777, true)) {
                 throw new FtpClientException(error_get_last()['message']);
             }
-            
+
             $files = $this->listDirDetails($remoteSource, true);
-            foreach($files as $file) {
+            foreach ($files as $file) {
                 $this->copy($file['path'], $destinationFolder);
             }
-            
+
             return true;
         }
 
         return false;
     }
-    
+
+    /**
+     * Finds a remote file/directory
+     *
+     * @param string $pattern   The regex pattern.
+     * @param string $directory The remote directory.
+     * @param bool   $recursive
+     *
+     * @return array|false
+     * @throws FtpClientException
+     */
+    public function find($pattern, $directory, $recursive = false)
+    {
+        $list    = $this->listDirDetails($directory, $recursive);
+        $files   = array_keys($list);
+        $results = [];
+
+        if ($matches = @preg_grep($pattern, $files)) {
+            foreach ($matches as $match) {
+                $results[] = $files[$match];
+            }
+            return $results;
+        }
+
+        return false;
+    }
+
     /**
      * Gets the transfer operation average speed.
      *
@@ -1142,6 +1168,7 @@ class FtpClient
         $actions = ['r' => 4, 'w' => 2, 'e' => 1];
         $chunks  = explode('-', $chmod);
         $numeric = 0;
+
         foreach ($chunks as $action) {
             $numeric += $actions[$action];
         }
