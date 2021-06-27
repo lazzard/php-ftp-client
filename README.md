@@ -1,9 +1,9 @@
 # Lazzard/FtpClient
 
-[![Stable Version](https://img.shields.io/packagist/v/lazzard/php-ftp-client?color=success&label=stable)](https://packagist.org/packages/lazzard/php-ftp-client)
-[![Minimum PHP version](https://img.shields.io/packagist/php-v/lazzard/php-ftp-client)](https://packagist.org/packages/lazzard/php-ftp-client)
-![Tested on](https://img.shields.io/badge/tested-5.6.4-lightgray)
-[![Downloads](https://img.shields.io/packagist/dt/lazzard/php-ftp-client?color=blueviolet&style=social)](https://packagist.org/packages/lazzard/php-ftp-client)
+[![Downloads](https://img.shields.io/packagist/dm/lazzard/php-ftp-client)](https://packagist.org/packages/lazzard/php-ftp-client)
+[![Packagist Version](https://img.shields.io/packagist/v/lazzard/php-ftp-client?style=flat-square)](https://packagist.org/packages/lazzard/php-ftp-client)
+[![Minimum PHP version](https://img.shields.io/packagist/php-v/lazzard/php-ftp-client?color=%238892bf&style=flat-square)](https://packagist.org/packages/lazzard/php-ftp-client)
+![License](https://img.shields.io/packagist/l/lazzard/php-ftp-client?color=critical&style=flat-square)
 
 A library that wraps the PHP FTP functions in an OOP way.
 
@@ -57,7 +57,7 @@ $config = new FtpConfig(ConnectionInterface $connection);
 $config->setPassive(true);
 ```
 
-Start working with `FtpClient`
+Start working with the base class `FtpClient`
 
 ```php
 $client = new FtpClient(ConnectionInterface $connection);
@@ -253,7 +253,7 @@ try {
     $client = new FtpClient($connection);
     
     // Start working
-    var_dump($client->getFeatures());
+    print_r($client->getFeatures());
     
     // Close connection
     $connection->close();
@@ -283,11 +283,11 @@ try {
 | Version    | Status        | Last Release | PHP Version |
 |------------|---------------|--------------|-------------|
 | 1.0.x      | EOL           | [v1.0.2][7]  | >= 5.5      |
-| 1.3.x      | Latest        | [v1.3.3][9]  | >= 5.6      |
+| 1.3.x      | Latest        | [v1.3.5][9]  | >= 5.6      |
 
 [7]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.0.2
 [8]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.1.0
-[9]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.3.3
+[9]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.3.5
 
 ## License
 
