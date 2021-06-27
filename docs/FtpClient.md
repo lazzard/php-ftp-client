@@ -4,7 +4,7 @@
 
 ```php
 // Create an FtpClient Instance
-$client = new FtpClient($connection);
+$client = new FtpClient(ConnectionInterface $connection);
 ```
 
 ### Available methods 
@@ -16,14 +16,15 @@ FtpClient::asyncDownload($remoteFile, $localFile, $callback, $resume = true, $in
 FtpClient::asyncUpload($localFile, $remoteFile, $callback, $resume = true, $interval = 1, $mode = FtpWrapper::BINARY)
 FtpClient::back()
 FtpClient::changeDir($directory)
-FtpClient::copyToLocal($remoteSource, $destinationFolder)
+FtpClient::copy($remoteSource, $remoteDirectory)
 FtpClient::copyFromLocal($source, $destinationFolder)
+FtpClient::copyToLocal($remoteSource, $destinationFolder)
 FtpClient::createDir($directory)
 FtpClient::createFile($remoteFile, $content = NULL, $mode = FtpWrapper::BINARY)
 FtpClient::dirSize($directory)
 FtpClient::download($remoteFile, $localFile, $resume = true, $mode = FtpWrapper::BINARY)
 FtpClient::fileSize($remoteFile)
-FtpClient::find($pattern, $directory, $recursive)
+FtpClient::find($pattern, $directory, $recursive = false)
 FtpClient::getConnection()
 FtpClient::getCount($directory, $recursive = false, $filter = self::FILE_DIR_TYPE, $ignoreDots = true)
 FtpClient::getCurrentDir()

@@ -51,169 +51,163 @@ $connection->open();
 ```
 
 Configure the connection
+
 ```php
-$config = new FtpConfig($connection);
+$config = new FtpConfig(ConnectionInterface $connection);
 $config->setPassive(true);
 ```
 
 Start working with `FtpClient`
+
 ```php
-$client = new FtpClient($connection);
+$client = new FtpClient(ConnectionInterface $connection);
 ```
 
 #### upload/download
 
 ```php
 // download a remote file
-$client->download('public_html/commands.xlsx', 'commands.xlsx');
+$client->download('path/to/remote/file', 'path/to/local/file');
 
 // upload a local file to remote server
-$client->upload('assets/image.png', 'public_html/images/image.png');
+$client->upload('path/to/local/file', 'path/to/remote/file');
 
 // download a remote file asynchronously
-$client->asyncDownload('illustrations/assets.zip', 'assets.zip', function ($state) {
+$client->asyncDownload('path/to/remote/file', 'path/to/local/file', function ($state) {
     // do something every second while downloading this file
-});
+}, 1, FtpWrapper::BINARY);
 
 // upload a remote file asynchronously
-$client->asyncUpload('wallpapers.zip', 'public_html', function ($state) {
+$client->asyncUpload('path/to/local/file', 'path/to/remote/file', function ($state) {
     // do something 
-});
+}, 1, FtpWrapper::BINARY);
 ```
 
 #### listing
 
 ```php
 // get files names within an FTP directory
-$client->listDir('public_html');
+$client->listDir('path/to/directory');
 
 // get only directories
-$client->listDir('public_html', FtpClient::DIR_TYPE);
+$client->listDir('path/to/directory', FtpClient::DIR_TYPE);
 
-// get detailed information of each file within an FTP directory including the file path
-$client->listDirDetails('public_html');
+// get detailed information of each file within a remote directory including 
+// the file path of each file
+$client->listDirDetails('path/to/directory');
 
 // recursively
-$client->listDirDetails('public_html', true);
-```
-
-#### remove/rename
-
-```php
-// remove an FTP file
-$client->removeFile($remoteFile);
-
-// remove a directory (this will remove all the file within the directory)
-$client->removeDir($directory);
-
-// rename an FTP file/directory
-$client->rename($remoteFile, $newName);
+$client->listDirDetails('path/to/directory', true);
 ```
 
 #### copy
+
 ```php
-// copy a local file/directory to server
-$client->copyFromLocal('media/images', 'htdocs'); 
+// copy a remote file/directory to another directory
+$client->copy('path/to/remote/source', 'path/to/remote/directory');
+
+// copy a local file/directory to the server
+$client->copyFromLocal('path/to/local/file', 'path/to/remote/directory'); 
 
 // copy a remote file/directory to local machine
-$client->copyToLocal('htdocs/images', 'images'); 
+$client->copyToLocal('path/to/remote/source', 'path/to/local/directory'); 
 ```
 
 #### search
 
 ```php
-// get all png files within the 'public_html' directory with their details
-$client->find('/.*\.png$/i', 'public_html'); 
+// get all png files within the giving directory with their details
+$client->find('/.*\.png$/i', 'path/to/directory'); 
 
 // recursively
-$client->find('/.*\.png$/i', 'public_html', true); 
+$client->find('/.*\.png$/i', 'path/to/directory', true); 
 ```
 
 #### size
 
 ```php
 // get file size
-$client->fileSize('public_html/presentation.docx');
+$client->fileSize('path/to/file');
 
 // get directory size
-$client->dirSize('public_html/assets');
+$client->dirSize('path/to/directory');
 ```
 
 #### file/directory creating
  
 ```php
 // create an FTP file
-$client->createFile('public_html/example.txt');
+$client->createFile('path/to/file');
 
 // create a file with content
-$client->createFile('public_html/example.txt', 'Hello world!!');
+$client->createFile('path/to/file', 'Hello world!!');
 
-// create an FTP directory
+// create a remote directory
 // note: this method supports recursive directory creation
-$client->createDir('public_html/assets');
+$client->createDir('directory');
 ```
 
 #### remove/rename
 
 ```php
 // remove an FTP file
-$client->removeFile($remoteFile);
+$client->removeFile('path/to/file');
 
 // remove an FTP directory (be careful all the files within this directory will be removed)
-$client->removeDir($directory);
+$client->removeDir('path/to/directory');
 
 // rename an FTP file/directory
-$client->rename($remoteFile, $newName);
+$client->rename('path/to/file', $newName);
 ```
 
 #### move
 
 ```php
 // move an FTP file or directory to another folder
-$client->move($remoteFile, $destinationFolder);
+$client->move('path/to/file', 'path/to/directory');
 ```
 
 #### count
 
 ```php
 // get the count of all the files within a directory
-$client->getCount($directory);
+$client->getCount('path/to/directory');
 
 // recursively
-$client->getCount($directory, true);
+$client->getCount('path/to/directory', true);
 
 // recursively and files only
-$client->getCount($directory, true, FtpClient::FILE_TYPE);
+$client->getCount('path/to/directory', true, FtpClient::FILE_TYPE);
 ```
 
 #### permissions 
 
 ```php
 // set a permissions on the giving FTP file/directory 
-$client->setPermissions($remoteFile, [
+$client->setPermissions('path/to/file', [
     'owner' => 'r-w', // read & write
     'group' => 'w',
     'world' => 'w-r-e'
 ]);
 
 // or you can use the UNIX file permission digits 
-$client->setPermissions($remoteFile, 777);
+$client->setPermissions('path/to/file', 777);
 ```
 
 #### is methods
 
 ```php
 // is an ftp directory ?
-$client->isDir($remoteDir);
+$client->isDir('path/to/file/or/directory');
 
 // is a file type ?
-$client->isFile($remoteFile);
+$client->isFile('path/to/file/or/directory');
 
 // is an empty file/directory ?
-$client->isEmpty($remoteFile);
+$client->isEmpty('path/to/file/or/directory');
 
 // is exists on the FTP server ?
-$client->isExists($remoteFile);
+$client->isExists('path/to/file/or/directory');
 
 // is the server support the size feature ?
 $client->isFeatureSupported('SIZE');
@@ -223,10 +217,10 @@ $client->isFeatureSupported('SIZE');
 
 ```php
 // get the last modified time of the giving file (not working with directories)
-$client->lastMTime($remoteFile);
+$client->lastMTime('path/to/file');
 
 // get a content of an FTP file
-$client->getFileContent($remoteFile);
+$client->getFileContent('path/to/file');
 
 // get all supported features by the FTP server
 $client->getFeatures();
