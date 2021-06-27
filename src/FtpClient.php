@@ -754,12 +754,16 @@ class FtpClient
      *
      * @param string $remoteFile
      *
-     * @return string
-     *
+     * @return string|false Returns the file content as a string, if the passed FTP
+     *                      file is not a regular file then a false returned.
      * @throws FtpClientException
      */
     public function getFileContent($remoteFile)
     {
+        if (!$this->isFile($remoteFile)) {
+            return false;
+        }
+
         // Create a temporary file in the system temp
         $tempFile = tempnam(sys_get_temp_dir(), $remoteFile);
         if (!$this->wrapper->get($tempFile, $remoteFile, FtpWrapper::ASCII)) {
@@ -807,8 +811,6 @@ class FtpClient
      *                          Ex : 'foo/bar/java/'.
      *
      * @return bool Returns true in success, false otherwise.
-     *
-     * @throws FtpClientException
      */
     public function createDir($directory)
     {
@@ -825,9 +827,6 @@ class FtpClient
         }
 
         return true;
-    }
-
-        return $this->wrapper->mkdir($directory);
     }
 
     /**
@@ -1119,7 +1118,8 @@ class FtpClient
      * @param string $directory The remote directory.
      * @param bool   $recursive
      *
-     * @return array|false
+     * @return array
+     *
      * @throws FtpClientException
      */
     public function find($pattern, $directory, $recursive = false)
