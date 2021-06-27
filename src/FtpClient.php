@@ -159,18 +159,11 @@ class FtpClient
      *
      * @return bool Returns true if the giving file is a directory type, false if
      *              is a file type or doesn't exist.
+     *
      * @throws FtpClientException
      */
     public function isDir($remoteFile)
     {
-        if (!$this->isExists($remoteFile)) {
-            return false;
-        }
-
-        if ($this->isFeatureSupported('SIZE')) {
-            return $this->wrapper->size($remoteFile) === -1;
-        }
-
         if (($list = $this->listDirDetails($this->dirname($remoteFile))) === false
             || !array_key_exists($remoteFile, $list)
             || ($type = $list[$remoteFile]['type']) === '') {
@@ -192,11 +185,7 @@ class FtpClient
      */
     public function isFile($remoteFile)
     {
-        if ($this->isFeatureSupported('SIZE')) {
-            return $this->wrapper->size($remoteFile) !== -1;
-        }
-
-        return $this->isExists($remoteFile) && !$this->isDir($remoteFile);
+        return !$this->isDir($remoteFile);
     }
 
     /**
@@ -569,7 +558,6 @@ class FtpClient
      * @param string $destinationFolder The destination remote directory.
      *
      * @return bool Returns true in success, an exception throws otherwise.
-     *
      * @throws FtpClientException
      */
     public function move($source, $destinationFolder)
