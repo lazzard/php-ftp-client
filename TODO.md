@@ -1,11 +1,8 @@
-# TODO
+# TODO LIST
 
 ## Improvements
 
-- [ ] `FtpClient::isDir`&`FtpClient::isFile` : consider replacing the SIZE solution because the `ftp_size` returned -1 if an error occurs, and the same value returned if the giving file is a directory type, so we can't trust it.
-
 ## PHPUnit Upgrade
-- [ ] PHP v^5.6 => Upgrade phpunit to v^5.
 
 ## PHP Upgrade
 
@@ -20,7 +17,6 @@
 - [ ] `FtpClient::lastMTime()` directory supporting.  
 - [ ] Add `FtpClient::append($remoteFile, $content)` method.
 - [ ] Implement a method that allows to download all the files within the giving directory.
-- [ ] Add `FtpClient::copy` that serves to copy a remote file or a whole directory to the local machine. 
 
 ## Not wrapped FTP extension functions - why ?
 

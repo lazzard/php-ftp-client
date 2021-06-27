@@ -163,6 +163,10 @@ class FtpClient
      */
     public function isDir($remoteFile)
     {
+        if (!$this->isExists($remoteFile)) {
+            return false;
+        }
+
         if ($this->isFeatureSupported('SIZE')) {
             return $this->wrapper->size($remoteFile) === -1;
         }
@@ -183,6 +187,7 @@ class FtpClient
      *
      * @return bool Returns true if the giving remote file is a regular file, false if
      *              is a directory type or does not exists.
+     *
      * @throws FtpClientException
      */
     public function isFile($remoteFile)
@@ -558,7 +563,7 @@ class FtpClient
     }
 
     /**
-     * Moves a file or a directory to another path.
+     * Moves a remote file/directory to another path.
      *
      * @param string $source            The remote file to be moved.
      * @param string $destinationFolder The destination remote directory.
@@ -573,7 +578,7 @@ class FtpClient
     }
 
     /**
-     * Renames file/directory on the FTP server.
+     * Renames a remote file/directory.
      *
      * @param string $remoteFile The remote file to renames.
      * @param string $newName    The new name.
@@ -807,22 +812,20 @@ class FtpClient
      */
     public function createDir($directory)
     {
-        if ($this->isExists($directory) && $this->isDir($directory)) {
-            return true;
+        $dirs      = explode('/', $directory);
+        $dirsCount = count($dirs);
+
+        if ($dirsCount === 0) {
+            return $this->wrapper->mkdir($directory);
         }
 
-        $dirs  = explode('/', $directory);
-        $count = count($dirs);
-        if ($count > 0) {
-            for ($i = 1; $i <= $count; $i++) {
-                $dir = join('/', array_slice($dirs, 0, $i));
-                if (!$this->isExists($dir) && !$this->wrapper->mkdir($dir)) {
-                    throw new FtpClientException($this->wrapper->getErrorMessage()
-                        ?: "Unable to create directory [$dir] on the server.");
-                }
-            }
-            return true;
+        for ($i = 1; $i <= $dirsCount; $i++) {
+            $dir = join('/', array_slice($dirs, 0, $i));
+            !$this->isExists($dir) && !$this->wrapper->mkdir($dir);
         }
+
+        return true;
+    }
 
         return $this->wrapper->mkdir($directory);
     }
