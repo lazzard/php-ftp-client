@@ -1,5 +1,19 @@
 # Change Log
 
+## v1.3.5 (2021-06-27)
+
+### Fixed
+
+* `FtpClient::isDir` and `FtpClient::isFile` fixed servers compatibility, this two methods no longer depends on the untrusted `SIZE` feature to work.
+
+### Added
+
+* `FtpClient::copy` method added.
+
+### Behavior changed
+
+* `FtpClient::getFileContent` returns false if the passed file is a directory.
+
 ## v1.3.3 (2021-05-02)
 
 ### Added
