@@ -2,11 +2,11 @@
 
 namespace Lazzard\FtpClient\Tests;
 
+use PHPUnit\Framework\TestCase;
 use Lazzard\FtpClient\Connection\ConnectionInterface;
 use Lazzard\FtpClient\Exception\FtpClientException;
 use Lazzard\FtpClient\FtpClient;
 use Lazzard\FtpClient\FtpWrapper;
-use PHPUnit\Framework\TestCase;
 
 class FtpClientTest extends TestCase
 {
@@ -371,10 +371,10 @@ class FtpClientTest extends TestCase
         $this->getFtpClientInstance()->removeFile(INITIAL_DIR . "/$testFile");
     }
 
-    public function testCopyWithFileSource()
+    public function testCopyToLocalWithFileSource()
     {
         $client = $this->getFtpClientInstance();
-        if($client->createFile($this->testFile, 'hello world!!')) {
+        if ($client->createFile($this->testFile, 'hello world!!')) {
             $this->assertTrue($client->copyToLocal($this->testFile, sys_get_temp_dir()));
             $client->removeFile($this->testFile);
         } else {
@@ -382,10 +382,10 @@ class FtpClientTest extends TestCase
         }
     }
 
-    public function testCopyWithDirSource()
+    public function testCopyToLocalWithDirSource()
     {
         $client = $this->getFtpClientInstance();
-        if($client->createDir($this->testDir) && $client->createFile($this->testDir . '/hello.txt', 'hello world!!')) {
+        if ($client->createDir($this->testDir) && $client->createFile($this->testDir . '/hello.txt', 'hello world!!')) {
             $this->assertTrue($client->copyToLocal($this->testDir, sys_get_temp_dir()));
             $client->removeDir($this->testDir);
         } else {
@@ -414,9 +414,38 @@ class FtpClientTest extends TestCase
     public function testFindRecursive()
     {
         $client = $this->getFtpClientInstance();
-        if($client->createDir($this->testDir) && $client->createFile($this->testDir . '/hello.txt', 'hello world!!')) {
+        if ($client->createDir($this->testDir) && $client->createFile($this->testDir . '/hello.txt', 'hello world!!')) {
             $this->assertNotEmpty($client->find('/.*\.txt$/i', INITIAL_DIR, true));
             $client->removeDir($this->testDir);
+        } else {
+            $this->markTestSkipped("Cannot create the testing file/directory.");
+        }
+    }
+
+    public function testCopyWithFileSource()
+    {
+        $client = $this->getFtpClientInstance();
+        if ($client->createDir($this->testDir) && $client->createFile($this->testFile, 'hello world!!')) {
+            $this->assertTrue($client->copy($this->testFile, $this->testDir));
+            $client->removeFile($this->testFile);
+            $client->removeDir($this->testDir);
+        } else {
+            $this->markTestSkipped("Cannot create the testing file/directory.");
+        }
+    }
+
+    public function testCopyWithDirectorySource()
+    {
+        $testDir2 = $this->testDir . "_2";
+        $client   = $this->getFtpClientInstance();
+
+        if ($client->createDir($testDir2)
+            && $client->createDir($this->testDir)
+            && $client->createFile($this->testDir . '/' . basename($this->testFile), 'hey there!')
+        ) {
+            $this->assertTrue($client->copy($this->testFile, $testDir2));
+            $client->removeDir($this->testDir);
+            $client->removeDir($testDir2);
         } else {
             $this->markTestSkipped("Cannot create the testing file/directory.");
         }
