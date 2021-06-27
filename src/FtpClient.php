@@ -1068,6 +1068,48 @@ class FtpClient
     }
 
     /**
+     * Copies a remote file/dir to another directory.
+     *
+     * @param string $remoteSource
+     * @param string $remoteDirectory
+     *
+     * @return bool Returns true in success and false otherwise, an exception may
+     *              throws also.
+     *
+     * @throws FtpClientException
+     */
+    public function copy($remoteSource, $remoteDirectory)
+    {
+        $remoteDestination = "$remoteDirectory/" . basename($remoteSource);
+
+        if ($this->isFile($remoteSource)) {
+            $tempFile = tempnam(sys_get_temp_dir(), $remoteSource);
+            if ($tempFile !== false && file_put_contents($tempFile, $this->getFileContent($remoteSource)) !== false) {
+                try {
+                    return $this->upload($tempFile, $remoteDestination);
+                } finally {
+                    unlink($tempFile);
+                }
+            }
+        }
+
+        if ($this->isDir($remoteSource) && $this->createDir($remoteDestination)) {
+            $files = $this->listDirDetails($remoteSource, true);
+            foreach ($files as $name => $info) {
+                $newPath = $remoteDestination . str_replace($remoteSource, '', $info['path']);
+
+                if (!$info['type'] === 'file') {
+                    $this->createDir($newPath);
+                } else {
+                    $this->copy($info['path'], $this->dirname($newPath));
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * Finds a remote file/directory
      *
      * @param string $pattern   The regex pattern.
