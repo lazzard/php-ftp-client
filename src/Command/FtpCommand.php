@@ -16,7 +16,7 @@ use Lazzard\FtpClient\Exception\CommandException;
 use Lazzard\FtpClient\FtpWrapper;
 
 /**
- * Wrapping the FTP extension functions that can be used to send FTP commands to the server.
+ * Wrapping the FTP extension functions that can be used to send raw commands to the server.
  *
  * @since  1.0
  * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>
@@ -94,8 +94,7 @@ class FtpCommand
     public function site($command)
     {
         if (!$this->wrapper->site(trim($command))) {
-            throw new CommandException($this->wrapper->getErrorMessage()
-                ?: "SITE command was failed");
+            throw new CommandException($this->wrapper->getErrorMessage() ?: "SITE command was failed.");
         }
 
         return true;
@@ -119,7 +118,7 @@ class FtpCommand
         }
 
         if (!$this->wrapper->exec(trim($command))) {
-            throw new CommandException("SITE EXEC command was failed");
+            throw new CommandException($this->wrapper->getErrorMessage() ?: "SITE EXEC command was failed");
         }
 
         return true;
