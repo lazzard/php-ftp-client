@@ -443,7 +443,7 @@ class FtpClientTest extends TestCase
             && $client->createDir($this->testDir)
             && $client->createFile($this->testDir . '/' . basename($this->testFile), 'hey there!')
         ) {
-            $this->assertTrue($client->copy($this->testFile, $testDir2));
+            $this->assertTrue($client->copy($this->testDir, $testDir2));
             $client->removeDir($this->testDir);
             $client->removeDir($testDir2);
         } else {
