@@ -532,18 +532,18 @@ class FtpClient
     public function fileSize($remoteFile)
     {
         /**
-         * 'SIZE' command is not a standardized in the basic FTP protocol as defined in RFC 959, therefore
-         * many FTP servers may not implement this command, to work around this we use the listDirDetails()
-         * method which uses the ftp_rawlist FTP extension function, in turn this function uses the LIST command
-         * to get the directory files information includes the files size.
+         * The 'SIZE' command is not standardized in the basic FTP protocol
+         * as defined in RFC 959, therefore many FTP servers may not implement
+         * this command, to work around this we use the 'listDirDetails' method
+         * to get the directory files information that includes the file size.
          *
          * @link https://tools.ietf.org/html/rfc959
          */
         if (!$this->isFeatureSupported('SIZE')) {
-            $list = $this->listDirDetails('/');
-            foreach (range(0, count($list) - 1) as $i) {
-                if ($list[$i]['name'] === $remoteFile) {
-                    return (int)$list[$i]['size'];
+            $list = $this->listDirDetails($this->dirname($remoteFile));
+            foreach ($list as $filename => $info) {
+                if ($remoteFile === $filename) {
+                    return (int)$list[$filename]['size'];
                 }
             }
         }
