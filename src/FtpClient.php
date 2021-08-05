@@ -257,8 +257,9 @@ class FtpClient
                     continue;
                 }
 
+
                 if (!$pathTmp) {
-                    $path = $escapedDir !== '/' && $escapedDir
+                    $path = $escapedDir !== '/' && $escapedDir !== '.' && $escapedDir
                         ? "$escapedDir/$filename" : $filename;
                 } else {
                     $path = "$pathTmp/$filename";
