@@ -39,12 +39,14 @@ class FtpSSLConnection extends Connection
 
 
     /**
+     * @return bool
+     *
      * {@inheritDoc}
-     * 
-     * @throws ConnectionException
      */
     protected function connect()
     {
+        parent::connect();
+
         if (!$this->stream = $this->wrapper->ssl_connect($this->getHost(), $this->getPort(), $this->getTimeout())) {
             throw new ConnectionException($this->wrapper->getErrorMessage()
                 ?: "SSL connection failed to the FTP server.");

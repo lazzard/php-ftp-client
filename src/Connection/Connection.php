@@ -61,15 +61,9 @@ abstract class Connection implements ConnectionInterface
      * @param int    $port     [optional] Specifies the port to be used to open the control channel.
      * @param int    $timeout  [optional] The connection timeout in seconds, the default sets to 90,
      *                         you can set this option any time using the {@link FtpConfig::setTimeout()} method.
-     * 
-     * @throws ConnectionException
      */
     public function __construct($host, $username, $password, $port = 21, $timeout = 90)
     {
-        if (!filter_var(gethostbyname($host), FILTER_VALIDATE_IP)) {
-            throw new ConnectionException("[$host] is not a valid host name/IP.");
-        }
-        
         $this->host      = $host;
         $this->username  = $username;
         $this->password  = $password;
@@ -222,7 +216,21 @@ abstract class Connection implements ConnectionInterface
     }
 
     /**
-     * @return bool
+     * @throws ConnectionException
      */
-    abstract protected function connect();
+    protected function connect()
+    {
+        if (!$this->isValidHost($this->host)) {
+            throw new ConnectionException("[$this->host] is not a valid host name/IP.");
+        }
+    }
+
+    private function isValidHost($host)
+    {
+        if (filter_var(gethostbyname($host), FILTER_VALIDATE_IP) === false) {
+            return false;
+        }
+
+        return true;
+    }
 }
