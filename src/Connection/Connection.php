@@ -177,10 +177,7 @@ abstract class Connection implements ConnectionInterface
      */
     public function open()
     {
-        $this->connect();
-        $this->login();
-        $this->isConnected = true;
-        return true;
+        return $this->isConnected = $this->connect() && $this->login();
     }
 
     /**
