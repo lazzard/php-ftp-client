@@ -84,17 +84,13 @@ class FtpClient
      */
     public function getParent()
     {
-        $originalDir = $this->getCurrentDir();
+        $original = $this->getCurrentDir();
 
         $this->back();
 
         $parent = $this->getCurrentDir();
 
-        $this->changeDir($originalDir);
-
-        if ($parent !== '/') {
-            return substr($parent, 1);
-        }
+        $this->changeDir($original);
 
         return $parent;
     }
