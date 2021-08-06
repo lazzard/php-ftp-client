@@ -479,24 +479,26 @@ class FtpClient
                 ?: "Failed to get files list.");
         }
 
-        if ($ignoreDots) {
-            $files = array_slice($files, 2);
-        }
-
         switch ($filter) {
             case self::DIR_TYPE:
-                return array_filter($files, function ($file) {
+                $files = array_filter($files, function ($file) {
                     return $this->isDir($file);
-                });
+                }); break;
 
             case self::FILE_TYPE:
-                return array_filter($files, function ($file) {
+                $files = array_filter($files, function ($file) {
                     return !$this->isDir($file);
-                });
-
-            default:
-                return $files;
+                }); break;
         }
+
+        if ($ignoreDots) {
+            $files = array_filter($files, function ($file) {
+                return !in_array($file, ['.', '..']);
+            });
+        }
+
+        // array_values reset the array indexes
+        return array_values($files);
     }
 
     /**
