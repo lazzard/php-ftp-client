@@ -426,17 +426,24 @@ class FtpClient
     }
 
     /**
-     * Gets additional commands supported by the FTP server outside the basic commands defined in RFC959.
+     * Gets additional commands supported by the FTP server outside
+     * the basic commands that defined in RFC959.
      *
      * @link https://tools.ietf.org/html/rfc959
      *
      * @see FtpCommand::raw()
      *
-     * @return array Returns remote features in array.
+     * @return array|false Returns remote features in array, false in failure.
      */
     public function getFeatures()
     {
-        return array_map('ltrim', $this->command->raw("FEAT")['body']);
+        if (($response = $this->command->raw("FEAT")) !== false) {
+            if (is_array($response['body'])) {
+                return array_map('ltrim', $response['body']);
+            }
+        }
+
+        return false;
     }
 
     /**
