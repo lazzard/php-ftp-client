@@ -171,9 +171,6 @@ class FtpClient
         return false;
     }
 
-        return $type === 'dir';
-    }
-
     /**
      * Checks if the giving file is a regular file.
      *
@@ -417,20 +414,27 @@ class FtpClient
 
     /**
      * Determines if the giving feature is supported by the remote server or not.
-     *
      * Note! the characters case are not important.
-     *
-     * @see FtpClient::getFeatures()
      *
      * @param string $feature
      *
+     * @see FtpClient::getFeatures()
+     *
      * @return bool Returns true if the feature is supported, false otherwise.
+     *
+     * @throws FtpClientException
      */
     public function isFeatureSupported($feature)
     {
+        $features = $this->getFeatures();
+
+        if (!$features) {
+            throw new FtpClientException("Unable to check if [$feature] command is supported or not.");
+        }
+
         return in_array(
             strtolower($feature),
-            array_map('strtolower', $this->getFeatures())
+            array_map('strtolower', $features)
         );
     }
 
