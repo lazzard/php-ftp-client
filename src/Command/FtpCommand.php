@@ -71,7 +71,7 @@ class FtpCommand
         $trimmed = trim($command);
 
         if ($trimmed !== '') {
-            return $this->parseResponse($this->wrapper->raw($trimmed));
+            return $this->parseRawResponse($this->wrapper->raw($trimmed));
         }
 
         return false;
