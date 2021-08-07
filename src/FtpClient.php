@@ -718,14 +718,15 @@ class FtpClient
         $resume = true,
         $interval = 1,
         $mode = FtpWrapper::BINARY
-    ) {
+    )
+    {
         $startPos = 0;
         if ($resume && file_exists($localFile) && $size = @filesize($localFile)) {
             $startPos = $size;
         }
 
+        $remoteFileSize = $this->fileSize($remoteFile); // TODO push
         $download       = $this->wrapper->nb_get($localFile, $remoteFile, $mode, $startPos);
-        $remoteFileSize = $this->fileSize($remoteFile);
         $startTime      = microtime(true);
         $sizeTmp        = $startPos;
         $elapsedTimeTmp = 0;
