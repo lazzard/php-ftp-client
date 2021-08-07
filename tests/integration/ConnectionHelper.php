@@ -1,13 +1,13 @@
 <?php
 
-namespace Lazzard\FtpClient\Tests;
+namespace Lazzard\FtpClient\Tests\Integration;
 
 use Lazzard\FtpClient\Config\FtpConfig;
 use Lazzard\FtpClient\Connection\ConnectionInterface;
 use Lazzard\FtpClient\Connection\FtpConnection;
 
 /**
- * A singleton class to avoid multiple FTP connections for each depending module.
+ * Avoids multiple FTP connection creating.
  */
 class ConnectionHelper
 {
@@ -23,6 +23,7 @@ class ConnectionHelper
             self::open(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
             self::passive(PASSIVE);
         }
+
         return self::$connection;
     }
 

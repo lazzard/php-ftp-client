@@ -1,6 +1,4 @@
 <?php
 
-require __DIR__ . '/../vendor/autoload.php';
-
-require_once 'vendor/autoload.php';
-require_once 'tests/config.php';
+require_once dirname(__DIR__) . '/vendor/autoload.php';
+require_once __DIR__ . '/integration/config.php';

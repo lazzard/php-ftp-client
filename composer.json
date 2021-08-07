@@ -11,7 +11,7 @@
   ],
   "authors": [
     {
-      "name": "El Amrani Shaker",
+      "name": "El Amrani Chakir",
       "email": "elamrani.sv.laza@gmail.com",
       "homepage": "https://github.com/AmraniCh"
     }
@@ -30,7 +30,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Lazzard\\FtpClient\\Tests\\": "tests/"
+      "Lazzard\\FtpClient\\Tests\\Integration\\": "tests/integration"
     }
   }
 }
