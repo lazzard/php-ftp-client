@@ -503,13 +503,25 @@ class FtpClient
             case self::DIR_TYPE:
                 $files = array_filter($files, function ($file) {
                     return $this->isDir($file);
-                }); break;
+                });
+                break;
 
             case self::FILE_TYPE:
                 $files = array_filter($files, function ($file) {
                     return !$this->isDir($file);
-                }); break;
+                });
+                break;
         }
+
+        // some FTP servers may implement NSLT command slight
+        // different, they can returns a list of full paths
+        // contained in the provided directory, which is not
+        // the expected result from the NLST command.
+        $files = array_map(function ($file) {
+            if (strpos($file, '/') !== -1) {
+                return basename($file);
+            }
+        }, $files);
 
         if ($ignoreDots) {
             $files = array_filter($files, function ($file) {
