@@ -356,7 +356,7 @@ class FtpClient
         // Trying to get the files list of the remote file parent directory, this check
         // is basically to avoid passing false to the next 'in_array' function
         // below, so we don't want to get an error because of this.
-        if (!$list = $this->wrapper->nlist($this->dirname($remoteFile))) {
+        if (!$list = $this->listDir($this->dirname($remoteFile))) {
             return false;
         }
 
