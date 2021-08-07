@@ -96,10 +96,10 @@ class FtpClient
     }
 
     /**
-     * Gets current working directory.
-     *
-     * @return string
-     *
+     * Gets current working directory
+     * .
+     * @return string|false
+     *                     
      * @throws FtpClientException
      */
     public function getCurrentDir()
