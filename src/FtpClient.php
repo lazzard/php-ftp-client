@@ -134,7 +134,7 @@ class FtpClient
      *
      * @param string $directory The remote file directory.
      *
-     * @return true Returns true in success, false otherwise.
+     * @return true Returns true in success, exception throws otherwise.
      *
      * @throws FtpClientException
      */
