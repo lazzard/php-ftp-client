@@ -235,9 +235,14 @@ class FtpClient
         $recursive = false,
         $filter = self::FILE_DIR_TYPE,
         $ignoreDots = true
-    ) {
-        $escapedDir = str_replace(' ', '\ ', $directory);
-        if (!($details = $this->wrapper->rawlist($escapedDir, $recursive))) {
+    )
+    {
+        // TODO hardcoded method consider to refactor
+
+        // './path/to/file' is the same as 'path/to/file'
+        $directory = str_replace('./', '', $directory);
+
+        if (!($details = $this->wrapper->rawlist($directory, $recursive))) {
             throw new FtpClientException($this->wrapper->getErrorMessage()
                 ?: "Unable to get files list for [{$directory}] directory.");
         }
@@ -262,10 +267,9 @@ class FtpClient
                     continue;
                 }
 
-
                 if (!$pathTmp) {
-                    $path = $escapedDir !== '/' && $escapedDir !== '.' && $escapedDir
-                        ? "$escapedDir/$filename" : $filename;
+                    $path = $directory !== '/' && $directory !== '.' && $directory
+                        ? "$directory/$filename" : $filename;
                 } else {
                     $path = "$pathTmp/$filename";
                 }
