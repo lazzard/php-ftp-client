@@ -545,7 +545,7 @@ class FtpClient
     public function isEmpty($remoteFile)
     {
         if ($this->isDir($remoteFile)) {
-            return empty($this->listDir($remoteFile));
+            return empty($this->listDir($remoteFile, self::FILE_DIR_TYPE, true));
         }
 
         return $this->fileSize($remoteFile) === 0;
