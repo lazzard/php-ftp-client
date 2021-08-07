@@ -2,8 +2,6 @@
 
 namespace Lazzard\FtpClient\Tests\Integration;
 
-use Lazzard\FtpClient\Connection\ConnectionInterface;
-use Lazzard\FtpClient\Exception\FtpClientException;
 use Lazzard\FtpClient\Exception\WrapperException;
 use Lazzard\FtpClient\FtpWrapper;
 use PHPUnit\Framework\TestCase;
