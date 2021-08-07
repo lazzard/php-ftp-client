@@ -64,12 +64,13 @@ abstract class Connection implements ConnectionInterface
      */
     public function __construct($host, $username, $password, $port = 21, $timeout = 90)
     {
-        $this->host      = $host;
-        $this->username  = $username;
-        $this->password  = $password;
-        $this->port      = $port;
-        $this->timeout   = $timeout;
-        $this->isPassive = false;
+        $this->host        = $host;
+        $this->username    = $username;
+        $this->password    = $password;
+        $this->port        = $port;
+        $this->timeout     = $timeout;
+        $this->isPassive   = false;
+        $this->isConnected = false;
 
         $this->wrapper = new FtpWrapper($this);
     }
