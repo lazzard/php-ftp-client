@@ -61,22 +61,17 @@ class FtpCommand
      *
      * @param string $command The command to execute.
      *
-     * @return array|false Returns detailed array of the FTP response, if the giving command is
-     *                     null or empty returns false.
+     * @return array|false Returns an array of the response information containing
+     *                     the [response, code, message, body, end-message, success]
+     *                     if the giving command is null or empty then a false value
+     *                     returned.
      */
     public function raw($command)
     {
-        if (!empty(trim($command))) {
-            $response = $this->wrapper->raw(trim($command));
-            $code     = (int)substr(@$response[0], 0, 3);
+        $trimmed = trim($command);
 
-            return [
-                'response' => $response,
-                'code'     => $code,
-                'message'  => ltrim(substr(@$response[0], 3)),
-                'body'     => array_slice($response, 1, -1) ?: null,
-                'success'  => $code < 400
-            ];
+        if ($trimmed !== '') {
+            return $this->parseResponse($this->wrapper->raw($trimmed));
         }
 
         return false;
@@ -139,5 +134,44 @@ class FtpCommand
         }
 
         return array_map('ltrim', $response['body']);
+    }
+
+    /**
+     * @param string $response
+     *
+     * @return array
+     */
+    protected function parseRawResponse($response)
+    {
+        $code       = null;
+        $message    = null;
+        $body       = null;
+        $endMessage = null;
+
+        // get the response code
+        if (preg_match('/^\d+/', $response[0], $matches) !== false) {
+            $code = (int)$matches[0];
+        }
+
+        // get the message
+        if (preg_match('/[A-z ]+.*/', $response[0], $matches) !== false) {
+            $message = $matches[0];
+        }
+
+        // if the response is multiline response then search for the body and the end-message
+        $count = count($response);
+        if ($count > 1) {
+            $body       = array_slice($response, 1, -1);
+            $endMessage = $response[$count - 1];
+        }
+
+        return [
+            'response'    => $response,
+            'code'        => $code,
+            'message'     => $message,
+            'body'        => $body,
+            'end-message' => $endMessage,
+            'success'     => $code ? $code < 400 : null
+        ];
     }
 }
