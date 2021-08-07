@@ -99,7 +99,7 @@ class FtpClient
      * Gets current working directory
      * .
      * @return string|false
-     *                     
+     *
      * @throws FtpClientException
      */
     public function getCurrentDir()
@@ -160,11 +160,16 @@ class FtpClient
      */
     public function isDir($remoteFile)
     {
-        if (($list = $this->listDirDetails($this->dirname($remoteFile))) === false
-            || !array_key_exists($remoteFile, $list)
-            || ($type = $list[$remoteFile]['type']) === '') {
-            return false;
+        $originDir = $this->getCurrentDir();
+
+        // we don't use '$this->changeDir' because we want to NOT throw
+        // an exception if the file isn't exists
+        if ($this->wrapper->chdir($remoteFile)) {
+            return $this->changeDir($originDir);
         }
+
+        return false;
+    }
 
         return $type === 'dir';
     }
