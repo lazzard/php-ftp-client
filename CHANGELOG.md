@@ -1,5 +1,19 @@
 # Change Log
 
+## v1.4.0 (2021-08-08)
+
+* `FtpClient::fileSize` fixed for servers that not support `SIZE` feature.
+* `FtpClient::listDir` fixed compatibility issue with some FTP servers.
+* `Connection::isConnected` fixed bug : if the connection is not established yet the method was returned 
+a NULL value instead of false.
+* `FtpCommand::raw` improved and added the `end-message` to the returned array.
+* `FtpClient::isDir` performance optimized.
+* `FtpClient::listDirDetails` improved (No Breaking Change).
+* `FtpClient::getFeatures` is now returns false in failure.
+* `FtpClient::isFeatureSupported` can now throw a `FtpClientException` exception.
+* `ConnectionInterface::isSecure` is deprecated see [#15](../../issues/15).
+* The integration tests refactored and optimized.
+
 ## v1.3.5 (2021-06-27)
 
 ### Fixed
