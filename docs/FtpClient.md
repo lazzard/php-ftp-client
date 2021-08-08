@@ -1,16 +1,15 @@
-## FtpClient
+# FtpClient
 
-**FtpClient** class is the base class of the library, it contains all the methods you need to start working with your FTP server.
+`FtpClient\FtpClient` is the base class of the library, it contains all methods you need to start working with your FTP server, it only takes a connection instance as a first parameter.
 
 ```php
-// Create an FtpClient Instance
+// create an FtpClient Instance
 $client = new FtpClient(ConnectionInterface $connection);
 ```
 
 ### Available methods 
 
 ```php
-FtpClient::__construct($connection)
 FtpClient::allocateSpace($bytes)
 FtpClient::asyncDownload($remoteFile, $localFile, $callback, $resume = true, $interval = 1, $mode = FtpWrapper::BINARY)
 FtpClient::asyncUpload($localFile, $remoteFile, $callback, $resume = true, $interval = 1, $mode = FtpWrapper::BINARY)
@@ -60,7 +59,7 @@ FtpClient::upload($localFile, $remoteFile, $resume = true, $mode = FtpWrapper::B
 
 ```php
 $interval = 1;
-$client->asyncDownload('illustrations/assets.zip', 'assets.zip', function ($state) use ($interval) {
+$client->asyncDownload('path/to/remote/file', 'path/to/local/file', function ($state) use ($interval) {
     ob_end_clean();
     ob_start();
 
