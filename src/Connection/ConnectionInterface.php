@@ -65,6 +65,8 @@ interface ConnectionInterface
 
     /**
      * @return bool
+     *
+     * @deprecated https://github.com/lazzard/php-ftp-client/issues/15
      */
     public function isSecure();
 
