@@ -98,7 +98,7 @@ class FtpClient
     /**
      * Gets current working directory
      * .
-     * @return string|false
+     * @return string
      *
      * @throws FtpClientException
      */
