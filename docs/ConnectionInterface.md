@@ -1,32 +1,31 @@
-## FtpConnectionInterface
+# ConnectionInterface
 
-`FtpConnectionInterface` provides an easy way to manipulate an FTP connection instance.
+`FtpClient\Connection\ConnectionInterface` interface provides an easy way to manipulate an FTP connection instance.
 
 You can use the following classes that implement the interface.
 
- * `FtpConnection`    : Regular FTP connection (Not secure). 
+ * `FtpConnection` : Regular FTP connection (Not secure). 
  * `FtpSSLConnection` : FTP over TLS/SSL connection (Secure).
 
-**Example:**
+**Example :**
 
 ```php
-// Create an FTP connection instance
+// create an FTP connection instance
 $connection = new FtpConnection('localhost', 'foo', '1234');
 
-// Open the FTP connection
+// open the FTP connection
 $connection->open();
 
-// Close the connection
+// close the connection
 $connection->close();
 
-// You can use the following getters 
+// getters 
 $connection->getStream();
 $connection->getHost();
 $connection->getPort();
 $connection->getTimeout();
 $connection->getUsername();
 $connection->getPassword();
-$connection->isSecure();
 $connection->isConnected();
 $connection->isPassive();
 ```

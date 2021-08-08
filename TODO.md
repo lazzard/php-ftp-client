@@ -1,5 +1,8 @@
 # TODO LIST
 
+`Connection::isPassive` moved FtpConfig::isPassive
+`FtpWrapper::$errorMessage` reset whenever calling a new function.
+
 ## Improvements
 
 ## PHPUnit Upgrade
