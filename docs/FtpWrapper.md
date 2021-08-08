@@ -1,9 +1,11 @@
-## Using the FtpWrapper
+# FtpWrapper
 
-You can use the `FtpWrapper` as a proxy class to the FTP extension functions (ftp_*), this class handle the FTP errors whenever an error occurs, and you can get the error message sent by the remote server using the `getFtpErrorMessage` method.
+You can use the `FtpWrapper` directly as a proxy class to the FTP extension functions (ftp_*), this class can handle FTP errors that may be raised with the built-in functions, and you can access the last error message using the `FtpWrapper::getErrorMessage` method.  
+
+**Simple Example :**
 
 ```php
-$wrapper = new FtpWrapper($connection);
+$wrapper = new FtpWrapper(ConnectionInterface $connection);
 $wrapper->pasv(true);
 
 if (!$wrapper->nlist('www/public_html')) {
@@ -13,7 +15,7 @@ if (!$wrapper->nlist('www/public_html')) {
 }
 ```
 
-### Note 
+**Note :** 
 
 Sometimes when an error occurs the remote server may not send any specific message, in this case our `getFtpErrorMessage` will return `null`, one solution to this is to create your own error message upon on what you try to do, this is a simple example: 
 
