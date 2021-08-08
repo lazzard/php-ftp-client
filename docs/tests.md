@@ -1,25 +1,23 @@
-## Running Tests
+# Running integration tests
 
-This library uses PHPUnit for testing.
-
-### Requirements
+## Requirements
 
 * phpUnit ^5
 * php >= 5.6
 
-### Install
+## Install
 
-If you don't have PHPUnit installed globally, or you have a different PHPUnit version then run this: 
+If you don't have PHPUnit installed globally, or you have a different PHPUnit version then run this : 
 
 ```console
 composer install --dev
 ```
 
-### Configs
+## FTP settings configs
 
-Edit **tests/config.php** with your FTP credentials.
+Edit the **tests/config.php** file with your own FTP settings.
 
-### Run tests
+## Run the tests
 
 ```console
 vendor/bin/phpunit
