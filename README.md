@@ -1,13 +1,13 @@
 # Lazzard/FtpClient
 
-[![Downloads](https://img.shields.io/packagist/dm/lazzard/php-ftp-client)](https://packagist.org/packages/lazzard/php-ftp-client)
+[![Downloads](https://img.shields.io/packagist/dt/lazzard/php-ftp-client?style=flat-square)](https://packagist.org/packages/lazzard/php-ftp-client)
 [![Packagist Version](https://img.shields.io/packagist/v/lazzard/php-ftp-client?style=flat-square)](https://packagist.org/packages/lazzard/php-ftp-client)
 [![Minimum PHP version](https://img.shields.io/packagist/php-v/lazzard/php-ftp-client?color=%238892bf&style=flat-square)](https://packagist.org/packages/lazzard/php-ftp-client)
 ![License](https://img.shields.io/packagist/l/lazzard/php-ftp-client?color=critical&style=flat-square)
 
 A library that wraps the PHP FTP functions in an OOP way.
 
-*Note: This library aimed to be a full FTP/FTPS client solution for the old (5.5+) and newer PHP releases (7.2+) that support FTP extension.*
+*Note: This library aimed to be a full FTP/FTPS client solution for the old (5.5+) and newer PHP releases (8.0+) that support FTP extension.*
 
 ## Requirements
 
@@ -34,34 +34,44 @@ then generate the autoload files :
 composer dump-autoload
 ```
 
-## Getting Started
-
-### Usage
-
-Create an FTP connection
-```php
-$connection = new FtpConnection('host', 'foo', '1234');
-$connection->open();
-```
-
-Or create a secure FTP connection
-```php
-$connection = new FtpSSLConnection('host', 'bar', '1234');
-$connection->open();
-```
-
-Configure the connection
+## Quick Start
 
 ```php
-$config = new FtpConfig(ConnectionInterface $connection);
-$config->setPassive(true);
+<?php
+
+require __DIR__ . '/vendor/autoload.php';
+
+use Lazzard\FtpClient\Config\FtpConfig;
+use Lazzard\FtpClient\Connection\FtpConnection;
+use Lazzard\FtpClient\Connection\FtpSSLConnection;
+use Lazzard\FtpClient\Exception\FtpClientException;
+use Lazzard\FtpClient\FtpClient;
+
+try {
+    // create a regular FTP connection
+    $connection = new FtpConnection("host", "username", "password");
+    // or a secure connection
+    $connection = new FtpSSLConnection("host", "username", "password");
+    // open the connection
+    $connection->open();
+
+    // configure the FTP connection
+    $config = new FtpConfig($connection);
+    // set the passive mode on (recommanded)
+    $config->setPassive(true);
+
+    // Start working
+    $client = new FtpClient($connection);
+    print_r($client->getFeatures());
+
+    // close the connection
+    $connection->close();
+} catch (FtpClientException $ex) { // catch this library exceptions with the 'FtpClientException' exception class
+    print_r($ex->getMessage());
+}
 ```
 
-Start working with the base class `FtpClient`
-
-```php
-$client = new FtpClient(ConnectionInterface $connection);
-```
+## Usage
 
 #### upload/download
 
@@ -71,7 +81,11 @@ $client->download('path/to/remote/file', 'path/to/local/file');
 
 // upload a local file to remote server
 $client->upload('path/to/local/file', 'path/to/remote/file');
+```
 
+#### Asynchrounous upload/download
+
+```php
 // download a remote file asynchronously
 $client->asyncDownload('path/to/remote/file', 'path/to/local/file', function ($state) {
     // do something every second while downloading this file
@@ -82,6 +96,8 @@ $client->asyncUpload('path/to/local/file', 'path/to/remote/file', function ($sta
     // do something 
 }, 1, FtpWrapper::BINARY);
 ```
+
+*Find more about asynchrounous stuff [here](docs/FtpClient.md#asynchronous-transfer-operations).*
 
 #### listing
 
@@ -235,43 +251,18 @@ $client->allocateSpace(2048);
 // prevent the server from closing the connection and keeping it alive
 $client->keepAlive();
 ```
-You can see all available methods [here](docs/FtpClient.md).
-
-## Full example
-
-```php
-try {
-    // Connection
-    $connection = new FtpConnection("localhost", "foo", "12345");
-    $connection->open();
-    
-    // Configuration
-    $config = new FtpConfig($connection);
-    $config->setPassive(true);
-    
-     // FtpClient
-    $client = new FtpClient($connection);
-    
-    // Start working
-    print_r($client->getFeatures());
-    
-    // Close connection
-    $connection->close();
-} catch (FtpClientException $ex) { // Use FtpClientException to catch this library exceptions
-    echo($ex->getMessage());
-}
-```
+*You can see all available methods [here](docs/FtpClient.md).*
 
 ## More documentation
 
- * [Manipulate an FTP connection with **FtpConnectionInterface**][1]
- * [Configure the connection instance with **FtpConfig**][2]
- * [Start working with the base class **FtpClient**][3]
- * [Sending FTP commands with **FtpCommand**][4]
- * [Using the **FtpWrapper** Directly][5]
- * [How i can run test units ?][6]
+ * [Manipulate the FTP connection with **ConnectionInterface**.][1]
+ * [Configure the connection instance with **FtpConfig**.][2]
+ * [Start working with the base class **FtpClient**.][3]
+ * [Sending FTP commands with **FtpCommand**.][4]
+ * [How to use the **FtpWrapper** class directly.][5]
+ * [Running the integration tests.][6]
  
-[1]: docs/FtpConnectionInterface.md
+[1]: docs/ConnectionInterface.md
 [2]: docs/FtpConfig.md
 [3]: docs/FtpClient.md
 [4]: docs/FtpCommand.md
@@ -283,11 +274,11 @@ try {
 | Version    | Status        | Last Release | PHP Version |
 |------------|---------------|--------------|-------------|
 | 1.0.x      | EOL           | [v1.0.2][7]  | >= 5.5      |
-| 1.3.x      | Latest        | [v1.3.5][9]  | >= 5.6      |
+| 1.4.x      | Latest        | [v1.4.0][9]  | >= 5.6      |
 
 [7]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.0.2
 [8]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.1.0
-[9]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.3.5
+[9]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.4.0
 
 ## License
 
