@@ -1,6 +1,6 @@
-## FtpCommand
+# FtpCommand
 
-`FtpCommand` class provides a simple interface to the FTP extension command functions.
+`FtpClient\Command\FtpCommand` class provides a simple methods to send commands and recieve responses from your FTP server.
 
 **method**       | description
 ---              |---     
@@ -12,32 +12,39 @@
 **An Example of `raw($command)` method**: 
 
 ```php
-$command = new FtpCommand($connection);
+$command = new FtpCommand(ConnectionInterface $connection);
+
 $response = $command->raw('SITE HELP');
-var_dump($response);
+
+print_r($response);
 ```
 
 **Output:** 
 
 ```text
-array (size=5)
-  'response' => 
-    array (size=6)
-      0 => string '214-The following SITE commands are recognized' (length=46)
-      1 => string ' ALIAS' (length=6)
-      2 => string ' CHMOD' (length=6)
-      3 => string ' IDLE' (length=5)
-      4 => string ' UTIME' (length=6)
-      5 => string '214 Pure-FTPd - http://pureftpd.org/' (length=36)
-  'code' => int 214
-  'message' => string '-The following SITE commands are recognized' (length=43)
-  'body' => 
-    array (size=4)
-      0 => string ' ALIAS' (length=6)
-      1 => string ' CHMOD' (length=6)
-      2 => string ' IDLE' (length=5)
-      3 => string ' UTIME' (length=6)
-  'success' => boolean true
+Array
+(
+    [response] => Array
+        (
+            [0] => 214-The following SITE commands are recognized (* =>'s unimplemented)
+            [1] =>  HELP
+            [2] =>  CHGRP
+            [3] =>  CHMOD
+            [4] => 214 Direct comments to root@localhost
+        )
+
+    [code] => 214
+    [message] => The following SITE commands are recognized (* =>'s unimplemented)
+    [body] => Array
+        (
+            [0] =>  HELP
+            [1] =>  CHGRP
+            [2] =>  CHMOD
+        )
+
+    [end-message] => 214 Direct comments to root@localhost
+    [success] => 1
+)
 ```
 
 **Note** : the success value depends on the FTP reply code, generally if the command not accepted temporary (4yz) or permanently (5yz) by the FTP server it will considered unsuccessful command, some commands are considered as unsuccessful on (3yz) code series reply as well- see [RFC959](https://tools.ietf.org/html/rfc959) for more information.
