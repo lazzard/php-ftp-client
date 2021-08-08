@@ -1,29 +1,24 @@
 # TODO LIST
 
-`Connection::isPassive` moved FtpConfig::isPassive
-`FtpWrapper::$errorMessage` reset whenever calling a new function.
+## The next PHP Upgrades
 
-## Improvements
-
-## PHPUnit Upgrade
-
-## PHP Upgrade
-
-- [ ] 7.2v 
-    - [ ] Use `ftp_mlsd` function in `FtpClient::listDirectoryDetails` method to get the Unix timestamps of files/directories.
-    - [ ] Use `ftp_append` function to implement a client method allows for appending remote file content.
+- [ ] 7.2v.
+    - [ ] Create a helper method for the `ftp_append` function.
     - [ ] Use `ftp_mlsd` function in `FtpClient::lastMTime` to support directories type.
+- [ ] 7.4v.
+- [ ] 8.0v.
 
-## Upcoming client methods
+## The next PHPUnit Upgrade
+
+- [ ] PHPUnit 8 (>= PHP 7.2).
+- [ ] PHPUnit 9 (>= PHP 7.3).
+
+## API methods
 
 - [ ] Add `FtpClient::getTransferMode($file)` method to find the appropriate transfer mode (not based on file extension) for the giving **local** file.
-- [ ] `FtpClient::lastMTime()` directory supporting.  
-- [ ] Add `FtpClient::append($remoteFile, $content)` method.
-- [ ] Implement a method that allows to download all the files within the giving directory.
+- [ ] Implement a method that allows to download all the files within the giving remote directory.
 
 ## Not wrapped FTP extension functions - why ?
 
-- [ ] [ftp_mlsd](https://www.php.net/manual/en/function.ftp-append.php) - not supported in PHP5. 
-- [ ] [ftp_append](https://www.php.net/manual/en/function.ftp-mlsd.php) - not supported in PHP5. 
 - [ ] [ftp_quit](https://www.php.net/manual/en/function.ftp-quit.php) - is just an alias of [ftp_close](https://www.php.net/manual/en/function.ftp-close.php) function.
 - [ ] [ftp_np_put](https://www.php.net/manual/en/function.ftp-nb-put.php) - using [ftp_np_fput](https://www.php.net/manual/en/function.ftp-nb-fput.php) instead for the upload progress.
