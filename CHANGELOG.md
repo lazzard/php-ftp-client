@@ -1,5 +1,10 @@
 # Change Log
 
+## 1.4.1 (2021-08-20)
+
+* Fixed a bug with `FtpClient::listDir` ([#17](../../issues/17)).
+* Deprecated `ConnectionInterface::isPassive`.
+
 ## v1.4.0 (2021-08-08)
 
 * `FtpClient::fileSize` fixed for servers that not support `SIZE` feature.
