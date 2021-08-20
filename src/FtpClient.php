@@ -494,7 +494,7 @@ class FtpClient
      */
     public function listDir($directory, $filter = self::FILE_DIR_TYPE, $ignoreDots = true)
     {
-        if (!$files = $this->wrapper->nlist($directory)) {
+        if (($files = $this->wrapper->nlist($directory)) === false) {
             throw new FtpClientException($this->wrapper->getErrorMessage()
                 ?: "Failed to get files list.");
         }
