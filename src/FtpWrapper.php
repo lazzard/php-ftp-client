@@ -12,7 +12,6 @@
 namespace Lazzard\FtpClient;
 
 use Lazzard\FtpClient\Connection\ConnectionInterface;
-use Lazzard\FtpClient\Exception\FtpClientException;
 use Lazzard\FtpClient\Exception\WrapperException;
 
 /**
@@ -24,7 +23,7 @@ use Lazzard\FtpClient\Exception\WrapperException;
 class FtpWrapper
 {
     /**
-     * Php FTP predefined constants aliases
+     * FTP extension constants aliases.
      */
     const TIMEOUT_SEC    = FTP_TIMEOUT_SEC;
     const AUTOSEEK       = FTP_AUTOSEEK;
@@ -70,7 +69,7 @@ class FtpWrapper
     /**
      * Gets the last FTP error message sent by the remote server.
      *
-     * @return string|null Returns a string represent the FTP error message, null if no error detected.
+     * @return string|null Returns a string represent the FTP error message, null if no error is detected.
      */
     public function getErrorMessage()
     {
@@ -78,6 +77,8 @@ class FtpWrapper
     }
 
     /**
+     * Delegates 'FtpWrapper::***()' calls to the alternative FTP native functions.
+     *
      * @param string     $func
      * @param array|null $args
      *
@@ -87,9 +88,10 @@ class FtpWrapper
      */
     public function __call($func, $args = null)
     {
-        $funcName = "ftp_$func";
-        if (!function_exists($funcName)) {
-            throw new WrapperException("$funcName() doesn't exists.");
+        $function = "ftp_$func";
+
+        if (!function_exists($function)) {
+            throw new WrapperException("$function() doesn't exists.");
         }
 
         if (!in_array($func, ['connect', 'ssl_connect'])) {
@@ -101,7 +103,7 @@ class FtpWrapper
         });
 
         try {
-            return call_user_func_array($funcName, $args);
+            return call_user_func_array($function, $args);
         } finally {
             restore_error_handler();
         }
