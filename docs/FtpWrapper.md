@@ -11,7 +11,7 @@ $wrapper->pasv(true);
 if (!$wrapper->nlist('www/public_html')) {
     // The 'FtpWrapper' detects and catch FTP errors sent by the server
     // and you can get the last error message by calling the 'getFtpErrorMessage' method
-    throw new FtpClientException($wrapper->getErrorMessage());
+    throw new \RuntimeException($wrapper->getErrorMessage());
 }
 ```
 
@@ -23,7 +23,7 @@ Sometimes when an error occurs the remote server may not send any specific messa
 $wrapper = new FtpWrapper($connection);
 
 if (!$wrapper->pasv()) {
-    throw new RuntimeException($wrapper->getErrorMessage() 
+    throw new \RuntimeException($wrapper->getErrorMessage() 
         ?: "Unable to turn on the passive mode.");
 }
 ```
