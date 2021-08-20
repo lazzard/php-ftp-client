@@ -41,11 +41,11 @@ composer dump-autoload
 
 require __DIR__ . '/vendor/autoload.php';
 
-use Lazzard\FtpClient\Config\FtpConfig;
 use Lazzard\FtpClient\Connection\FtpConnection;
 use Lazzard\FtpClient\Connection\FtpSSLConnection;
-use Lazzard\FtpClient\Exception\FtpClientException;
+use Lazzard\FtpClient\Config\FtpConfig;
 use Lazzard\FtpClient\FtpClient;
+use Lazzard\FtpClient\Exception\FtpClientException;
 
 try {
     // create a regular FTP connection
@@ -274,11 +274,11 @@ $client->keepAlive();
 | Version    | Status        | Last Release | PHP Version |
 |------------|---------------|--------------|-------------|
 | 1.0.x      | EOL           | [v1.0.2][7]  | >= 5.5      |
-| 1.4.x      | Latest        | [v1.4.0][9]  | >= 5.6      |
+| 1.4.x      | Latest        | [v1.4.1][9]  | >= 5.6      |
 
 [7]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.0.2
 [8]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.1.0
-[9]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.4.0
+[9]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.4.1
 
 ## License
 
