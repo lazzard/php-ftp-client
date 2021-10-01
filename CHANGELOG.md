@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.4.2 (2021-10-01)
+
+* Fixed `FtpClient::getFileContent` to get the correct file content for binary files ([#20](../../issues/20)).
+* Added a new optional parameter `$mode` to `FtpClient::getFileContent` to specify the FTP transfer mode that will be used to get the files content.
+* Fixed `FtpClient::listDirDetails` for FTP servers that do not send the DOTS files pointers in directories listing operations ([#21](../../issues/21)).
+
 ## 1.4.1 (2021-08-20)
 
 * Fixed a bug with `FtpClient::listDir` ([#17](../../issues/17)).
