@@ -239,7 +239,7 @@ class FtpClient
         // './path/to/file' is the same as 'path/to/file'
         $directory = str_replace('./', '', $directory);
 
-        if (!($details = $this->wrapper->rawlist($directory, $recursive))) {
+        if (($details = $this->wrapper->rawlist($directory, $recursive)) === false) {
             throw new FtpClientException($this->wrapper->getErrorMessage()
                 ?: "Unable to get files list for [{$directory}] directory.");
         }
