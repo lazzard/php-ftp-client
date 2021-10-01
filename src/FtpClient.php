@@ -772,13 +772,20 @@ class FtpClient
     /**
      * Reads the remote file content and returns the data as a string.
      *
-     * @param string $remoteFile
+     * @param string $remoteFile The remote file to get the content from.
+     * @param int    $mode       Specifies the FTP transfer mode to retrieve the content
+     *                           of the file, can be either {@see FtpWrapper::BINARY} or
+     *                           {@see FtpWrapper::ASCII}, the default is
+     *                           {@see FtpWrapper::BINARY}.
+     *
      *
      * @return string|false Returns the file content as a string, if the passed FTP
-     *                      file is not a regular file then a false returned.
+     *                      file is not a regular file or an error occurs then a false
+     *                      returned.
+     *
      * @throws FtpClientException
      */
-    public function getFileContent($remoteFile)
+    public function getFileContent($remoteFile, $mode = FtpWrapper::BINARY)
     {
         if (!$this->isFile($remoteFile)) {
             return false;
@@ -786,7 +793,7 @@ class FtpClient
 
         // Create a temporary file in the system temp
         $tempFile = tempnam(sys_get_temp_dir(), $remoteFile);
-        if (!$this->wrapper->get($tempFile, $remoteFile, FtpWrapper::ASCII)) {
+        if (!$this->wrapper->get($tempFile, $remoteFile, $mode)) {
             throw new FtpClientException($this->wrapper->getErrorMessage()
                 ?: "Unable to get [{$remoteFile}] content.");
         }
