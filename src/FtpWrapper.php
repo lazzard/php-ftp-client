@@ -25,14 +25,14 @@ class FtpWrapper
     /**
      * FTP extension constants aliases.
      */
-    const TIMEOUT_SEC    = FTP_TIMEOUT_SEC;
-    const AUTOSEEK       = FTP_AUTOSEEK;
-    const USEPASVADDRESS = FTP_USEPASVADDRESS;
-    const ASCII          = FTP_ASCII;
-    const BINARY         = FTP_BINARY;
-    const FAILED         = FTP_FAILED;
-    const FINISHED       = FTP_FINISHED;
-    const MOREDATA       = FTP_MOREDATA;
+    public const TIMEOUT_SEC    = FTP_TIMEOUT_SEC;
+    public const AUTOSEEK       = FTP_AUTOSEEK;
+    public const USEPASVADDRESS = FTP_USEPASVADDRESS;
+    public const ASCII          = FTP_ASCII;
+    public const BINARY         = FTP_BINARY;
+    public const FAILED         = FTP_FAILED;
+    public const FINISHED       = FTP_FINISHED;
+    public const MOREDATA       = FTP_MOREDATA;
 
     /** @var ConnectionInterface */
     protected $connection;

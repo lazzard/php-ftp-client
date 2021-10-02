@@ -26,9 +26,9 @@ class FtpClient
     /**
      * FtpClient predefined constants.
      */
-    const FILE_DIR_TYPE = 0;
-    const FILE_TYPE     = 2;
-    const DIR_TYPE      = 1;
+    public const FILE_DIR_TYPE = 0;
+    public const FILE_TYPE     = 2;
+    public const DIR_TYPE      = 1;
 
     /** @var ConnectionInterface */
     protected $connection;
