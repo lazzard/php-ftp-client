@@ -448,17 +448,16 @@ class FtpClient
      *
      * @see FtpCommand::raw()
      *
-     * @return array|false Returns remote features in array, false in failure.
+     * @return array Returns remote features in array, an exception throws otherwise.
+     *
+     * @throws CommandException
      */
     public function getFeatures()
     {
-        if (($response = $this->command->raw("FEAT")) !== false) {
-            if (is_array($response['body'])) {
-                return array_map('ltrim', $response['body']);
-            }
+        $response = $this->command->raw("FEAT");
+        if (is_array($response['body'])) {
+            return array_map('ltrim', $response['body']);
         }
-
-        return false;
     }
 
     /**
