@@ -102,6 +102,9 @@ class FtpWrapper
             $this->errorMessage = func_get_args()[1];
         });
 
+        // clear the previous error message
+        $this->errorMessage = '';
+
         try {
             return call_user_func_array($function, $args);
         } finally {
