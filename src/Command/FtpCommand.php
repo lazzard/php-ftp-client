@@ -57,24 +57,24 @@ class FtpCommand
     }
 
     /**
-     * Sends a request to FTP server to execute an arbitrary command.
+     * Executes an arbitrary command on the server.
      *
      * @param string $command The command to execute.
      *
-     * @return array|false Returns an array of the response information containing
-     *                     the [response, code, message, body, end-message, success]
-     *                     if the giving command is null or empty then a false value
-     *                     returned.
+     * @return array Returns an array of the response information containing
+     *               the [response, code, message, body, end-message, success].
+     * 
+     * @throws CommandException
      */
     public function raw($command)
     {
         $trimmed = trim($command);
 
-        if ($trimmed !== '') {
-            return $this->parseRawResponse($this->wrapper->raw($trimmed));
+        if (!$raw = $this->wrapper->raw($trimmed)) {
+            throw new CommandException("Failed to execute the [$trimmed] command on the server.");
         }
 
-        return false;
+        return $this->parseRawResponse($raw);
     }
 
     /**
@@ -137,17 +137,14 @@ class FtpCommand
     }
 
     /**
+     * Parse the raw response string to an array.
+     * 
      * @param string $response
      *
      * @return array
      */
-    protected function parseRawResponse($response)
+    protected function parseRawResponse($response) : array
     {
-        $code       = null;
-        $message    = null;
-        $body       = null;
-        $endMessage = null;
-
         // get the response code
         if (preg_match('/^\d+/', $response[0], $matches) !== false) {
             $code = (int)$matches[0];
