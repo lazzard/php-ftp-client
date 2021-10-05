@@ -69,11 +69,11 @@ class FtpWrapper
     /**
      * Gets the last FTP error message sent by the remote server.
      *
-     * @return string|null Returns a string represent the FTP error message, null if no error is detected.
+     * @return string Returns a string represent the FTP error message.
      */
     public function getErrorMessage()
     {
-        return $this->errorMessage;
+        return $this->errorMessage ?: '';
     }
 
     /**
