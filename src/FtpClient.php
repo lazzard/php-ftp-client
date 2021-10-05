@@ -350,6 +350,8 @@ class FtpClient
      * @param string $remoteFile The remote file path.
      *
      * @return bool Returns true if the remote file exists, false otherwise.
+     *
+     * @throws FtpClientException
      */
     public function isExists($remoteFile)
     {
