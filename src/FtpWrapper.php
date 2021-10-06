@@ -53,7 +53,7 @@ class FtpWrapper
     /**
      * @return ConnectionInterface
      */
-    public function getConnection()
+    public function getConnection() : ConnectionInterface
     {
         return $this->connection;
     }
@@ -61,7 +61,7 @@ class FtpWrapper
     /**
      * @param ConnectionInterface $connection
      */
-    public function setConnection(ConnectionInterface $connection)
+    public function setConnection(ConnectionInterface $connection) : void
     {
         $this->connection = $connection;
     }
@@ -71,7 +71,7 @@ class FtpWrapper
      *
      * @return string Returns a string represent the FTP error message.
      */
-    public function getErrorMessage()
+    public function getErrorMessage() : string
     {
         return $this->errorMessage ?: '';
     }

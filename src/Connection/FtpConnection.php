@@ -24,7 +24,7 @@ class FtpConnection extends Connection
     /**
      * @inheritDoc
      */
-    protected function connect()
+    protected function connect() : void
     {
         parent::connect();
 

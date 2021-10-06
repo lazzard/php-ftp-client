@@ -78,7 +78,7 @@ abstract class Connection implements ConnectionInterface
     /**
      * @param FtpWrapper $wrapper
      */
-    public function setWrapper($wrapper)
+    public function setWrapper($wrapper) : void
     {
         $this->wrapper = $wrapper;
     }
@@ -100,7 +100,7 @@ abstract class Connection implements ConnectionInterface
     /**
      * @inheritDoc
      */
-    public function getHost()
+    public function getHost() : string
     {
         return $this->host;
     }
@@ -108,7 +108,7 @@ abstract class Connection implements ConnectionInterface
     /**
      * @inheritDoc
      */
-    public function getPort()
+    public function getPort() : int
     {
         return $this->port;
     }
@@ -116,7 +116,7 @@ abstract class Connection implements ConnectionInterface
     /**
      * @inheritDoc
      */
-    public function getTimeout()
+    public function getTimeout() : int
     {
         return $this->timeout;
     }
@@ -124,7 +124,7 @@ abstract class Connection implements ConnectionInterface
     /**
      * @inheritDoc
      */
-    public function getUsername()
+    public function getUsername() : string
     {
         return $this->username;
     }
@@ -132,7 +132,7 @@ abstract class Connection implements ConnectionInterface
     /**
      * @inheritDoc
      */
-    public function getPassword()
+    public function getPassword() : string
     {
         return $this->password;
     }
@@ -140,7 +140,7 @@ abstract class Connection implements ConnectionInterface
     /**
      * @inheritDoc
      */
-    public function isSecure()
+    public function isSecure() : bool
     {
         return $this->isSecure;
     }
@@ -148,7 +148,7 @@ abstract class Connection implements ConnectionInterface
     /**
      * @inheritDoc
      */
-    public function isConnected()
+    public function isConnected() : bool
     {
         return $this->isConnected;
     }
@@ -156,7 +156,7 @@ abstract class Connection implements ConnectionInterface
     /**
      * @inheritDoc
      */
-    public function isPassive()
+    public function isPassive() : bool
     {
         return $this->isPassive;
     }
@@ -166,7 +166,7 @@ abstract class Connection implements ConnectionInterface
      * 
      * @return void
      */
-    public function setIsPassive($bool)
+    public function setIsPassive($bool) : void
     {
         $this->isPassive = $bool;
     }
@@ -176,7 +176,7 @@ abstract class Connection implements ConnectionInterface
      *
      * @throws ConnectionException
      */
-    public function open()
+    public function open() : bool
     {
         $this->connect();
         $this->login();
@@ -189,7 +189,7 @@ abstract class Connection implements ConnectionInterface
      *
      * @throws ConnectionException
      */
-    public function close()
+    public function close() : bool
     {
         if (!$this->wrapper->close()) {
             throw new ConnectionException($this->wrapper->getErrorMessage()
@@ -206,7 +206,7 @@ abstract class Connection implements ConnectionInterface
      *
      * @throws ConnectionException
      */
-    protected function login()
+    protected function login() : bool
     {
         if (!$this->wrapper->login($this->getUsername(), $this->getPassword())) {
             throw new ConnectionException($this->wrapper->getErrorMessage()
@@ -219,14 +219,14 @@ abstract class Connection implements ConnectionInterface
     /**
      * @throws ConnectionException
      */
-    protected function connect()
+    protected function connect() : void
     {
         if (!$this->isValidHost($this->host)) {
             throw new ConnectionException("[$this->host] is not a valid host name/IP.");
         }
     }
 
-    private function isValidHost($host)
+    private function isValidHost($host) : bool
     {
         if (filter_var(gethostbyname($host), FILTER_VALIDATE_IP) === false) {
             return false;

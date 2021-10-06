@@ -24,14 +24,14 @@ interface ConnectionInterface
      *
      * @return bool
      */
-    public function open();
+    public function open() : bool;
 
     /**
      * Closes the FTP connection.
      *
      * @return bool
      */
-    public function close();
+    public function close() : bool;
 
     /**
      * @return resource
@@ -41,44 +41,44 @@ interface ConnectionInterface
     /**
      * @return string
      */
-    public function getHost();
+    public function getHost() : string;
 
     /**
      * @return int
      */
-    public function getPort();
+    public function getPort() : int;
 
     /**
      * @return int
      */
-    public function getTimeout();
+    public function getTimeout() : int;
 
     /**
      * @return string
      */
-    public function getUsername();
+    public function getUsername() : string;
 
     /**
      * @return string
      */
-    public function getPassword();
+    public function getPassword() : string;
 
     /**
      * @return bool
      *
      * @deprecated https://github.com/lazzard/php-ftp-client/issues/15
      */
-    public function isSecure();
+    public function isSecure() : bool;
 
     /**
      * @return bool
      */
-    public function isConnected();
+    public function isConnected() : bool;
 
     /**
      * @return bool
      *
      * @deprecated Deprecated and will be removed in future releases, relying on this method is discouraged.
      */
-    public function isPassive();
+    public function isPassive() : bool;
 }
