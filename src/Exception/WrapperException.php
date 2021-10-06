@@ -21,6 +21,6 @@ class WrapperException extends FtpClientException
 {
     public function __construct($message)
     {
-        parent::__construct("[WrapperException] - " . $message);
+        parent::__construct("[WrapperException] - $message");
     }
 }

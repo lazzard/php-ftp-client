@@ -155,12 +155,12 @@ class FtpConfig
      */
     public function getTimeout()
     {
-        if (!$optionValue = $this->wrapper->get_option(FtpWrapper::TIMEOUT_SEC)) {
+        if (!$value = $this->wrapper->get_option(FtpWrapper::TIMEOUT_SEC)) {
             throw new ConfigException($this->wrapper->getErrorMessage()
                 ?: "Unable to get FTP timeout option value.");
         }
 
-        return $optionValue;
+        return $value;
     }
 
     /**

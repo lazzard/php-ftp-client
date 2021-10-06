@@ -22,16 +22,20 @@ use Lazzard\FtpClient\Exception\ConnectionException;
 class FtpSSLConnection extends Connection
 {
     /**
-     * @inheritDoc
+     * {@inheritDoc}
+     *
+     * @throws ConnectionException
      */
     public function __construct($host, $username, $password, $port = 21, $timeout = 90)
     {
         if (!extension_loaded('openssl')) {
-            throw new ConnectionException("The openssl extension is required to establish a secure FTP connection.");
-        } elseif (!function_exists('ftp_ssl_connect')) {
-            throw new ConnectionException("It seems that either the FTP module or openssl extension are
-                not statically built into your PHP. If you have to use an SSL-FTP connection, you must 
-                compile your own PHP binaries using the right configuration options.");
+            throw new ConnectionException('The openssl extension must be enabled to establish a secure FTP connection.');
+        }
+        
+        if (!function_exists('ftp_ssl_connect')) {
+            throw new ConnectionException('It seems that either the FTP module or openssl extension are'
+                . ' not statically built into your PHP. If you have to use an SSL-FTP connection, you must'
+                . ' compile your own PHP binaries using the right configuration options.');
         }
 
         parent::__construct($host, $username, $password, $port, $timeout);
@@ -39,9 +43,7 @@ class FtpSSLConnection extends Connection
 
 
     /**
-     * @return bool
-     *
-     * {@inheritDoc}
+     * @inheritDoc
      */
     protected function connect()
     {
@@ -49,13 +51,11 @@ class FtpSSLConnection extends Connection
 
         if (!$this->stream = $this->wrapper->ssl_connect($this->getHost(), $this->getPort(), $this->getTimeout())) {
             throw new ConnectionException($this->wrapper->getErrorMessage()
-                ?: "SSL connection failed to the FTP server.");
+                ?: 'SSL connection failed to the FTP server.');
         }
 
         $this->isSecure = true;
 
         $this->wrapper->setConnection($this);
-
-        return true;
     }
 }

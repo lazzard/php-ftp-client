@@ -22,9 +22,7 @@ use Lazzard\FtpClient\Exception\ConnectionException;
 class FtpConnection extends Connection
 {
     /**
-     * @return bool
-     *
-     * {@inheritDoc}
+     * @inheritDoc
      */
     protected function connect()
     {
@@ -32,13 +30,11 @@ class FtpConnection extends Connection
 
         if (!($this->stream = $this->wrapper->connect($this->getHost(), $this->getPort(), $this->getTimeout()))) {
             throw new ConnectionException($this->wrapper->getErrorMessage()
-                ?: "FTP connection failed to remote server.");
+                ?: 'FTP connection failed to remote server.');
         }
 
         $this->isSecure = false;
 
         $this->wrapper->setConnection($this);
-
-        return true;
     }
 }

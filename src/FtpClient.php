@@ -13,6 +13,7 @@ namespace Lazzard\FtpClient;
 
 use Lazzard\FtpClient\Command\FtpCommand;
 use Lazzard\FtpClient\Connection\ConnectionInterface;
+use Lazzard\FtpClient\Exception\CommandException;
 use Lazzard\FtpClient\Exception\FtpClientException;
 
 /**
@@ -134,7 +135,7 @@ class FtpClient
      *
      * @param string $directory The remote file directory.
      *
-     * @return true Returns true in success, exception throws otherwise.
+     * @return bool Returns true in success, exception throws otherwise.
      *
      * @throws FtpClientException
      */
@@ -299,7 +300,7 @@ class FtpClient
      */
     public function getSystem()
     {
-        if (!($sysType = $this->wrapper->systype())) {
+        if (!$sysType = $this->wrapper->systype()) {
             throw new FtpClientException($this->wrapper->getErrorMessage()
                 ?: "Unable to get FTP server operating system type.");
         }
@@ -428,9 +429,7 @@ class FtpClient
      */
     public function isFeatureSupported($feature)
     {
-        $features = $this->getFeatures();
-
-        if (!$features) {
+        if (!$features = $this->getFeatures()) {
             throw new FtpClientException("Unable to check if [$feature] command is supported or not.");
         }
 
@@ -590,6 +589,7 @@ class FtpClient
      * @param string $destinationFolder The destination remote directory.
      *
      * @return bool Returns true in success, an exception throws otherwise.
+     *
      * @throws FtpClientException
      */
     public function move($source, $destinationFolder)
@@ -799,10 +799,11 @@ class FtpClient
                 ?: "Unable to get [{$remoteFile}] content.");
         }
 
-        $content = file_get_contents($tempFile);
-        unlink($tempFile); // delete the temp file
-
-        return $content;
+        try {
+            return file_get_contents($tempFile);
+        } finally {
+            unlink($tempFile); // delete the temp file
+        }
     }
 
     /**
@@ -813,6 +814,7 @@ class FtpClient
      * @param int        $mode
      *
      * @return bool
+     *
      * @throws FtpClientException
      */
     public function createFile($filename, $content = null, $mode = FtpWrapper::BINARY)
@@ -851,7 +853,9 @@ class FtpClient
 
         for ($i = 1; $i <= $dirsCount; $i++) {
             $dir = join('/', array_slice($dirs, 0, $i));
-            !$this->isExists($dir) && !$this->wrapper->mkdir($dir);
+            if (!$this->isExists($dir) && !$this->wrapper->mkdir($dir)) {
+                throw new FtpClientException("Unable to create directory ($dir) on remote server.");
+            }
         }
 
         return true;
@@ -1265,7 +1269,7 @@ class FtpClient
      */
     protected function dirname($dirname)
     {
-        // Fix dirname in windows which gives '\' instead of '/' if the path matches for example '/foo/'.
+        // fix dirname in windows which gives '\' instead of '/' if the path matches for example '/foo/'
         return trim(dirname($dirname), '\\');
     }
 }

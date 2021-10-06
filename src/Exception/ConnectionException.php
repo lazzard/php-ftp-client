@@ -21,6 +21,6 @@ class ConnectionException extends FtpClientException
 {
     public function __construct($message)
     {
-        parent::__construct("[ConnectionException] - " . $message);
+        parent::__construct("[ConnectionException] - $message");
     }
 }

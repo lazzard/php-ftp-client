@@ -21,6 +21,6 @@ class ConfigException extends FtpClientException
 {
     public function __construct($message)
     {
-        parent::__construct("[ConfigException] - " . $message);
+        parent::__construct("[ConfigException] - $message");
     }
 }

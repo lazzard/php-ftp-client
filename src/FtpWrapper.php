@@ -77,7 +77,7 @@ class FtpWrapper
     }
 
     /**
-     * Delegates 'FtpWrapper::***()' calls to the alternative FTP native functions.
+     * Delegates the 'FtpWrapper::***()' calls to the alternative FTP native functions.
      *
      * @param string     $func
      * @param array|null $args

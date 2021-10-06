@@ -16,7 +16,7 @@ use Lazzard\FtpClient\Exception\CommandException;
 use Lazzard\FtpClient\FtpWrapper;
 
 /**
- * Wrapping the FTP extension functions that can be used to send raw commands to the server.
+ * Wrapping the FTP extension functions to execute custom client commands in the server.
  *
  * @since  1.0
  * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>
@@ -88,8 +88,11 @@ class FtpCommand
      */
     public function site($command)
     {
+        $trimmed = trim($command);
+
         if (!$this->wrapper->site(trim($command))) {
-            throw new CommandException($this->wrapper->getErrorMessage() ?: "SITE command was failed.");
+            throw new CommandException($this->wrapper->getErrorMessage() 
+                ?: "Failed to execute the SITE command [$trimmed] on the server.");
         }
 
         return true;
@@ -108,8 +111,8 @@ class FtpCommand
      */
     public function exec($command)
     {
-        if (!in_array('exec', $this->supportedSiteCommands())) {
-            throw new CommandException("SITE EXEC command not provided by the FTP server.");
+        if (!in_array('EXEC', $this->supportedSiteCommands())) {
+            throw new CommandException("SITE EXEC command feature not provided by the FTP server.");
         }
 
         if (!$this->wrapper->exec(trim($command))) {
@@ -126,6 +129,8 @@ class FtpCommand
      *
      * @return array Returns an array of SITE available commands in success, if not
      *               the FTP reply error message returns.
+     *
+     * @throws CommandException
      */
     public function supportedSiteCommands()
     {
@@ -138,13 +143,15 @@ class FtpCommand
 
     /**
      * Parse the raw response string to an array.
-     * 
+     *
      * @param string $response
      *
      * @return array
      */
     protected function parseRawResponse($response) : array
     {
+        $code = $message = $body = $endMessage = null;
+
         // get the response code
         if (preg_match('/^\d+/', $response[0], $matches) !== false) {
             $code = (int)$matches[0];
