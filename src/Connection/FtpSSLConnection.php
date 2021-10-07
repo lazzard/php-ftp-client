@@ -26,7 +26,7 @@ class FtpSSLConnection extends Connection
      *
      * @throws ConnectionException
      */
-    public function __construct($host, $username, $password, $port = 21, $timeout = 90)
+    public function __construct(string $host, string $username, string $password, int $port = 21, int $timeout = 90)
     {
         if (!extension_loaded('openssl')) {
             throw new ConnectionException('The openssl extension must be enabled to establish a secure FTP connection.');

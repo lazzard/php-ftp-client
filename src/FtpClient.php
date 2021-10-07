@@ -63,7 +63,7 @@ class FtpClient
     /**
      * @param FtpWrapper $wrapper
      */
-    public function setWrapper($wrapper) : void
+    public function setWrapper(FtpWrapper $wrapper) : void
     {
         $this->wrapper = $wrapper;
     }
@@ -71,7 +71,7 @@ class FtpClient
     /**
      * @param FtpCommand $command
      */
-    public function setCommand($command) : void
+    public function setCommand(FtpCommand $command) : void
     {
         $this->command = $command;
     }
@@ -139,7 +139,7 @@ class FtpClient
      *
      * @throws FtpClientException
      */
-    public function changeDir($directory) : bool
+    public function changeDir(string $directory) : bool
     {
         if (!$this->wrapper->chdir($directory)) {
             throw new FtpClientException($this->wrapper->getErrorMessage()
@@ -159,7 +159,7 @@ class FtpClient
      *
      * @throws FtpClientException
      */
-    public function isDir($remoteFile) : bool
+    public function isDir(string $remoteFile) : bool
     {
         $originDir = $this->getCurrentDir();
 
@@ -182,15 +182,13 @@ class FtpClient
      *
      * @throws FtpClientException
      */
-    public function isFile($remoteFile) : bool
+    public function isFile(string $remoteFile) : bool
     {
         return !$this->isDir($remoteFile);
     }
 
     /**
      * Gets files count in the giving directory.
-     *
-     * @see FtpClient::listDirDetails()
      *
      * @param string $directory  The remote directory.
      * @param bool   $recursive  [optional] Whether to count the files recursively or not.
@@ -201,7 +199,7 @@ class FtpClient
      *
      * @throws FtpClientException
      */
-    public function getCount($directory, $recursive = false, $filter = self::FILE_DIR_TYPE, $ignoreDots = true) : int
+    public function getCount(string $directory, bool $recursive = false, int $filter = self::FILE_DIR_TYPE, bool $ignoreDots = true) : int
     {
         return count($this->listDirDetails(
             $directory,
@@ -229,10 +227,10 @@ class FtpClient
      * @throws FtpClientException
      */
     public function listDirDetails(
-        $directory,
-        $recursive = false,
-        $filter = self::FILE_DIR_TYPE,
-        $ignoreDots = true
+        string $directory,
+        bool $recursive = false,
+        int $filter = self::FILE_DIR_TYPE,
+        bool $ignoreDots = true
     ) : array
     {
         // TODO hardcoded method consider to refactor
@@ -335,7 +333,7 @@ class FtpClient
      *
      * @throws FtpClientException
      */
-    public function removeFile($remoteFile) : bool
+    public function removeFile(string $remoteFile) : bool
     {
         if (!$this->wrapper->delete($remoteFile)) {
             throw new FtpClientException($this->wrapper->getErrorMessage()
@@ -354,7 +352,7 @@ class FtpClient
      *
      * @throws FtpClientException
      */
-    public function isExists($remoteFile) : bool
+    public function isExists(string $remoteFile) : bool
     {
         // Trying to get the files list of the remote file parent directory, this check
         // is basically to avoid passing false to the next 'in_array' function
@@ -377,7 +375,7 @@ class FtpClient
      *
      * @throws FtpClientException
      */
-    public function removeDir($directory) : bool
+    public function removeDir(string $directory) : bool
     {
         $list = array_reverse($this->listDirDetails($directory, true));
         
@@ -405,7 +403,7 @@ class FtpClient
      *
      * @throws FtpClientException
      */
-    public function lastMTime($remoteFile, $format = null)
+    public function lastMTime(string $remoteFile, string $format = null)
     {
         if (!$time = $this->wrapper->mdtm($remoteFile)) {
             throw new FtpClientException($this->wrapper->getErrorMessage()
@@ -421,13 +419,11 @@ class FtpClient
      *
      * @param string $feature
      *
-     * @see FtpClient::getFeatures()
-     *
      * @return bool Returns true if the feature is supported, false otherwise.
      *
      * @throws FtpClientException
      */
-    public function isFeatureSupported($feature) : bool
+    public function isFeatureSupported(string $feature) : bool
     {
         if (!$features = $this->getFeatures()) {
             throw new FtpClientException("Unable to check if [$feature] command is supported or not.");
@@ -468,7 +464,7 @@ class FtpClient
      *
      * @throws FtpClientException
      */
-    public function dirSize($directory) : int
+    public function dirSize(string $directory) : int
     {
         return array_sum(
             array_column($this->listDirDetails(
@@ -492,7 +488,7 @@ class FtpClient
      *
      * @throws FtpClientException
      */
-    public function listDir($directory, $filter = self::FILE_DIR_TYPE, $ignoreDots = true) : array
+    public function listDir(string $directory, int $filter = self::FILE_DIR_TYPE, bool $ignoreDots = true) : array
     {
         if (($files = $this->wrapper->nlist($directory)) === false) {
             throw new FtpClientException($this->wrapper->getErrorMessage()
@@ -542,7 +538,7 @@ class FtpClient
      *
      * @throws FtpClientException
      */
-    public function isEmpty($remoteFile) : bool
+    public function isEmpty(string $remoteFile) : bool
     {
         if ($this->isDir($remoteFile)) {
             return empty($this->listDir($remoteFile, self::FILE_DIR_TYPE, true));
@@ -560,7 +556,7 @@ class FtpClient
      *
      * @throws FtpClientException
      */
-    public function fileSize($remoteFile) : int
+    public function fileSize(string $remoteFile) : int
     {
         /**
          * The 'SIZE' command is not standardized in the basic FTP protocol
@@ -592,7 +588,7 @@ class FtpClient
      *
      * @throws FtpClientException
      */
-    public function move($source, $destinationFolder) : bool
+    public function move(string $source, string $destinationFolder) : bool
     {
         return $this->rename($source, "$destinationFolder/" . basename($source));
     }
@@ -607,7 +603,7 @@ class FtpClient
      *
      * @throws FtpClientException
      */
-    public function rename($remoteFile, $newName) : bool
+    public function rename(string $remoteFile, string $newName) : bool
     {
         if (!$this->wrapper->rename($remoteFile, $newName)) {
             throw new FtpClientException($this->wrapper->getErrorMessage()
@@ -670,7 +666,7 @@ class FtpClient
      * {@link FtpClient::asyncUpload()} methods.
      *
      * @param string $remoteFile The remote file to download.
-     * @param int    $localFile  The local file path.
+     * @param string $localFile  The local file path.
      * @param bool   $resume     [optional] resume downloading the file, the default is true.
      * @param int    $mode       [optional] The mode which will be used to transfer the file, the default is
      *                           the binary mode, if you don't know which mode you can use
@@ -680,7 +676,7 @@ class FtpClient
      *
      * @throws FtpClientException
      */
-    public function download($remoteFile, $localFile, $resume = true, $mode = FtpWrapper::BINARY) : bool
+    public function download(string $remoteFile, string $localFile, bool $resume = true, int $mode = FtpWrapper::BINARY) : bool
     {
         $startPos = 0;
         if ($resume && file_exists($localFile) && $size = @filesize($localFile)) {
@@ -715,12 +711,12 @@ class FtpClient
      * @throws FtpClientException
      */
     public function asyncDownload(
-        $remoteFile,
-        $localFile,
-        $callback,
-        $resume = true,
-        $interval = 1,
-        $mode = FtpWrapper::BINARY
+        string $remoteFile,
+        string $localFile,
+        callable $callback,
+        bool $resume = true,
+        int $interval = 1,
+        int $mode = FtpWrapper::BINARY
     ) : bool
     {
         $startPos = 0;
@@ -788,7 +784,7 @@ class FtpClient
      *
      * @throws FtpClientException
      */
-    public function getFileContent($remoteFile, $mode = FtpWrapper::BINARY)
+    public function getFileContent(string $remoteFile, $mode = FtpWrapper::BINARY)
     {
         if (!$this->isFile($remoteFile)) {
             return false;
@@ -819,7 +815,7 @@ class FtpClient
      *
      * @throws FtpClientException
      */
-    public function createFile($filename, $content = null, $mode = FtpWrapper::BINARY) : bool
+    public function createFile(string $filename, $content = null, int $mode = FtpWrapper::BINARY) : bool
     {
         // Create a file pointer to a temp file
         $handle = fopen('php://temp', 'a');
@@ -846,7 +842,7 @@ class FtpClient
      *
      * @throws FtpClientException
      */
-    public function createDir($directory) : bool
+    public function createDir(string $directory) : bool
     {
         $dirs      = explode('/', $directory);
         $dirsCount = count($dirs);
@@ -877,7 +873,7 @@ class FtpClient
      *
      * @throws FtpClientException
      */
-    public function upload($localFile, $remoteFile, $resume = true, $mode = FtpWrapper::BINARY) : bool
+    public function upload(string $localFile, string $remoteFile, bool $resume = true, int $mode = FtpWrapper::BINARY) : bool
     {
         $startPos = 0;
         if ($resume && $this->isExists($remoteFile)) {
@@ -911,13 +907,13 @@ class FtpClient
      * @throws FtpClientException
      */
     public function asyncUpload(
-        $localFile,
-        $remoteFile,
-        $callback,
-        $resume = true,
-        $interval = 1,
-        $mode = FtpWrapper::BINARY
-    ) {
+        string $localFile,
+        string $remoteFile,
+        callable $callback,
+        bool $resume = true,
+        int $interval = 1,
+        int $mode = FtpWrapper::BINARY
+    ) : bool {
         $startPos = 0;
         if ($resume && $this->isExists($remoteFile)) {
             $startPos = $this->fileSize($remoteFile);
@@ -985,7 +981,7 @@ class FtpClient
      *
      * @throws FtpClientException
      */
-    public function setPermissions($filename, $mode) : bool
+    public function setPermissions(string $filename, $mode) : bool
     {
         if (is_array($mode)) {
             foreach ($mode as $key => $value) {
@@ -1035,7 +1031,7 @@ class FtpClient
      *
      * @throws FtpClientException
      */
-    public function copyFromLocal($source, $destinationFolder) : bool
+    public function copyFromLocal(string $source, string $destinationFolder) : bool
     {
         // get the base name of the source (the filename without the path).
         $sourceBase = basename($source);
@@ -1074,7 +1070,7 @@ class FtpClient
      *
      * @throws FtpClientException
      */
-    public function copyToLocal($remoteSource, $destinationFolder) : bool
+    public function copyToLocal(string $remoteSource, string $destinationFolder) : bool
     {
         $sourceBase        = basename($remoteSource);
         $destinationFolder = trim($destinationFolder, '/');
@@ -1116,7 +1112,7 @@ class FtpClient
      *
      * @throws FtpClientException
      */
-    public function copy($remoteSource, $remoteDirectory) : bool
+    public function copy(string $remoteSource, string $remoteDirectory) : bool
     {
         $remoteDestination = "$remoteDirectory/" . basename($remoteSource);
 
@@ -1158,7 +1154,7 @@ class FtpClient
      *
      * @throws FtpClientException
      */
-    public function find($pattern, $directory, $recursive = false) : array
+    public function find(string $pattern, string $directory, bool $recursive = false) : array
     {
         $list    = $this->listDirDetails($directory, $recursive);
         $files   = array_keys($list);
@@ -1181,12 +1177,12 @@ class FtpClient
     /**
      * Gets the transfer operation average speed.
      *
-     * @param int $size
-     * @param int $elapsedTime
+     * @param int   $size
+     * @param float $elapsedTime
      *
      * @return float
      */
-    protected function transferSpeed($size, $elapsedTime) : float
+    protected function transferSpeed(int $size, float $elapsedTime) : float
     {
         return (float)number_format(($size / $elapsedTime) / 1000, 2);
     }
@@ -1194,12 +1190,12 @@ class FtpClient
     /**
      * Gets the transfer operation progress percentage.
      *
-     * @param int $size
-     * @param int $totalSize
+     * @param float $size
+     * @param float $totalSize
      *
      * @return int
      */
-    protected function transferPercentage($size, $totalSize) : int
+    protected function transferPercentage(float $size, float $totalSize) : int
     {
         return (int)(($size * 100) / $totalSize);
     }
@@ -1207,12 +1203,12 @@ class FtpClient
     /**
      * Gets the amount of bytes transferred in a transfer operation.
      *
-     * @param int $size
-     * @param int $previousSize
+     * @param float $size
+     * @param float $previousSize
      *
      * @return int
      */
-    protected function transferredBytes($size, $previousSize) : int
+    protected function transferredBytes(float $size, float $previousSize) : int
     {
         return (int)(($size - $previousSize) / 1000);
     }
@@ -1225,7 +1221,7 @@ class FtpClient
      *
      * @return string
      */
-    protected function chmodToFileType($chmod) : string
+    protected function chmodToFileType(string $chmod) : string
     {
         switch ($chmod[0]) {
             case '-':
@@ -1251,7 +1247,7 @@ class FtpClient
      *
      * @return int
      */
-    protected function chmodToNumeric($chmod) : int
+    protected function chmodToNumeric(string $chmod) : int
     {
         $actions = ['r' => 4, 'w' => 2, 'e' => 1];
         $chunks  = explode('-', $chmod);
@@ -1271,7 +1267,7 @@ class FtpClient
      *
      * @return string
      */
-    protected function dirname($dirname) : string
+    protected function dirname(string $dirname) : string
     {
         // fix dirname in windows which gives '\' instead of '/' if the path matches for example '/foo/'
         return trim(dirname($dirname), '\\');

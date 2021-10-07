@@ -86,7 +86,7 @@ class FtpWrapper
      *
      * @throws WrapperException
      */
-    public function __call($func, $args = null)
+    public function __call(string $func, $args = null)
     {
         $function = "ftp_$func";
 

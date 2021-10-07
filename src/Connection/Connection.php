@@ -62,7 +62,7 @@ abstract class Connection implements ConnectionInterface
      * @param int    $timeout  [optional] The connection timeout in seconds, the default sets to 90,
      *                         you can set this option any time using the {@link FtpConfig::setTimeout()} method.
      */
-    public function __construct($host, $username, $password, $port = 21, $timeout = 90)
+    public function __construct(string $host, string $username, string $password, int $port = 21, int $timeout = 90)
     {
         $this->host        = $host;
         $this->username    = $username;
@@ -78,7 +78,7 @@ abstract class Connection implements ConnectionInterface
     /**
      * @param FtpWrapper $wrapper
      */
-    public function setWrapper($wrapper) : void
+    public function setWrapper(FtpWrapper $wrapper) : void
     {
         $this->wrapper = $wrapper;
     }
@@ -163,10 +163,10 @@ abstract class Connection implements ConnectionInterface
 
     /**
      * @param bool $bool
-     * 
+     *
      * @return void
      */
-    public function setIsPassive($bool) : void
+    public function setIsPassive(bool $bool) : void
     {
         $this->isPassive = $bool;
     }

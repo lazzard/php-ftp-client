@@ -51,7 +51,7 @@ class FtpConfig
     /**
      * @param FtpWrapper $wrapper
      */
-    public function setWrapper($wrapper) : void
+    public function setWrapper(FtpWrapper $wrapper) : void
     {
         $this->wrapper = $wrapper;
     }
@@ -65,7 +65,7 @@ class FtpConfig
      *
      * @throws ConfigException
      */
-    public function setPassive($value) : bool
+    public function setPassive(bool $value) : bool
     {
         if (!$this->wrapper->pasv($value)) {
             throw new ConfigException($this->wrapper->getErrorMessage()
@@ -86,7 +86,7 @@ class FtpConfig
      *
      * @throws ConfigException
      */
-    public function setTimeout($value) : bool
+    public function setTimeout(int $value) : bool
     {
         if (!is_int($value) || $value < 0) {
             throw new ConfigException("[{$value}] Timeout option value must be of type integer and greater than 0.");
@@ -109,7 +109,7 @@ class FtpConfig
      *
      * @throws ConfigException
      */
-    public function usePassiveAddress($value) : bool
+    public function usePassiveAddress(bool $value) : bool
     {
         if (!is_bool($value)) {
             throw new ConfigException("[{$value}] usePassiveAddress option value must be of type boolean.");
@@ -132,7 +132,7 @@ class FtpConfig
      *
      * @throws ConfigException
      */
-    public function setAutoSeek($value) : bool
+    public function setAutoSeek(bool $value) : bool
     {
         if (!is_bool($value)) {
             throw new ConfigException("[{$value}] AutoSeek option value must be of type boolean.");

@@ -51,7 +51,7 @@ class FtpCommand
     /**
      * @param FtpWrapper $wrapper
      */
-    public function setWrapper($wrapper) : void
+    public function setWrapper(FtpWrapper $wrapper) : void
     {
         $this->wrapper = $wrapper;
     }
@@ -66,7 +66,7 @@ class FtpCommand
      * 
      * @throws CommandException
      */
-    public function raw($command) : array
+    public function raw(string $command) : array
     {
         $trimmed = trim($command);
 
@@ -86,7 +86,7 @@ class FtpCommand
      *
      * @throws CommandException
      */
-    public function site($command) : bool
+    public function site(string $command) : bool
     {
         $trimmed = trim($command);
 
@@ -109,7 +109,7 @@ class FtpCommand
      *
      * @throws CommandException
      */
-    public function exec($command) : bool
+    public function exec(string $command) : bool
     {
         if (!in_array('EXEC', $this->supportedSiteCommands())) {
             throw new CommandException("SITE EXEC command feature not provided by the FTP server.");
@@ -148,7 +148,7 @@ class FtpCommand
      *
      * @return array
      */
-    protected function parseRawResponse($response) : array
+    protected function parseRawResponse(string $response) : array
     {
         $code = $message = $body = $endMessage = null;
 
