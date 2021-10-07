@@ -784,7 +784,7 @@ class FtpClient
      *
      * @throws FtpClientException
      */
-    public function getFileContent(string $remoteFile, $mode = FtpWrapper::BINARY)
+    public function getFileContent(string $remoteFile, int $mode = FtpWrapper::BINARY)
     {
         if (!$this->isFile($remoteFile)) {
             return false;
@@ -844,6 +844,8 @@ class FtpClient
      */
     public function createDir(string $directory) : bool
     {
+        // './path' is the same as 'path'
+        $directory = ltrim($directory, './');
         $dirs      = explode('/', $directory);
         $dirsCount = count($dirs);
 
