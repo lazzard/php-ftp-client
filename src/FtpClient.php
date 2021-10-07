@@ -1013,7 +1013,7 @@ class FtpClient
             $mode = sprintf("%s%s%s", $o, $g, $w);
         }
 
-        $mode = octdec(str_pad($mode, 4, '0', STR_PAD_LEFT));
+        $mode = octdec(str_pad((string)$mode, 4, '0', STR_PAD_LEFT));
 
         if (!$this->wrapper->chmod($mode, $filename)) {
             throw new FtpClientException($this->wrapper->getErrorMessage()
