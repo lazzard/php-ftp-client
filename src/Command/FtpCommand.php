@@ -142,13 +142,11 @@ class FtpCommand
     }
 
     /**
-     * Parse the raw response string to an array.
-     *
-     * @param string $response
+     * @param array $response
      *
      * @return array
      */
-    protected function parseRawResponse(string $response) : array
+    protected function parseRawResponse(array $response) : array
     {
         $code = $message = $body = $endMessage = null;
 
