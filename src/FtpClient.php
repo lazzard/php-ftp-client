@@ -492,7 +492,7 @@ class FtpClient
     {
         if (($files = $this->wrapper->nlist($directory)) === false) {
             throw new FtpClientException($this->wrapper->getErrorMessage()
-                ?: "Failed to get files list.");
+                ?: "Failed to get files list for the remote ($directory) directory.");
         }
 
         switch ($filter) {
@@ -787,7 +787,7 @@ class FtpClient
     public function getFileContent(string $remoteFile, int $mode = FtpWrapper::BINARY)
     {
         if (!$this->isFile($remoteFile)) {
-            return false;
+            throw new FtpClientException("the ($remoteFile) is not a regular file.");
         }
 
         // Create a temporary file in the system temp
@@ -1091,7 +1091,7 @@ class FtpClient
 
             $files = $this->listDirDetails($remoteSource, true);
             foreach ($files as $file) {
-                if (preg_match('/' . preg_quote($remoteSource, '/') . '\/(.*)/', $file['path'], $matches) !== false) {
+                if (preg_match('/' . preg_quote($remoteSource, '/') . '\/(.*)/', $file['path'], $matches)) {
                     $source = dirname($matches[1]);
                     $this->copyToLocal($file['path'], "$destinationFolder/$source");
                 }
@@ -1116,7 +1116,8 @@ class FtpClient
      */
     public function copy(string $remoteSource, string $remoteDirectory) : bool
     {
-        $remoteDestination = "$remoteDirectory/" . basename($remoteSource);
+        $remoteSource      = ltrim($remoteSource, './');
+        $remoteDestination = ltrim($remoteDirectory, './') .'/'. basename($remoteSource);
 
         if ($this->isFile($remoteSource)) {
             $tempFile = tempnam(sys_get_temp_dir(), $remoteSource);
@@ -1134,15 +1135,18 @@ class FtpClient
             foreach ($files as $name => $info) {
                 $newPath = $remoteDestination . str_replace($remoteSource, '', $info['path']);
 
-                if (!$info['type'] === 'file') {
+
+                if ($info['type'] !== 'file') {
                     $this->createDir($newPath);
-                } else {
-                    $this->copy($info['path'], $this->dirname($newPath));
+                    continue;
                 }
+
+                $this->copy($info['path'], $this->dirname($newPath));
             }
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     /**
