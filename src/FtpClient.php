@@ -424,7 +424,7 @@ class FtpClient
      */
     public function isFeatureSupported(string $feature) : bool
     {
-        if (!$features = $this->getFeatures()) {
+        if (($features = $this->getFeatures()) === false) {
             throw new FtpClientException("Unable to check if [$feature] command is supported or not.");
         }
 
