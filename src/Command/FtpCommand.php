@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Lazzard/php-ftp-client package.
@@ -16,7 +16,7 @@ use Lazzard\FtpClient\Exception\CommandException;
 use Lazzard\FtpClient\FtpWrapper;
 
 /**
- * Wrapping the FTP extension functions that can be used to send raw commands to the server.
+ * Wrapping the FTP extension functions to execute custom client commands in the server.
  *
  * @since  1.0
  * @author El Amrani Chakir <elamrani.sv.laza@gmail.com>
@@ -43,7 +43,7 @@ class FtpCommand
     /**
      * @return ConnectionInterface
      */
-    public function getConnection()
+    public function getConnection() : ConnectionInterface
     {
         return $this->connection;
     }
@@ -51,30 +51,30 @@ class FtpCommand
     /**
      * @param FtpWrapper $wrapper
      */
-    public function setWrapper($wrapper)
+    public function setWrapper(FtpWrapper $wrapper) : void
     {
         $this->wrapper = $wrapper;
     }
 
     /**
-     * Sends a request to FTP server to execute an arbitrary command.
+     * Executes an arbitrary command on the server.
      *
      * @param string $command The command to execute.
      *
-     * @return array|false Returns an array of the response information containing
-     *                     the [response, code, message, body, end-message, success]
-     *                     if the giving command is null or empty then a false value
-     *                     returned.
+     * @return array Returns an array of the response information containing
+     *               the [response, code, message, body, end-message, success].
+     * 
+     * @throws CommandException
      */
-    public function raw($command)
+    public function raw(string $command) : array
     {
         $trimmed = trim($command);
 
-        if ($trimmed !== '') {
-            return $this->parseRawResponse($this->wrapper->raw($trimmed));
+        if (!$raw = $this->wrapper->raw($trimmed)) {
+            throw new CommandException("Failed to execute the [$trimmed] command on the server.");
         }
 
-        return false;
+        return $this->parseRawResponse($raw);
     }
 
     /**
@@ -86,10 +86,13 @@ class FtpCommand
      *
      * @throws CommandException
      */
-    public function site($command)
+    public function site(string $command) : bool
     {
+        $trimmed = trim($command);
+
         if (!$this->wrapper->site(trim($command))) {
-            throw new CommandException($this->wrapper->getErrorMessage() ?: "SITE command was failed.");
+            throw new CommandException($this->wrapper->getErrorMessage() 
+                ?: "Failed to execute the SITE command [$trimmed] on the server.");
         }
 
         return true;
@@ -106,10 +109,10 @@ class FtpCommand
      *
      * @throws CommandException
      */
-    public function exec($command)
+    public function exec(string $command) : bool
     {
-        if (!in_array('exec', $this->supportedSiteCommands())) {
-            throw new CommandException("SITE EXEC command not provided by the FTP server.");
+        if (!in_array('EXEC', $this->supportedSiteCommands())) {
+            throw new CommandException("SITE EXEC command feature not provided by the FTP server.");
         }
 
         if (!$this->wrapper->exec(trim($command))) {
@@ -126,8 +129,10 @@ class FtpCommand
      *
      * @return array Returns an array of SITE available commands in success, if not
      *               the FTP reply error message returns.
+     *
+     * @throws CommandException
      */
-    public function supportedSiteCommands()
+    public function supportedSiteCommands() : array
     {
         if (!$response = $this->raw("SITE HELP")) {
             return $response['message'];
@@ -137,16 +142,13 @@ class FtpCommand
     }
 
     /**
-     * @param string $response
+     * @param array $response
      *
      * @return array
      */
-    protected function parseRawResponse($response)
+    protected function parseRawResponse(array $response) : array
     {
-        $code       = null;
-        $message    = null;
-        $body       = null;
-        $endMessage = null;
+        $code = $message = $body = $endMessage = null;
 
         // get the response code
         if (preg_match('/^\d+/', $response[0], $matches) !== false) {

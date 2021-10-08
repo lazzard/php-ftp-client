@@ -2,19 +2,20 @@
 
 namespace Lazzard\FtpClient\Tests\Integration\Connection;
 
+use PHPUnit\Framework\TestCase;
 use Lazzard\FtpClient\Config\FtpConfig;
 use Lazzard\FtpClient\Connection\ConnectionInterface;
 use Lazzard\FtpClient\Connection\FtpConnection;
 use Lazzard\FtpClient\Exception\ConnectionException;
 
-class FtpConnectionTest extends \PHPUnit_Framework_TestCase
+class FtpConnectionTest extends TestCase
 {
-    public function testConstructor()
+    public function testConstructor() : void
     {
         $this->assertInstanceOf(ConnectionInterface::class, new FtpConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT));
     }
 
-    public function testGetStreamWithOpenedConnection()
+    public function testGetStreamWithOpenedConnection() : void
     {
         $connection = new FtpConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
 
@@ -25,7 +26,7 @@ class FtpConnectionTest extends \PHPUnit_Framework_TestCase
         $connection->close();
     }
 
-    public function testGetStreamWithClosedConnection()
+    public function testGetStreamWithClosedConnection() : void
     {
         $connection = new FtpConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
 
@@ -34,42 +35,42 @@ class FtpConnectionTest extends \PHPUnit_Framework_TestCase
         $connection->getStream();
     }
 
-    public function testGetHost()
+    public function testGetHost() : void
     {
         $connection = new FtpConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
 
         $this->assertSame(HOST, $connection->getHost());
     }
 
-    public function testGetPort()
+    public function testGetPort() : void
     {
         $connection = new FtpConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
 
         $this->assertSame(PORT, $connection->getPort());
     }
 
-    public function testGetTimeout()
+    public function testGetTimeout() : void
     {
         $connection = new FtpConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
 
         $this->assertSame(TIMEOUT, $connection->getTimeout());
     }
 
-    public function testGetUsername()
+    public function testGetUsername() : void
     {
         $connection = new FtpConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
 
         $this->assertSame(USERNAME, $connection->getUsername());
     }
 
-    public function testGetPassword()
+    public function testGetPassword() : void
     {
         $connection = new FtpConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
 
         $this->assertSame(PASSWORD, $connection->getPassword());
     }
 
-    public function testIsConnectedWithOpenedConnection()
+    public function testIsConnectedWithOpenedConnection() : void
     {
         $connection = new FtpConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
 
@@ -80,14 +81,14 @@ class FtpConnectionTest extends \PHPUnit_Framework_TestCase
         $connection->close();
     }
 
-    public function testIsConnectedWithClosedConnection()
+    public function testIsConnectedWithClosedConnection() : void
     {
         $connection = new FtpConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
 
         $this->assertFalse($connection->isConnected());
     }
 
-    public function testIsPassiveWithPassiveMode()
+    public function testIsPassiveWithPassiveMode() : void
     {
         $connection = new FtpConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
 
@@ -102,7 +103,7 @@ class FtpConnectionTest extends \PHPUnit_Framework_TestCase
         $connection->close();
     }
 
-    public function testIsPassiveWithActiveMode()
+    public function testIsPassiveWithActiveMode() : void
     {
         $connection = new FtpConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
 
@@ -117,7 +118,7 @@ class FtpConnectionTest extends \PHPUnit_Framework_TestCase
         $connection->close();
     }
 
-    public function testOpen()
+    public function testOpen() : void
     {
         $connection = new FtpConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
 
@@ -126,7 +127,7 @@ class FtpConnectionTest extends \PHPUnit_Framework_TestCase
         $connection->close();
     }
 
-    public function testClose()
+    public function testClose() : void
     {
         $connection = new FtpConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
 

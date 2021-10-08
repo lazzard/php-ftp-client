@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Lazzard/php-ftp-client package.
@@ -19,7 +19,7 @@ namespace Lazzard\FtpClient\Exception;
  */
 class FtpClientException extends \Exception
 {
-    public function __construct($message)
+    public function __construct(string $message)
     {
         if (preg_match('/(\[\w+]\s-)/', $message) === 0) {
             $message = "[FtpClientException] - $message";

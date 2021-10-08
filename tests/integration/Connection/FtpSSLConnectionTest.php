@@ -2,14 +2,15 @@
 
 namespace Lazzard\FtpClient\Tests\Integration\Connection;
 
+use PHPUnit\Framework\TestCase;
 use Lazzard\FtpClient\Config\FtpConfig;
 use Lazzard\FtpClient\Connection\ConnectionInterface;
 use Lazzard\FtpClient\Connection\FtpSSLConnection;
 use Lazzard\FtpClient\Exception\ConnectionException;
 
-class FtpSSLConnectionTest extends \PHPUnit_Framework_TestCase
+class FtpSSLConnectionTest extends TestCase
 {
-    public function testConstructor()
+    public function testConstructor() : void
     {
         $this->assertInstanceOf(ConnectionInterface::class, new FtpSSLConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT));
     }
@@ -17,7 +18,7 @@ class FtpSSLConnectionTest extends \PHPUnit_Framework_TestCase
     /**
      * @depends testConstructor
      */
-    public function testGetStreamWithOpenedConnection()
+    public function testGetStreamWithOpenedConnection() : void
     {
         $connection = new FtpSSLConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
 
@@ -31,7 +32,7 @@ class FtpSSLConnectionTest extends \PHPUnit_Framework_TestCase
     /**
      * @depends testConstructor
      */
-    public function testGetStreamWithClosedConnection()
+    public function testGetStreamWithClosedConnection() : void
     {
         $connection = new FtpSSLConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
 
@@ -43,7 +44,7 @@ class FtpSSLConnectionTest extends \PHPUnit_Framework_TestCase
     /**
      * @depends testConstructor
      */
-    public function testGetHost()
+    public function testGetHost() : void
     {
         $connection = new FtpSSLConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
 
@@ -53,7 +54,7 @@ class FtpSSLConnectionTest extends \PHPUnit_Framework_TestCase
     /**
      * @depends testConstructor
      */
-    public function testGetPort()
+    public function testGetPort() : void
     {
         $connection = new FtpSSLConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
 
@@ -63,7 +64,7 @@ class FtpSSLConnectionTest extends \PHPUnit_Framework_TestCase
     /**
      * @depends testConstructor
      */
-    public function testGetTimeout()
+    public function testGetTimeout() : void
     {
         $connection = new FtpSSLConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
 
@@ -73,7 +74,7 @@ class FtpSSLConnectionTest extends \PHPUnit_Framework_TestCase
     /**
      * @depends testConstructor
      */
-    public function testGetUsername()
+    public function testGetUsername() : void
     {
         $connection = new FtpSSLConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
 
@@ -83,7 +84,7 @@ class FtpSSLConnectionTest extends \PHPUnit_Framework_TestCase
     /**
      * @depends testConstructor
      */
-    public function testGetPassword()
+    public function testGetPassword() : void
     {
         $connection = new FtpSSLConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
 
@@ -93,7 +94,7 @@ class FtpSSLConnectionTest extends \PHPUnit_Framework_TestCase
     /**
      * @depends testConstructor
      */
-    public function testIsConnectedWithOpenedConnection()
+    public function testIsConnectedWithOpenedConnection() : void
     {
         $connection = new FtpSSLConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
 
@@ -107,7 +108,7 @@ class FtpSSLConnectionTest extends \PHPUnit_Framework_TestCase
     /**
      * @depends testConstructor
      */
-    public function testIsConnectedWithClosedConnection()
+    public function testIsConnectedWithClosedConnection() : void
     {
         $connection = new FtpSSLConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
 
@@ -117,7 +118,7 @@ class FtpSSLConnectionTest extends \PHPUnit_Framework_TestCase
     /**
      * @depends testConstructor
      */
-    public function testIsPassiveWithPassiveMode()
+    public function testIsPassiveWithPassiveMode() : void
     {
         $connection = new FtpSSLConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
 
@@ -135,7 +136,7 @@ class FtpSSLConnectionTest extends \PHPUnit_Framework_TestCase
     /**
      * @depends testConstructor
      */
-    public function testIsPassiveWithActiveMode()
+    public function testIsPassiveWithActiveMode() : void
     {
         $connection = new FtpSSLConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
 
@@ -153,7 +154,7 @@ class FtpSSLConnectionTest extends \PHPUnit_Framework_TestCase
     /**
      * @depends testConstructor
      */
-    public function testOpen()
+    public function testOpen() : void
     {
         $connection = new FtpSSLConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
 
@@ -165,7 +166,7 @@ class FtpSSLConnectionTest extends \PHPUnit_Framework_TestCase
     /**
      * @depends testConstructor
      */
-    public function testClose()
+    public function testClose() : void
     {
         $connection = new FtpSSLConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
 

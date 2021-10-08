@@ -17,7 +17,7 @@ class ConnectionHelper
     /**
      * @return ConnectionInterface
      */
-    public static function getConnection()
+    public static function getConnection() : ConnectionInterface
     {
         if (!self::$connection) {
             self::open(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
@@ -27,13 +27,13 @@ class ConnectionHelper
         return self::$connection;
     }
 
-    protected static function open()
+    protected static function open() : void
     {
         self::$connection = new FtpConnection(...func_get_args());
         self::$connection->open();
     }
 
-    protected static function passive($passive) 
+    protected static function passive($passive)  : void
     {
         (new FtpConfig(self::$connection))->setPassive($passive);
     }

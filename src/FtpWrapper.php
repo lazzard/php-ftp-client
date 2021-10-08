@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Lazzard/php-ftp-client package.
@@ -25,14 +25,14 @@ class FtpWrapper
     /**
      * FTP extension constants aliases.
      */
-    const TIMEOUT_SEC    = FTP_TIMEOUT_SEC;
-    const AUTOSEEK       = FTP_AUTOSEEK;
-    const USEPASVADDRESS = FTP_USEPASVADDRESS;
-    const ASCII          = FTP_ASCII;
-    const BINARY         = FTP_BINARY;
-    const FAILED         = FTP_FAILED;
-    const FINISHED       = FTP_FINISHED;
-    const MOREDATA       = FTP_MOREDATA;
+    public const TIMEOUT_SEC    = FTP_TIMEOUT_SEC;
+    public const AUTOSEEK       = FTP_AUTOSEEK;
+    public const USEPASVADDRESS = FTP_USEPASVADDRESS;
+    public const ASCII          = FTP_ASCII;
+    public const BINARY         = FTP_BINARY;
+    public const FAILED         = FTP_FAILED;
+    public const FINISHED       = FTP_FINISHED;
+    public const MOREDATA       = FTP_MOREDATA;
 
     /** @var ConnectionInterface */
     protected $connection;
@@ -53,7 +53,7 @@ class FtpWrapper
     /**
      * @return ConnectionInterface
      */
-    public function getConnection()
+    public function getConnection() : ConnectionInterface
     {
         return $this->connection;
     }
@@ -61,7 +61,7 @@ class FtpWrapper
     /**
      * @param ConnectionInterface $connection
      */
-    public function setConnection(ConnectionInterface $connection)
+    public function setConnection(ConnectionInterface $connection) : void
     {
         $this->connection = $connection;
     }
@@ -69,15 +69,15 @@ class FtpWrapper
     /**
      * Gets the last FTP error message sent by the remote server.
      *
-     * @return string|null Returns a string represent the FTP error message, null if no error is detected.
+     * @return string Returns a string represent the FTP error message.
      */
-    public function getErrorMessage()
+    public function getErrorMessage() : string
     {
-        return $this->errorMessage;
+        return $this->errorMessage ?: '';
     }
 
     /**
-     * Delegates 'FtpWrapper::***()' calls to the alternative FTP native functions.
+     * Delegates the 'FtpWrapper::***()' calls to the alternative FTP native functions.
      *
      * @param string     $func
      * @param array|null $args
@@ -86,7 +86,7 @@ class FtpWrapper
      *
      * @throws WrapperException
      */
-    public function __call($func, $args = null)
+    public function __call(string $func, $args = null)
     {
         $function = "ftp_$func";
 
@@ -101,6 +101,9 @@ class FtpWrapper
         set_error_handler(function () {
             $this->errorMessage = func_get_args()[1];
         });
+
+        // clear the previous error message
+        $this->errorMessage = '';
 
         try {
             return call_user_func_array($function, $args);

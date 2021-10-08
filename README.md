@@ -1,37 +1,20 @@
 # Lazzard/FtpClient
 
-[![Downloads](https://img.shields.io/packagist/dt/lazzard/php-ftp-client?style=flat-square)](https://packagist.org/packages/lazzard/php-ftp-client)
-[![Packagist Version](https://img.shields.io/packagist/v/lazzard/php-ftp-client?style=flat-square)](https://packagist.org/packages/lazzard/php-ftp-client)
-[![Minimum PHP version](https://img.shields.io/packagist/php-v/lazzard/php-ftp-client?color=%238892bf&style=flat-square)](https://packagist.org/packages/lazzard/php-ftp-client)
-![License](https://img.shields.io/packagist/l/lazzard/php-ftp-client?color=critical&style=flat-square)
+[![Downloads](https://img.shields.io/packagist/dt/lazzard/php-ftp-client)](https://packagist.org/packages/lazzard/php-ftp-client)
+[![Packagist Version](https://img.shields.io/packagist/v/lazzard/php-ftp-client)](https://packagist.org/packages/lazzard/php-ftp-client)
+[![Minimum PHP version](https://img.shields.io/packagist/php-v/lazzard/php-ftp-client?color=%238892bf)](https://packagist.org/packages/lazzard/php-ftp-client)
+![License](https://img.shields.io/packagist/l/lazzard/php-ftp-client)
 
-A library that wraps the PHP FTP functions in an OOP way.
+This library provides helper classes and methods to manage your files on the FTP server in an OOP way.
 
-*Note: This library aimed to be a full FTP/FTPS client solution for the old (5.5+) and newer PHP releases (8.0+) that support FTP extension.*
-
-## Requirements
-
- * PHP version >= 5.6.0.
- * FTP extension enabled.
+*Note: This library aimed to be a full FTP/FTPS client solution for the old **(^5.5)** and newer PHP releases **(^8.0)** that support FTP extension.*
 
 ## Installation
 
 The recommended way to install this library is through composer :
 
-```console
+```
 composer require lazzard/php-ftp-client
-```
-
-or just clone the repo using git :
-
-```bash
-git clone https://github.com/lazzard/php-ftp-client
-```
-
-then generate the autoload files :
-
-```console
-composer dump-autoload
 ```
 
 ## Quick Start
@@ -41,32 +24,24 @@ composer dump-autoload
 
 require __DIR__ . '/vendor/autoload.php';
 
-use Lazzard\FtpClient\Connection\FtpConnection;
 use Lazzard\FtpClient\Connection\FtpSSLConnection;
 use Lazzard\FtpClient\Config\FtpConfig;
 use Lazzard\FtpClient\FtpClient;
 use Lazzard\FtpClient\Exception\FtpClientException;
 
 try {
-    // create a regular FTP connection
-    $connection = new FtpConnection("host", "username", "password");
-    // or a secure connection
-    $connection = new FtpSSLConnection("host", "username", "password");
-    // open the connection
+    $connection = new FtpSSLConnection('host', 'username', 'password');
     $connection->open();
 
-    // configure the FTP connection
     $config = new FtpConfig($connection);
-    // set the passive mode on (recommanded)
     $config->setPassive(true);
 
-    // Start working
     $client = new FtpClient($connection);
+    
     print_r($client->getFeatures());
-
-    // close the connection
+    
     $connection->close();
-} catch (FtpClientException $ex) { // catch this library exceptions with the 'FtpClientException' exception class
+} catch (FtpClientException $ex) {
     print_r($ex->getMessage());
 }
 ```
@@ -236,7 +211,7 @@ $client->isFeatureSupported('SIZE');
 $client->lastMTime('path/to/file');
 
 // get a content of an FTP file
-$client->getFileContent('path/to/file');
+$client->getFileContent('path/to/file', FtpWrapper::ASCII);
 
 // get all supported features by the FTP server
 $client->getFeatures();
@@ -271,14 +246,19 @@ $client->keepAlive();
 
 ## Version Guidance
 
-| Version    | Status        | Last Release | PHP Version |
-|------------|---------------|--------------|-------------|
-| 1.0.x      | EOL           | [v1.0.2][7]  | >= 5.5      |
-| 1.4.x      | Latest        | [v1.4.2][9]  | >= 5.6      |
+| Version    | Status        | Last Release | PHP Version   |
+|:----------:|:-------------:|:------------:|:-------------:|
+| 1.0.x      | EOL           | [v1.0.2][7]  | >= 5.5        |
+| 1.4.x      | EOL           | [v1.4.2][9]  | >= 5.6        |
+| 1.5.x      | Latest        | [v1.5.0][9]  | ^7.2 \| 8.0.* |
 
 [7]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.0.2
 [8]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.1.0
-[9]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.4.2
+[9]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.5.0
+
+## Contribution
+
+Feel free to fork this repo if you want to enhance it or adding new features, also reported some issues that may have you facing while using the library will be very appreciated, Thank you!
 
 ## License
 

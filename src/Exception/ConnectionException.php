@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Lazzard/php-ftp-client package.
@@ -19,8 +19,8 @@ namespace Lazzard\FtpClient\Exception;
  */
 class ConnectionException extends FtpClientException
 {
-    public function __construct($message)
+    public function __construct(string $message)
     {
-        parent::__construct("[ConnectionException] - " . $message);
+        parent::__construct("[ConnectionException] - $message");
     }
 }

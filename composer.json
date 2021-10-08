@@ -1,6 +1,6 @@
 {
   "name": "lazzard/php-ftp-client",
-  "description": "A library that wraps the PHP FTP functions in an OOP way.",
+  "description": "This library provides helper classes and methods to manage your files on the FTP server in an OOP way.",
   "type": "library",
   "license": "MIT",
   "keywords": [
@@ -17,11 +17,11 @@
     }
   ],
   "require": {
-    "php": ">=5.6.0",
+    "php": "^7.2 | 8.0.*",
     "ext-ftp": "*"
   },
   "require-dev": {
-    "phpunit/phpunit": "^5"
+    "phpunit/phpunit": "^8.0"
   },
   "autoload": {
     "psr-4": {

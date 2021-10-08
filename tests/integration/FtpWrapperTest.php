@@ -2,36 +2,36 @@
 
 namespace Lazzard\FtpClient\Tests\Integration;
 
+use PHPUnit\Framework\TestCase;
 use Lazzard\FtpClient\Exception\WrapperException;
 use Lazzard\FtpClient\FtpWrapper;
-use PHPUnit\Framework\TestCase;
 
 class FtpWrapperTest extends TestCase
 {
-    public function testConstruct()
+    public function testConstruct() : void
     {
         $wrapper = new FtpWrapper(ConnectionHelper::getConnection());
 
         $this->assertInstanceOf(FtpWrapper::class, $wrapper);
     }
 
-    public function testGetErrorMessage()
+    public function testGetErrorMessage() : void
     {
         $wrapper = new FtpWrapper(ConnectionHelper::getConnection());
 
         $wrapper->connect('foo.bar.com');
 
-        $this->assertInternalType('string', $wrapper->getErrorMessage());
+        $this->assertIsString($wrapper->getErrorMessage());
     }
 
-    public function test__callWithExistFtpFunction()
+    public function test__callWithExistFtpFunction() : void
     {
         $wrapper = new FtpWrapper(ConnectionHelper::getConnection());
 
-        $this->assertInternalType('resource', $wrapper->connect(HOST));
+        $this->assertIsResource($wrapper->connect(HOST));
     }
 
-    public function test__callWithNonExistFtpFunction()
+    public function test__callWithNonExistFtpFunction() : void
     {
         $wrapper = new FtpWrapper(ConnectionHelper::getConnection());
 

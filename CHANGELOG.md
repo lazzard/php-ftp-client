@@ -1,5 +1,16 @@
 # Change Log
 
+## 1.5.0 (2021-10-08)
+
+* Upgraded the code base to PHP v7.2.
+* Upgraded PHPUnit to ^8.0.
+* `FtpCommand::raw` is now throw exception in failure.
+* `FtpWrapper::getErrorMessage` returns empty string instead of null if no error message is available.
+* `FtpClient::getFeatures` throws exception in failure.
+* Fixed `FtpClient::createDir` for multiple directory creation.
+* `FtpClient::getFileContent` now throws exception if the passed file is a directory type instead of returning false value.
+* Fixed PHPDoc for some methods.
+
 ## 1.4.2 (2021-10-01)
 
 * Fixed `FtpClient::getFileContent` to get the correct file content for binary files ([#20](../../issues/20)).
