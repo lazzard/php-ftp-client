@@ -2,9 +2,9 @@
 
 namespace Lazzard\FtpClient\Tests\Integration;
 
+use PHPUnit\Framework\TestCase;
 use Lazzard\FtpClient\Exception\WrapperException;
 use Lazzard\FtpClient\FtpWrapper;
-use PHPUnit\Framework\TestCase;
 
 class FtpWrapperTest extends TestCase
 {

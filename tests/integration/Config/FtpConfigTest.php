@@ -2,9 +2,9 @@
 
 namespace Lazzard\FtpClient\Tests\Integration\Config;
 
+use PHPUnit\Framework\TestCase;
 use Lazzard\FtpClient\Config\FtpConfig;
 use Lazzard\FtpClient\Tests\Integration\ConnectionHelper;
-use PHPUnit\Framework\TestCase;
 
 class FtpConfigTest extends TestCase
 {
