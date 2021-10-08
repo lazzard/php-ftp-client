@@ -21,14 +21,14 @@ class FtpWrapperTest extends TestCase
 
         $wrapper->connect('foo.bar.com');
 
-        $this->assertInternalType('string', $wrapper->getErrorMessage());
+        $this->assertIsString($wrapper->getErrorMessage());
     }
 
     public function test__callWithExistFtpFunction()
     {
         $wrapper = new FtpWrapper(ConnectionHelper::getConnection());
 
-        $this->assertInternalType('resource', $wrapper->connect(HOST));
+        $this->assertIsResource($wrapper->connect(HOST));
     }
 
     public function test__callWithNonExistFtpFunction()

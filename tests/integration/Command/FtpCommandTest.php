@@ -17,7 +17,7 @@ class FtpCommandTest extends TestCase
     {
         $command = new FtpCommand(ConnectionHelper::getConnection());
 
-        $this->assertInternalType('array', $command->raw('HELP'));
+        $this->assertIsArray($command->raw('HELP'));
     }
 
     public function testSite()
@@ -38,6 +38,6 @@ class FtpCommandTest extends TestCase
     {
         $command = new FtpCommand(ConnectionHelper::getConnection());
         
-        $this->assertInternalType('array', $command->supportedSiteCommands());
+        $this->assertIsArray($command->supportedSiteCommands());
     }
 }

@@ -35,7 +35,7 @@ class FtpClientTest extends TestCase
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
-        $this->assertInternalType('string', $client->getParent());
+        $this->assertIsString($client->getParent());
     }
 
     public function testCreateFileWithoutContent()
@@ -80,7 +80,7 @@ class FtpClientTest extends TestCase
 
         $client->createFile(self::$testFile, 'some content');
 
-        $this->assertInternalType('int', $client->fileSize(self::$testFile));
+        $this->assertIsInt($client->fileSize(self::$testFile));
 
         $client->removeFile(self::$testFile);
     }
@@ -91,7 +91,7 @@ class FtpClientTest extends TestCase
 
         $client->createDir(self::$testDir);
 
-        $this->assertInternalType('int', $client->dirSize(self::$testDir));
+        $this->assertIsInt($client->dirSize(self::$testDir));
 
         $client->removeDir(self::$testDir);
     }
@@ -103,7 +103,7 @@ class FtpClientTest extends TestCase
         $client->createDir(self::$testDir);
         $client->createFile(self::$testDir . "/" . basename(self::$testFile), 'content');
 
-        $this->assertInternalType('int', $client->dirSize(self::$testDir));
+        $this->assertIsInt($client->dirSize(self::$testDir));
 
         $client->removeDir(self::$testDir);
     }
@@ -281,7 +281,7 @@ class FtpClientTest extends TestCase
 
         $client->createFile(self::$testFile, "some content");
 
-        $this->assertInternalType('string', $client->getFileContent(self::$testFile));
+        $this->assertIsString($client->getFileContent(self::$testFile));
         $this->assertSame("some content", $client->getFileContent(self::$testFile));
 
         $client->removeFile(self::$testFile);
@@ -293,7 +293,7 @@ class FtpClientTest extends TestCase
 
         $client->createFile(self::$testFile);
 
-        $this->assertInternalType('int', $client->lastMTime(self::$testFile));
+        $this->assertIsInt($client->lastMTime(self::$testFile));
 
         $client->removeFile(self::$testFile);
     }
@@ -304,7 +304,7 @@ class FtpClientTest extends TestCase
 
         $client->createFile(self::$testFile);
 
-        $this->assertInternalType('string', $client->lastMTime(self::$testFile, 'Y-m-d'));
+        $this->assertIsString($client->lastMTime(self::$testFile, 'Y-m-d'));
 
         $client->removeFile(self::$testFile);
     }
@@ -394,7 +394,7 @@ class FtpClientTest extends TestCase
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
-        $this->assertInternalType('array', $client->getFeatures());
+        $this->assertIsArray($client->getFeatures());
     }
 
     public function testBack()
@@ -410,7 +410,7 @@ class FtpClientTest extends TestCase
 
         $client->createDir(self::$testDir);
 
-        $this->assertInternalType('string', $client->getCurrentDir());
+        $this->assertIsString($client->getCurrentDir());
     }
 
     public function testIsFeatureSupported()
@@ -431,7 +431,7 @@ class FtpClientTest extends TestCase
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
-        $this->assertInternalType('string', $client->getSystem());
+        $this->assertIsString($client->getSystem());
     }
 
     public function testGetCount()
