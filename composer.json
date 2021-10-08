@@ -1,6 +1,6 @@
 {
   "name": "lazzard/php-ftp-client",
-  "description": "This library provides helper classes and methods to manage your files on the FTP server in an OOP way.",
+  "description": "This library provides helper classes and methods to manage your FTP files in an OOP way.",
   "type": "library",
   "license": "MIT",
   "keywords": [

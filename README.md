@@ -5,7 +5,7 @@
 [![Minimum PHP version](https://img.shields.io/packagist/php-v/lazzard/php-ftp-client?color=%238892bf)](https://packagist.org/packages/lazzard/php-ftp-client)
 ![License](https://img.shields.io/packagist/l/lazzard/php-ftp-client)
 
-This library provides helper classes and methods to manage your files on the FTP server in an OOP way.
+This library provides helper classes and methods to manage your FTP files in an OOP way.
 
 *Note: This library aimed to be a full FTP/FTPS client solution for the old **(^5.5)** and newer PHP releases **(^8.0)** that support FTP extension.*
 
