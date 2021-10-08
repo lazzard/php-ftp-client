@@ -1,20 +1,18 @@
 # TODO LIST
 
+This document describes some desired features, API methods, and PHP/PHPUnit upgrades for the feature releases of this library.
+
 ## The next PHP Upgrades
 
-- [ ] 7.2v.
-    - [ ] Create a helper method for the `ftp_append` function.
-    - [ ] Use `ftp_mlsd` function in `FtpClient::lastMTime` to support directories type.
-- [ ] 7.4v.
-- [ ] 8.0v.
+- [ ] ^7.4 | ^8.0.
 
 ## The next PHPUnit Upgrade
 
-- [ ] PHPUnit 8 (>= PHP 7.2).
 - [ ] PHPUnit 9 (>= PHP 7.3).
 
 ## API methods
 
+- [ ] Create a helper method for the `ftp_append` function.
 - [ ] Add `FtpClient::getTransferMode($file)` method to find the appropriate transfer mode (not based on file extension) for the giving **local** file.
 - [ ] Implement a method that allows to download all the files within the giving remote directory.
 
