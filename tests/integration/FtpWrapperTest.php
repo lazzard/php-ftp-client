@@ -8,14 +8,14 @@ use PHPUnit\Framework\TestCase;
 
 class FtpWrapperTest extends TestCase
 {
-    public function testConstruct()
+    public function testConstruct() : void
     {
         $wrapper = new FtpWrapper(ConnectionHelper::getConnection());
 
         $this->assertInstanceOf(FtpWrapper::class, $wrapper);
     }
 
-    public function testGetErrorMessage()
+    public function testGetErrorMessage() : void
     {
         $wrapper = new FtpWrapper(ConnectionHelper::getConnection());
 
@@ -24,14 +24,14 @@ class FtpWrapperTest extends TestCase
         $this->assertIsString($wrapper->getErrorMessage());
     }
 
-    public function test__callWithExistFtpFunction()
+    public function test__callWithExistFtpFunction() : void
     {
         $wrapper = new FtpWrapper(ConnectionHelper::getConnection());
 
         $this->assertIsResource($wrapper->connect(HOST));
     }
 
-    public function test__callWithNonExistFtpFunction()
+    public function test__callWithNonExistFtpFunction() : void
     {
         $wrapper = new FtpWrapper(ConnectionHelper::getConnection());
 

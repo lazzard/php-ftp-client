@@ -4,14 +4,13 @@ namespace Lazzard\FtpClient\Tests\Integration;
 
 use PHPUnit\Framework\TestCase;
 use Lazzard\FtpClient\FtpClient;
-use PHPUnit\Framework\TestCase;
 
 class FtpClientTest extends TestCase
 {
     protected static $testFile;
     protected static $testDir;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass() : void
     {
         parent::setUpBeforeClass();
 
@@ -26,19 +25,19 @@ class FtpClientTest extends TestCase
         }
     }
 
-    public function testConstructor()
+    public function testConstructor() : void
     {
         $this->assertInstanceOf(FtpClient::class, new FtpClient(ConnectionHelper::getConnection()));
     }
 
-    public function testGetParent()
+    public function testGetParent() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
         $this->assertIsString($client->getParent());
     }
 
-    public function testCreateFileWithoutContent()
+    public function testCreateFileWithoutContent() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
@@ -47,7 +46,7 @@ class FtpClientTest extends TestCase
         $client->removeFile(self::$testFile);
     }
 
-    public function testCreateFileWithContent()
+    public function testCreateFileWithContent() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
@@ -56,7 +55,7 @@ class FtpClientTest extends TestCase
         $client->removeFile(self::$testFile);
     }
 
-    public function testCreateDir()
+    public function testCreateDir() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
@@ -65,7 +64,7 @@ class FtpClientTest extends TestCase
         $client->removeDir(self::$testDir);
     }
 
-    public function testCreateDirRecursiveCreation()
+    public function testCreateDirRecursiveCreation() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
@@ -74,7 +73,7 @@ class FtpClientTest extends TestCase
         $client->removeDir(self::$testDir);
     }
 
-    public function testFileSize()
+    public function testFileSize() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
@@ -85,7 +84,7 @@ class FtpClientTest extends TestCase
         $client->removeFile(self::$testFile);
     }
 
-    public function testDirSizeWithEmptyDirectory()
+    public function testDirSizeWithEmptyDirectory() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
@@ -96,7 +95,7 @@ class FtpClientTest extends TestCase
         $client->removeDir(self::$testDir);
     }
 
-    public function testDirSizeWithNonEmptyDirectory()
+    public function testDirSizeWithNonEmptyDirectory() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
@@ -108,7 +107,7 @@ class FtpClientTest extends TestCase
         $client->removeDir(self::$testDir);
     }
 
-    public function testDownload()
+    public function testDownload() : void
     {
         $localFile = tempnam(sys_get_temp_dir(), 'testDownload');
 
@@ -124,7 +123,7 @@ class FtpClientTest extends TestCase
         unlink($localFile);
     }
 
-    public function testAsyncDownload()
+    public function testAsyncDownload() : void
     {
         $localFile = tempnam(sys_get_temp_dir(), 'testAsyncDownload');
 
@@ -142,8 +141,7 @@ class FtpClientTest extends TestCase
         unlink($localFile);
     }
 
-
-    public function testMove()
+    public function testMove() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
@@ -157,8 +155,7 @@ class FtpClientTest extends TestCase
         $client->removeDir(self::$testDir);
     }
 
-
-    public function testSetPermissionsWithArrayParameter()
+    public function testSetPermissionsWithArrayParameter() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
@@ -173,8 +170,7 @@ class FtpClientTest extends TestCase
         $client->removeFile(self::$testFile);
     }
 
-
-    public function testSetPermissionsWithNumericParameter()
+    public function testSetPermissionsWithNumericParameter() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
@@ -185,7 +181,7 @@ class FtpClientTest extends TestCase
         $client->removeFile(self::$testFile);
     }
 
-    public function testIsEmptyWithEmptyFile()
+    public function testIsEmptyWithEmptyFile() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
@@ -196,7 +192,7 @@ class FtpClientTest extends TestCase
         $client->removeFile(self::$testFile);
     }
 
-    public function testIsEmptyWithNonEmptyFile()
+    public function testIsEmptyWithNonEmptyFile() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
@@ -207,8 +203,7 @@ class FtpClientTest extends TestCase
         $client->removeFile(self::$testFile);
     }
 
-
-    public function testIsEmptyWithEmptyDirectory()
+    public function testIsEmptyWithEmptyDirectory() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
@@ -219,7 +214,7 @@ class FtpClientTest extends TestCase
         $client->removeDir(self::$testDir);
     }
 
-    public function testIsEmptyWithNonEmptyDirectory()
+    public function testIsEmptyWithNonEmptyDirectory() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
@@ -231,7 +226,7 @@ class FtpClientTest extends TestCase
         $client->removeDir(self::$testDir);
     }
 
-    public function testIsFileWithFile()
+    public function testIsFileWithFile() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
@@ -242,7 +237,7 @@ class FtpClientTest extends TestCase
         $client->removeFile(self::$testFile);
     }
 
-    public function testIsFileWithDirectory()
+    public function testIsFileWithDirectory() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
@@ -253,7 +248,7 @@ class FtpClientTest extends TestCase
         $client->removeDir(self::$testDir);
     }
 
-    public function testIsDirWithDirectory()
+    public function testIsDirWithDirectory() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
@@ -264,7 +259,7 @@ class FtpClientTest extends TestCase
         $client->removeDir(self::$testDir);
     }
 
-    public function testIsDirWithFile()
+    public function testIsDirWithFile() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
@@ -275,7 +270,7 @@ class FtpClientTest extends TestCase
         $client->removeFile(self::$testFile);
     }
 
-    public function testGetFileContent()
+    public function testGetFileContent() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
@@ -287,7 +282,7 @@ class FtpClientTest extends TestCase
         $client->removeFile(self::$testFile);
     }
 
-    public function testLastMTimeWithoutFormat()
+    public function testLastMTimeWithoutFormat() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
@@ -298,7 +293,7 @@ class FtpClientTest extends TestCase
         $client->removeFile(self::$testFile);
     }
 
-    public function testLastMTimeWithFormat()
+    public function testLastMTimeWithFormat() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
@@ -309,7 +304,7 @@ class FtpClientTest extends TestCase
         $client->removeFile(self::$testFile);
     }
 
-    public function testRemoveFile()
+    public function testRemoveFile() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
@@ -318,7 +313,7 @@ class FtpClientTest extends TestCase
         $this->assertTrue($client->removeFile(self::$testFile));
     }
 
-    public function testRemoveDirectory()
+    public function testRemoveDirectory() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
@@ -327,7 +322,7 @@ class FtpClientTest extends TestCase
         $this->assertTrue($client->removeDir(self::$testDir));
     }
 
-    public function testUpload()
+    public function testUpload() : void
     {
         $localFile = tempnam(sys_get_temp_dir(), 'testUpload');
 
@@ -341,7 +336,7 @@ class FtpClientTest extends TestCase
         unlink($localFile);
     }
 
-    public function testAsyncUpload()
+    public function testAsyncUpload() : void
     {
         $localFile = tempnam(sys_get_temp_dir(), 'testUpload');
 
@@ -357,7 +352,7 @@ class FtpClientTest extends TestCase
         unlink($localFile);
     }
 
-    public function testRenameWithFile()
+    public function testRenameWithFile() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
@@ -370,7 +365,7 @@ class FtpClientTest extends TestCase
         $client->removeFile($renamed);
     }
 
-    public function testRenameWithDirectory()
+    public function testRenameWithDirectory() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
@@ -383,28 +378,32 @@ class FtpClientTest extends TestCase
         $client->removeDir($renamed);
     }
 
-    public function testKeepConnectionAlive()
+    public function testKeepConnectionAlive() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
         $this->assertTrue($client->keepAlive());
     }
 
-    public function testGetFeatures()
+    public function testGetFeatures() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
         $this->assertIsArray($client->getFeatures());
     }
 
-    public function testBack()
+    public function testBack() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
+        $original = $client->getCurrentDir();
+
         $this->assertTrue($client->back());
+
+        $client->changeDir($original);
     }
 
-    public function testGetCurrentDir()
+    public function testGetCurrentDir() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
@@ -413,28 +412,28 @@ class FtpClientTest extends TestCase
         $this->assertIsString($client->getCurrentDir());
     }
 
-    public function testIsFeatureSupported()
+    public function testIsFeatureSupported() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
         $this->assertFalse($client->isFeatureSupported("my feature"));
     }
 
-    public function testAllocateSpace()
+    public function testAllocateSpace() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
         $this->assertTrue($client->allocateSpace(256));
     }
 
-    public function testGetSystem()
+    public function testGetSystem() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
         $this->assertIsString($client->getSystem());
     }
 
-    public function testGetCount()
+    public function testGetCount() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
@@ -446,7 +445,7 @@ class FtpClientTest extends TestCase
         $client->removeDir(self::$testDir);
     }
 
-    public function testGetCountRecursive()
+    public function testGetCountRecursive() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
@@ -458,7 +457,7 @@ class FtpClientTest extends TestCase
         $client->removeDir(self::$testDir);
     }
 
-    public function testListDir()
+    public function testListDir() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
@@ -470,14 +469,14 @@ class FtpClientTest extends TestCase
         $client->removeDir(self::$testDir);
     }
 
-    public function testChangeDir()
+    public function testChangeDir() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
         $this->assertTrue($client->changeDir('.'));
     }
 
-    public function testListDirectoryDetails()
+    public function testListDirectoryDetails() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
@@ -489,7 +488,7 @@ class FtpClientTest extends TestCase
         $client->removeDir(self::$testDir);
     }
 
-    public function testCopyFromLocalWithDirectory()
+    public function testCopyFromLocalWithDirectory() : void
     {
         $localDir = sys_get_temp_dir() . "testCopyFromLocalWithDirectory";
 
@@ -499,8 +498,6 @@ class FtpClientTest extends TestCase
 
         $client = new FtpClient(ConnectionHelper::getConnection());
 
-        $client->createDir(self::$testDir);
-
         $this->assertTrue($client->copyFromLocal($localDir, self::$testDir));
         $this->assertTrue($client->isDir(self::$testDir . "/" . basename($localDir)));
 
@@ -509,7 +506,7 @@ class FtpClientTest extends TestCase
         @unlink($localDir);
     }
 
-    public function testCopyFromLocalWithFile()
+    public function testCopyFromLocalWithFile() : void
     {
         $localFile = tempnam(sys_get_temp_dir(), 'testCopyFromLocalWithFile');
 
@@ -525,7 +522,7 @@ class FtpClientTest extends TestCase
         unlink($localFile);
     }
 
-    public function testCopyToLocalWithFile()
+    public function testCopyToLocalWithFile() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
@@ -537,7 +534,7 @@ class FtpClientTest extends TestCase
         $client->removeFile(self::$testFile);
     }
 
-    public function testCopyToLocalWithDirectory()
+    public function testCopyToLocalWithDirectory() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
@@ -555,7 +552,7 @@ class FtpClientTest extends TestCase
         $client->removeDir(self::$testDir);
     }
 
-    public function testFind()
+    public function testFind() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
@@ -566,7 +563,7 @@ class FtpClientTest extends TestCase
         $client->removeFile(self::$testFile);
     }
 
-    public function testFindRecursive()
+    public function testFindRecursive() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
@@ -580,7 +577,7 @@ class FtpClientTest extends TestCase
         $client->removeDir(self::$testDir);
     }
 
-    public function testCopyWithFile()
+    public function testCopyWithFile() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 
@@ -594,7 +591,7 @@ class FtpClientTest extends TestCase
         $client->removeDir(self::$testDir);
     }
 
-    public function testCopyWithDirectory()
+    public function testCopyWithDirectory() : void
     {
         $client = new FtpClient(ConnectionHelper::getConnection());
 

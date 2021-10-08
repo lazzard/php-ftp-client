@@ -8,33 +8,33 @@ use PHPUnit\Framework\TestCase;
 
 class FtpCommandTest extends TestCase
 {    
-    public function testConstructor()
+    public function testConstructor() : void
     {
         $this->assertInstanceOf(FtpCommand::class, new FtpCommand(ConnectionHelper::getConnection()));
     }
 
-    public function testRaw()
+    public function testRaw() : void
     {
         $command = new FtpCommand(ConnectionHelper::getConnection());
 
         $this->assertIsArray($command->raw('HELP'));
     }
 
-    public function testSite()
+    public function testSite() : void
     {
         $command = new FtpCommand(ConnectionHelper::getConnection());
         
         $this->assertTrue($command->site('HELP'));
     }
 
-    public function testExec()
+    public function testExec() : void
     {
         $command = new FtpCommand(ConnectionHelper::getConnection());
         
         $this->assertTrue($command->exec('SITE EXEC test.sh'));
     }
 
-    public function testSupportedSiteCommands()
+    public function testSupportedSiteCommands() : void
     {
         $command = new FtpCommand(ConnectionHelper::getConnection());
         
