@@ -378,7 +378,6 @@ class FtpClient
     public function removeDir(string $directory) : bool
     {
         $list = array_reverse($this->listDirDetails($directory, true));
-        
         foreach ($list as $fileInfo) {
             if ($fileInfo['type'] === 'file') {
                 $this->wrapper->delete($fileInfo['path']);
@@ -443,16 +442,19 @@ class FtpClient
      *
      * @see FtpCommand::raw()
      *
-     * @return array Returns remote features in array, an exception throws otherwise.
+     * @return array|false Returns remote features in array, an exception throws otherwise.
      *
      * @throws CommandException
      */
     public function getFeatures()
     {
         $response = $this->command->raw("FEAT");
+
         if (is_array($response['body'])) {
             return array_map('ltrim', $response['body']);
         }
+
+        return false;
     }
 
     /**
