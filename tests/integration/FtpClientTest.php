@@ -2,6 +2,7 @@
 
 namespace Lazzard\FtpClient\Tests\Integration;
 
+use PHPUnit\Framework\TestCase;
 use Lazzard\FtpClient\FtpClient;
 use PHPUnit\Framework\TestCase;
 

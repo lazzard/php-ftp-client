@@ -2,12 +2,13 @@
 
 namespace Lazzard\FtpClient\Tests\Integration\Connection;
 
+use PHPUnit\Framework\TestCase;
 use Lazzard\FtpClient\Config\FtpConfig;
 use Lazzard\FtpClient\Connection\ConnectionInterface;
 use Lazzard\FtpClient\Connection\FtpSSLConnection;
 use Lazzard\FtpClient\Exception\ConnectionException;
 
-class FtpSSLConnectionTest extends \PHPUnit_Framework_TestCase
+class FtpSSLConnectionTest extends TestCase
 {
     public function testConstructor()
     {
