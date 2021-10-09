@@ -44,9 +44,6 @@ abstract class Connection implements ConnectionInterface
     protected $password;
 
     /** @var bool */
-    protected $isSecure;
-
-    /** @var bool */
     protected $isConnected;
 
     /** @var bool */
@@ -136,14 +133,6 @@ abstract class Connection implements ConnectionInterface
     {
         return $this->password;
     }
-    
-    /**
-     * @inheritDoc
-     */
-    public function isSecure() : bool
-    {
-        return $this->isSecure;
-    }
 
     /**
      * @inheritDoc
@@ -202,18 +191,14 @@ abstract class Connection implements ConnectionInterface
     }
 
     /**
-     * @return bool
-     *
      * @throws ConnectionException
      */
-    protected function login() : bool
+    protected function login() : void
     {
         if (!$this->wrapper->login($this->getUsername(), $this->getPassword())) {
             throw new ConnectionException($this->wrapper->getErrorMessage()
                 ?: "Logging into the FTP server was failed.");
         }
-
-        return true;
     }
 
     /**
@@ -228,10 +213,6 @@ abstract class Connection implements ConnectionInterface
 
     private function isValidHost($host) : bool
     {
-        if (filter_var(gethostbyname($host), FILTER_VALIDATE_IP) === false) {
-            return false;
-        }
-
-        return true;
+        return filter_var(gethostbyname($host), FILTER_VALIDATE_IP) !== false;
     }
 }
