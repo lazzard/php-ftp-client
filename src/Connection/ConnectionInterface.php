@@ -67,11 +67,4 @@ interface ConnectionInterface
      * @return bool
      */
     public function isConnected() : bool;
-
-    /**
-     * @return bool
-     *
-     * @deprecated Deprecated and will be removed in future releases, relying on this method is discouraged.
-     */
-    public function isPassive() : bool;
 }

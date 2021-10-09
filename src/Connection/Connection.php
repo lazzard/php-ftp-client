@@ -46,9 +46,6 @@ abstract class Connection implements ConnectionInterface
     /** @var bool */
     protected $isConnected;
 
-    /** @var bool */
-    protected $isPassive;
-
     /**
      * Prepares an FTP connection.
      *
@@ -140,24 +137,6 @@ abstract class Connection implements ConnectionInterface
     public function isConnected() : bool
     {
         return $this->isConnected;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function isPassive() : bool
-    {
-        return $this->isPassive;
-    }
-
-    /**
-     * @param bool $bool
-     *
-     * @return void
-     */
-    public function setIsPassive(bool $bool) : void
-    {
-        $this->isPassive = $bool;
     }
 
     /**

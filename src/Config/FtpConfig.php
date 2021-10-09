@@ -72,8 +72,6 @@ class FtpConfig
                 ?: "Unable to switch FTP mode.");
         }
 
-        $this->connection->setIsPassive($value);
-
         return true;
     }
 
