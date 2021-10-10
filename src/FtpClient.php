@@ -61,11 +61,11 @@ class FtpClient
     }
 
     /**
-     * @param FtpWrapper $wrapper
+     * @param ConnectionInterface $connection
      */
-    public function setWrapper(FtpWrapper $wrapper) : void
+    public function setConnection(ConnectionInterface $connection) : void
     {
-        $this->wrapper = $wrapper;
+        $this->connection = $connection;
     }
 
     /**
@@ -74,6 +74,22 @@ class FtpClient
     public function setCommand(FtpCommand $command) : void
     {
         $this->command = $command;
+    }
+
+    /**
+     * @param FtpWrapper $wrapper
+     */
+    public function setWrapper(FtpWrapper $wrapper) : void
+    {
+        $this->wrapper = $wrapper;
+    }
+
+    /**
+     * @return FtpWrapper
+     */
+    public function getWrapper() : FtpWrapper
+    {
+        return $this->wrapper;
     }
 
     /**
@@ -733,7 +749,7 @@ class FtpClient
             $startPos = $size;
         }
 
-        $remoteFileSize = $this->fileSize($remoteFile); // TODO push
+        $remoteFileSize = $this->fileSize($remoteFile);
         $download       = $this->wrapper->nb_get($localFile, $remoteFile, $mode, $startPos);
         $startTime      = microtime(true);
         $sizeTmp        = $startPos;
@@ -757,7 +773,7 @@ class FtpClient
                 clearstatcache();
                 $localFileSize = filesize($localFile);
 
-                $callback([
+                call_user_func_array($callback, [
                     'speed'       => $this->transferSpeed($localFileSize - $startPos, $elapsedTime),
                     'percentage'  => $this->transferPercentage($localFileSize, $remoteFileSize),
                     'transferred' => $this->transferredBytes($localFileSize, $sizeTmp),
@@ -952,7 +968,7 @@ class FtpClient
             if ($elapsedTimeTmp !== $elapsedTime && is_int((int)$elapsedTime / $interval)) {
                 $remoteFileSize = ftell($handle);
 
-                $callback([
+                call_user_func_array($callback, [
                     'speed'       => $this->transferSpeed($remoteFileSize - $startPos, $elapsedTime),
                     'percentage'  => $this->transferPercentage($remoteFileSize, $localFileSize),
                     'transferred' => $this->transferredBytes($remoteFileSize, $sizeTmp),
@@ -1197,7 +1213,7 @@ class FtpClient
      *
      * @return float
      */
-    protected function transferSpeed(int $size, float $elapsedTime) : float
+    protected function transferSpeed(int $size, float $elapsedTime): float
     {
         return (float)number_format(($size / $elapsedTime) / 1000, 2);
     }

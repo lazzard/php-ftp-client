@@ -78,6 +78,14 @@ abstract class Connection implements ConnectionInterface
     }
 
     /**
+     * @return FtpWrapper
+     */
+    public function getWrapper() : FtpWrapper
+    {
+        return $this->wrapper;
+    }
+
+    /**
      * {@inheritDoc}
      * 
      * @throws ConnectionException
