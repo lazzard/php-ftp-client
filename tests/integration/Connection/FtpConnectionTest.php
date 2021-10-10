@@ -88,36 +88,6 @@ class FtpConnectionTest extends TestCase
         $this->assertFalse($connection->isConnected());
     }
 
-    public function testIsPassiveWithPassiveMode() : void
-    {
-        $connection = new FtpConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
-
-        $connection->open();
-
-        $ftpConfig = new FtpConfig($connection);
-
-        $ftpConfig->setPassive(true);
-
-        $this->assertTrue($connection->isPassive());
-
-        $connection->close();
-    }
-
-    public function testIsPassiveWithActiveMode() : void
-    {
-        $connection = new FtpConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
-
-        $connection->open();
-
-        $ftpConfig = new FtpConfig($connection);
-
-        $ftpConfig->setPassive(false);
-
-        $this->assertFalse($connection->isPassive());
-
-        $connection->close();
-    }
-
     public function testOpen() : void
     {
         $connection = new FtpConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);

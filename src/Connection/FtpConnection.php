@@ -33,8 +33,6 @@ class FtpConnection extends Connection
                 ?: 'FTP connection failed to remote server.');
         }
 
-        $this->isSecure = false;
-
         $this->wrapper->setConnection($this);
     }
 }
