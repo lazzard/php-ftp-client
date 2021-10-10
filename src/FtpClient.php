@@ -1206,6 +1206,36 @@ class FtpClient
     }
 
     /**
+     * Append the giving content to a remote file.
+     *
+     * Note: This feature is not standardized in the basic RFC959
+     * specification, therefore this method may not work on some
+     * FTP servers depending on each server implementation.
+     *
+     * @param string $remoteFile
+     * @param string $content
+     * @param int    $mode
+     *
+     * @return bool
+     *
+     * @throws FtpClientException
+     */
+    public function appendFile($remoteFile, $content, $mode = FtpWrapper::BINARY): bool
+    {
+        $file = tmpfile();
+        $path = stream_get_meta_data($file)['uri'];
+
+        file_put_contents($path, $content);
+
+        if (!$this->wrapper->append($remoteFile, $path, $mode)) {
+            throw new FtpClientException($this->wrapper->getErrorMessage()
+                ?: "Cannot append the remote file ($remoteFile) content.");
+        }
+
+        return true;
+    }
+
+    /**
      * Gets the transfer operation average speed.
      *
      * @param int   $size
