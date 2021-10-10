@@ -556,18 +556,20 @@ class FtpClient
      *
      * @return int Return the size in bytes.
      *
-     * @throws FtpClientException
+     * @throws FtpClientException If the passed file is a directory type or
+     *                            an error occurs.
      */
-    public function fileSize(string $remoteFile) : int
+    public function fileSize(string $remoteFile)
     {
-        /**
-         * The 'SIZE' command is not standardized in the basic FTP protocol
-         * as defined in RFC 959, therefore many FTP servers may not implement
-         * this command, to work around this we use the 'listDirDetails' method
-         * to get the directory files information that includes the file size.
-         *
-         * @link https://tools.ietf.org/html/rfc959
-         */
+        if ($this->isDir($remoteFile)) {
+            throw new FtpClientException("($remoteFile) is not a regular remote file.");
+        }
+
+        // The 'SIZE' command is not standardized in the basic FTP protocol
+        // as defined in RFC 959, therefore many FTP servers may not implement
+        // this command, to work around this we use the 'listDirDetails' method
+        // to get the directory files information that includes the file size.
+        // @link https://tools.ietf.org/html/rfc959
         if (!$this->isFeatureSupported('SIZE')) {
             $list = $this->listDirDetails($this->dirname($remoteFile));
             foreach ($list as $filename => $info) {
@@ -577,7 +579,12 @@ class FtpClient
             }
         }
 
-        return $this->wrapper->size($remoteFile);
+        if (($size = $this->wrapper->size($remoteFile)) === -1) {
+            throw new FtpClientException($this->wrapper->getErrorMessage()
+                ?: "Failed to get the ($remoteFile) file size.");
+        }
+
+        return $size;
     }
 
     /**
