@@ -3,7 +3,7 @@
 ## 1.5.3 (2021-10-10)
 
 * Added new method `FtpClient::appendFile`.
-* Added getters and setters for various classes (see [commit](https://github.com/lazzard/php-ftp-client/commit/3188c3392b9ccd15871ff720b3f1776a6315e4a7)).
+* Added getters and setters for various classes (see [commit](https://github.com/lazzard/php-ftp-client/commit/02df6b9be719a236701c2bcb78f990632131ffae)).
 * Removed the deprecated `ConnectionInterface::isSecure`.
 * Removed the deprecated `ConnectionInterface::isPassive`.
 * `FtpClient::fileSize` is now throw exception if the giving file is a directory type or an error occurs.
