@@ -63,7 +63,6 @@ abstract class Connection implements ConnectionInterface
         $this->password    = $password;
         $this->port        = $port;
         $this->timeout     = $timeout;
-        $this->isPassive   = false;
         $this->isConnected = false;
 
         $this->wrapper = new FtpWrapper($this);
@@ -71,6 +70,8 @@ abstract class Connection implements ConnectionInterface
 
     /**
      * @param FtpWrapper $wrapper
+     *
+     * @return void
      */
     public function setWrapper(FtpWrapper $wrapper) : void
     {
@@ -78,6 +79,8 @@ abstract class Connection implements ConnectionInterface
     }
 
     /**
+     * @since 1.5.3
+     *
      * @return FtpWrapper
      */
     public function getWrapper() : FtpWrapper

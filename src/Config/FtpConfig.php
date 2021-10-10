@@ -50,6 +50,10 @@ class FtpConfig
 
     /**
      * @param ConnectionInterface $connection
+     *
+     * @since 1.5.3
+     *
+     * @return void
      */
     public function setConnection(ConnectionInterface $connection) : void
     {
@@ -58,6 +62,8 @@ class FtpConfig
 
     /**
      * @param FtpWrapper $wrapper
+     *
+     * @return void
      */
     public function setWrapper(FtpWrapper $wrapper) : void
     {
@@ -66,6 +72,8 @@ class FtpConfig
 
     /**
      * @return FtpWrapper
+     *
+     * @since 1.5.3
      */
     public function getWrapper() : FtpWrapper
     {
