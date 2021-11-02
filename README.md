@@ -7,7 +7,8 @@
 
 This library provides helper classes and methods to manage your FTP files in an OOP way.
 
-*Note: This library aimed to be a full FTP/FTPS client solution for the old **(^5.5)** and newer PHP releases **(^8.0)** that support FTP extension.*
+*Note: This library aimed to be a full FTP/FTPS client solution for the old **(^5.5)** and newer PHP releases **(^8.0)**
+that support FTP extension.*
 
 ## Installation
 
@@ -125,7 +126,7 @@ $client->dirSize('path/to/directory');
 ```
 
 #### file/directory creating
- 
+
 ```php
 // create an FTP file
 $client->createFile('path/to/file');
@@ -136,6 +137,13 @@ $client->createFile('path/to/file', 'Hello world!!');
 // create a remote directory
 // note: this method supports recursive directory creation
 $client->createDir('directory');
+```
+
+#### append
+
+```php
+// append the giving content to a remote file
+$client->appendFile('path/to/file', $content);
 ```
 
 #### remove/rename
@@ -171,7 +179,7 @@ $client->getCount('path/to/directory', true);
 $client->getCount('path/to/directory', true, FtpClient::FILE_TYPE);
 ```
 
-#### permissions 
+#### permissions
 
 ```php
 // set a permissions on the giving FTP file/directory 
@@ -204,7 +212,7 @@ $client->isExists('path/to/file/or/directory');
 $client->isFeatureSupported('SIZE');
 ```
 
-#### others 
+#### others
 
 ```php
 // get the last modified time of the giving file (not working with directories)
@@ -226,39 +234,54 @@ $client->allocateSpace(2048);
 // prevent the server from closing the connection and keeping it alive
 $client->keepAlive();
 ```
+
 *You can see all available methods [here](docs/FtpClient.md).*
 
 ## More documentation
 
- * [Manipulate the FTP connection with **ConnectionInterface**.][1]
- * [Configure the connection instance with **FtpConfig**.][2]
- * [Start working with the base class **FtpClient**.][3]
- * [Sending FTP commands with **FtpCommand**.][4]
- * [How to use the **FtpWrapper** class directly.][5]
- * [Running the integration tests.][6]
- 
+* [Manipulate the FTP connection with **ConnectionInterface**.][1]
+* [Configure the connection instance with **FtpConfig**.][2]
+* [Start working with the base class **FtpClient**.][3]
+* [Sending FTP commands with **FtpCommand**.][4]
+* [How to use the **FtpWrapper** class directly.][5]
+* [Running the integration tests.][6]
+
 [1]: docs/ConnectionInterface.md
+
 [2]: docs/FtpConfig.md
+
 [3]: docs/FtpClient.md
+
 [4]: docs/FtpCommand.md
+
 [5]: docs/FtpWrapper.md
+
 [6]: docs/tests.md
 
 ## Version Guidance
 
 | Version    | Status        | Last Release | PHP Version   |
 |:----------:|:-------------:|:------------:|:-------------:|
-| 1.0.x      | EOL           | [v1.0.2][7]  | >= 5.5        |
-| 1.4.x      | EOL           | [v1.4.2][9]  | >= 5.6        |
-| 1.5.x      | Latest        | [v1.5.0][9]  | ^7.2 \| 8.0.* |
+| 1.0.x      | EOL           | [v1.0.2][7]  | > = 5.5        |
+| 1.4.x      | EOL           | [v1.4.2][9]  | > = 5.6        |
+| 1.5.x      | Latest        | [v1.5.3][9]  | ^7.2 \| 8.0.* |
 
 [7]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.0.2
+
 [8]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.1.0
-[9]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.5.0
+
+[9]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.5.3
 
 ## Contribution
 
-Feel free to fork this repo if you want to enhance it or adding new features, also reported some issues that may have you facing while using the library will be very appreciated, Thank you!
+Feel free to fork this repo if you want to enhance it or adding new features, also reported some issues that may have
+you facing while using the library will be very appreciated, Thank you!
+
+## Library supporters
+
+Thanks to JetBrains company for providing tools that really help us to continue maintaining this project.
+
+<img width="150" src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png?_gl=1*1evhn6q*_ga*MzA3MTk5NzQ3LjE2MzU3OTk3MDA.*_ga_V0XZL7QHEB*MTYzNTg5MzE3NS4yLjEuMTYzNTg5MzkzNC4xNg..&_ga=2.162913596.1450626373.1635893177-307199747.1635799700"/>
 
 ## License
 
