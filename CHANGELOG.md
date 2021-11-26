@@ -1,10 +1,18 @@
 # Change Log
 
+## 1.5.3 (2021-10-10)
+
+* Added new method `FtpClient::appendFile`.
+* Added getters and setters for various classes (see [commit](https://github.com/lazzard/php-ftp-client/commit/02df6b9be719a236701c2bcb78f990632131ffae)).
+* Removed the deprecated `ConnectionInterface::isSecure`.
+* Removed the deprecated `ConnectionInterface::isPassive`.
+* `FtpClient::fileSize` is now throw exception if the giving file is a directory type or an error occurs.
+
 ## 1.5.0 (2021-10-08)
 
 * Upgraded the code base to PHP v7.2.
 * Upgraded PHPUnit to ^8.0.
-* `FtpCommand::raw` is now throw exception in failure.
+* `FtpCommand::raw` is now throw an exception in failure.
 * `FtpWrapper::getErrorMessage` returns empty string instead of null if no error message is available.
 * `FtpClient::getFeatures` throws exception in failure.
 * Fixed `FtpClient::createDir` for multiple directory creation.

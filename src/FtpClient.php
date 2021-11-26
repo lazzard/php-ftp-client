@@ -61,7 +61,31 @@ class FtpClient
     }
 
     /**
+     * @param ConnectionInterface $connection
+     *
+     * @since 1.5.3
+     *
+     * @return void
+     */
+    public function setConnection(ConnectionInterface $connection) : void
+    {
+        $this->connection = $connection;
+    }
+
+    /**
+     * @param FtpCommand $command
+     *
+     * @return void
+     */
+    public function setCommand(FtpCommand $command) : void
+    {
+        $this->command = $command;
+    }
+
+    /**
      * @param FtpWrapper $wrapper
+     *
+     * @return void
      */
     public function setWrapper(FtpWrapper $wrapper) : void
     {
@@ -69,11 +93,13 @@ class FtpClient
     }
 
     /**
-     * @param FtpCommand $command
+     * @since 1.5.3
+     *
+     * @return FtpWrapper
      */
-    public function setCommand(FtpCommand $command) : void
+    public function getWrapper() : FtpWrapper
     {
-        $this->command = $command;
+        return $this->wrapper;
     }
 
     /**
@@ -556,18 +582,20 @@ class FtpClient
      *
      * @return int Return the size in bytes.
      *
-     * @throws FtpClientException
+     * @throws FtpClientException If the passed file is a directory type or
+     *                            an error occurs.
      */
-    public function fileSize(string $remoteFile) : int
+    public function fileSize(string $remoteFile)
     {
-        /**
-         * The 'SIZE' command is not standardized in the basic FTP protocol
-         * as defined in RFC 959, therefore many FTP servers may not implement
-         * this command, to work around this we use the 'listDirDetails' method
-         * to get the directory files information that includes the file size.
-         *
-         * @link https://tools.ietf.org/html/rfc959
-         */
+        if ($this->isDir($remoteFile)) {
+            throw new FtpClientException("($remoteFile) is not a regular remote file.");
+        }
+
+        // The 'SIZE' command is not standardized in the basic FTP protocol
+        // as defined in RFC 959, therefore many FTP servers may not implement
+        // this command, to work around this we use the 'listDirDetails' method
+        // to get the directory files information that includes the file size.
+        // @link https://tools.ietf.org/html/rfc959
         if (!$this->isFeatureSupported('SIZE')) {
             $list = $this->listDirDetails($this->dirname($remoteFile));
             foreach ($list as $filename => $info) {
@@ -577,7 +605,12 @@ class FtpClient
             }
         }
 
-        return $this->wrapper->size($remoteFile);
+        if (($size = $this->wrapper->size($remoteFile)) === -1) {
+            throw new FtpClientException($this->wrapper->getErrorMessage()
+                ?: "Failed to get the ($remoteFile) file size.");
+        }
+
+        return $size;
     }
 
     /**
@@ -726,7 +759,7 @@ class FtpClient
             $startPos = $size;
         }
 
-        $remoteFileSize = $this->fileSize($remoteFile); // TODO push
+        $remoteFileSize = $this->fileSize($remoteFile);
         $download       = $this->wrapper->nb_get($localFile, $remoteFile, $mode, $startPos);
         $startTime      = microtime(true);
         $sizeTmp        = $startPos;
@@ -750,7 +783,7 @@ class FtpClient
                 clearstatcache();
                 $localFileSize = filesize($localFile);
 
-                $callback([
+                call_user_func_array($callback, [
                     'speed'       => $this->transferSpeed($localFileSize - $startPos, $elapsedTime),
                     'percentage'  => $this->transferPercentage($localFileSize, $remoteFileSize),
                     'transferred' => $this->transferredBytes($localFileSize, $sizeTmp),
@@ -945,7 +978,7 @@ class FtpClient
             if ($elapsedTimeTmp !== $elapsedTime && is_int((int)$elapsedTime / $interval)) {
                 $remoteFileSize = ftell($handle);
 
-                $callback([
+                call_user_func_array($callback, [
                     'speed'       => $this->transferSpeed($remoteFileSize - $startPos, $elapsedTime),
                     'percentage'  => $this->transferPercentage($remoteFileSize, $localFileSize),
                     'transferred' => $this->transferredBytes($remoteFileSize, $sizeTmp),
@@ -1183,6 +1216,36 @@ class FtpClient
     }
 
     /**
+     * Append the giving content to a remote file.
+     *
+     * Note: This feature is not standardized in the basic RFC959
+     * specification, therefore this method may not work on some
+     * FTP servers depending on each server implementation.
+     *
+     * @param string $remoteFile
+     * @param string $content
+     * @param int    $mode
+     *
+     * @return bool
+     *
+     * @throws FtpClientException
+     */
+    public function appendFile($remoteFile, $content, $mode = FtpWrapper::BINARY): bool
+    {
+        $file = tmpfile();
+        $path = stream_get_meta_data($file)['uri'];
+
+        file_put_contents($path, $content);
+
+        if (!$this->wrapper->append($remoteFile, $path, $mode)) {
+            throw new FtpClientException($this->wrapper->getErrorMessage()
+                ?: "Cannot append the remote file ($remoteFile) content.");
+        }
+
+        return true;
+    }
+
+    /**
      * Gets the transfer operation average speed.
      *
      * @param int   $size
@@ -1190,7 +1253,7 @@ class FtpClient
      *
      * @return float
      */
-    protected function transferSpeed(int $size, float $elapsedTime) : float
+    protected function transferSpeed(int $size, float $elapsedTime): float
     {
         return (float)number_format(($size / $elapsedTime) / 1000, 2);
     }

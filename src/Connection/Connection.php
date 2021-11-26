@@ -44,13 +44,7 @@ abstract class Connection implements ConnectionInterface
     protected $password;
 
     /** @var bool */
-    protected $isSecure;
-
-    /** @var bool */
     protected $isConnected;
-
-    /** @var bool */
-    protected $isPassive;
 
     /**
      * Prepares an FTP connection.
@@ -69,7 +63,6 @@ abstract class Connection implements ConnectionInterface
         $this->password    = $password;
         $this->port        = $port;
         $this->timeout     = $timeout;
-        $this->isPassive   = false;
         $this->isConnected = false;
 
         $this->wrapper = new FtpWrapper($this);
@@ -77,10 +70,22 @@ abstract class Connection implements ConnectionInterface
 
     /**
      * @param FtpWrapper $wrapper
+     *
+     * @return void
      */
     public function setWrapper(FtpWrapper $wrapper) : void
     {
         $this->wrapper = $wrapper;
+    }
+
+    /**
+     * @since 1.5.3
+     *
+     * @return FtpWrapper
+     */
+    public function getWrapper() : FtpWrapper
+    {
+        return $this->wrapper;
     }
 
     /**
@@ -136,14 +141,6 @@ abstract class Connection implements ConnectionInterface
     {
         return $this->password;
     }
-    
-    /**
-     * @inheritDoc
-     */
-    public function isSecure() : bool
-    {
-        return $this->isSecure;
-    }
 
     /**
      * @inheritDoc
@@ -151,24 +148,6 @@ abstract class Connection implements ConnectionInterface
     public function isConnected() : bool
     {
         return $this->isConnected;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function isPassive() : bool
-    {
-        return $this->isPassive;
-    }
-
-    /**
-     * @param bool $bool
-     *
-     * @return void
-     */
-    public function setIsPassive(bool $bool) : void
-    {
-        $this->isPassive = $bool;
     }
 
     /**
@@ -202,18 +181,14 @@ abstract class Connection implements ConnectionInterface
     }
 
     /**
-     * @return bool
-     *
      * @throws ConnectionException
      */
-    protected function login() : bool
+    protected function login() : void
     {
         if (!$this->wrapper->login($this->getUsername(), $this->getPassword())) {
             throw new ConnectionException($this->wrapper->getErrorMessage()
                 ?: "Logging into the FTP server was failed.");
         }
-
-        return true;
     }
 
     /**
@@ -228,10 +203,6 @@ abstract class Connection implements ConnectionInterface
 
     private function isValidHost($host) : bool
     {
-        if (filter_var(gethostbyname($host), FILTER_VALIDATE_IP) === false) {
-            return false;
-        }
-
-        return true;
+        return filter_var(gethostbyname($host), FILTER_VALIDATE_IP) !== false;
     }
 }

@@ -3,7 +3,6 @@
 namespace Lazzard\FtpClient\Tests\Integration\Connection;
 
 use PHPUnit\Framework\TestCase;
-use Lazzard\FtpClient\Config\FtpConfig;
 use Lazzard\FtpClient\Connection\ConnectionInterface;
 use Lazzard\FtpClient\Connection\FtpSSLConnection;
 use Lazzard\FtpClient\Exception\ConnectionException;
@@ -113,42 +112,6 @@ class FtpSSLConnectionTest extends TestCase
         $connection = new FtpSSLConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
 
         $this->assertFalse($connection->isConnected());
-    }
-
-    /**
-     * @depends testConstructor
-     */
-    public function testIsPassiveWithPassiveMode() : void
-    {
-        $connection = new FtpSSLConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
-
-        $connection->open();
-
-        $ftpConfig = new FtpConfig($connection);
-
-        $ftpConfig->setPassive(true);
-
-        $this->assertTrue($connection->isPassive());
-
-        $connection->close();
-    }
-
-    /**
-     * @depends testConstructor
-     */
-    public function testIsPassiveWithActiveMode() : void
-    {
-        $connection = new FtpSSLConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
-
-        $connection->open();
-
-        $ftpConfig = new FtpConfig($connection);
-
-        $ftpConfig->setPassive(false);
-
-        $this->assertFalse($connection->isPassive());
-
-        $connection->close();
     }
 
     /**

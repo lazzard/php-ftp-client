@@ -262,8 +262,8 @@ $client->keepAlive();
 
 | Version    | Status        | Last Release | PHP Version   |
 |:----------:|:-------------:|:------------:|:-------------:|
-| 1.0.x      | EOL           | [v1.0.2][7]  | > = 5.5        |
-| 1.4.x      | EOL           | [v1.4.2][9]  | > = 5.6        |
+| 1.0.x      | EOL           | [v1.0.2][7]  | >= 5.5        |
+| 1.4.x      | EOL           | [v1.4.2][9]  | >= 5.6        |
 | 1.5.x      | Latest        | [v1.5.3][9]  | ^7.2 \| 8.0.* |
 
 [7]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.0.2

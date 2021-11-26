@@ -607,4 +607,17 @@ class FtpClientTest extends TestCase
         $client->removeDir($testDir2);
         $client->removeDir(self::$testDir);
     }
+
+    public function testAppendFile() : void
+    {
+        $client = new FtpClient(ConnectionHelper::getConnection());
+
+        $testFile = self::$testFile;
+
+        $client->createFile($testFile);
+
+        $this->assertTrue($client->appendFile($testFile, 'hello world!'));
+
+        $client->removeFile($testFile);
+    }
 }

@@ -49,11 +49,35 @@ class FtpCommand
     }
 
     /**
+     * @param ConnectionInterface $connection
+     *
+     * @since 1.5.3
+     *
+     * @return void
+     */
+    public function setConnection(ConnectionInterface $connection) : void
+    {
+        $this->connection = $connection;
+    }
+
+    /**
      * @param FtpWrapper $wrapper
+     *
+     * @return void
      */
     public function setWrapper(FtpWrapper $wrapper) : void
     {
         $this->wrapper = $wrapper;
+    }
+
+    /**
+     * @since 1.5.3
+     *
+     * @return FtpWrapper
+     */
+    public function getWrapper() : FtpWrapper
+    {
+        return $this->wrapper;
     }
 
     /**
