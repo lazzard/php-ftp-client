@@ -1,6 +1,6 @@
 # Change Log
 
-## 1.5.3 (2021-10-10)
+## 1.5.3 (2021-11-26)
 
 * Added new method `FtpClient::appendFile`.
 * Added getters and setters for various classes (see [commit](https://github.com/lazzard/php-ftp-client/commit/02df6b9be719a236701c2bcb78f990632131ffae)).
