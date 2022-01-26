@@ -33,6 +33,7 @@ class FtpWrapper
     public const FAILED         = FTP_FAILED;
     public const FINISHED       = FTP_FINISHED;
     public const MOREDATA       = FTP_MOREDATA;
+    public const FTP_FUNCTIONS_PREFIX = 'ftp_';
 
     /** @var ConnectionInterface */
     protected $connection;
@@ -88,7 +89,7 @@ class FtpWrapper
      */
     public function __call(string $func, $args = null)
     {
-        $function = "ftp_$func";
+        $function = static::FTP_FUNCTIONS_PREFIX.$func;
 
         if (!function_exists($function)) {
             throw new WrapperException("$function() doesn't exists.");
