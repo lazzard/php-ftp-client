@@ -8,8 +8,6 @@
 
 ## The next PHPUnit Upgrade
 
-- [ ] PHPUnit 9 (>= PHP 7.3).
-
 ## API methods
 
 - [ ] Adding the `FtpClient::getTransferMode($file)` method to find the appropriate transfer mode (not based on file extension) for the giving **local** file.
