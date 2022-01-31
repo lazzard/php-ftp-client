@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.6.0 (2022-01-31)
+
+* Upgraded the code base to PHP `^7.4`.
+
 ## 1.5.3 (2021-11-26)
 
 * Added new method `FtpClient::appendFile`.
@@ -72,8 +76,8 @@ a NULL value instead of false.
 * `FtpClient::removeDirectory` renamed to `FtpClient::removeDir`.
 * `FtpClient::getDefaultTransferType` renamed to `FtpClient::getTransferType`.
 * `FtpClient::keepConnectionAlive` renamed to `FtpClient::keepAlive`.
-* `FtpClient::listDirecory` renamed to `FtpClient::listDir`.
-* `FtpClient::listDirecoryDetails` renamed to `FtpClient::listDirDetails`.
+* `FtpClient::listDirectory` renamed to `FtpClient::listDir`.
+* `FtpClient::listDirectoryDetails` renamed to `FtpClient::listDirDetails`.
 * `FtpWrapper::getFtpErrorMessage` renamed to `FtpWrapper::getErrorMessage`.
 
 ### Others
