@@ -22,29 +22,17 @@ use Lazzard\FtpClient\Exception\ConnectionException;
  */
 abstract class Connection implements ConnectionInterface
 {
-    /** @var FtpWrapper */
-    protected $wrapper;
+    protected FtpWrapper $wrapper;
 
     /** @var resource */
     protected $stream;
 
-    /** @var string */
-    protected $host;
-
-    /** @var int */
-    protected $port;
-
-    /** @var int */
-    protected $timeout;
-
-    /** @var string */
-    protected $username;
-
-    /* @var string */
-    protected $password;
-
-    /** @var bool */
-    protected $isConnected;
+    protected string $host;
+    protected int $port;
+    protected int $timeout;
+    protected string $username;
+    protected string $password;
+    protected bool $isConnected;
 
     /**
      * Prepares an FTP connection.
@@ -68,11 +56,6 @@ abstract class Connection implements ConnectionInterface
         $this->wrapper = new FtpWrapper($this);
     }
 
-    /**
-     * @param FtpWrapper $wrapper
-     *
-     * @return void
-     */
     public function setWrapper(FtpWrapper $wrapper) : void
     {
         $this->wrapper = $wrapper;
@@ -80,8 +63,6 @@ abstract class Connection implements ConnectionInterface
 
     /**
      * @since 1.5.3
-     *
-     * @return FtpWrapper
      */
     public function getWrapper() : FtpWrapper
     {
@@ -102,49 +83,31 @@ abstract class Connection implements ConnectionInterface
         return $this->stream;
     }
 
-    /**
-     * @inheritDoc
-     */
     public function getHost() : string
     {
         return $this->host;
     }
 
-    /**
-     * @inheritDoc
-     */
     public function getPort() : int
     {
         return $this->port;
     }
 
-    /**
-     * @inheritDoc
-     */
     public function getTimeout() : int
     {
         return $this->timeout;
     }
 
-    /**
-     * @inheritDoc
-     */
     public function getUsername() : string
     {
         return $this->username;
     }
 
-    /**
-     * @inheritDoc
-     */
     public function getPassword() : string
     {
         return $this->password;
     }
 
-    /**
-     * @inheritDoc
-     */
     public function isConnected() : bool
     {
         return $this->isConnected;

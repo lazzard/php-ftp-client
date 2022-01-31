@@ -23,56 +23,34 @@ use Lazzard\FtpClient\FtpWrapper;
  */
 class FtpConfig
 {
-    /** @var ConnectionInterface */
-    protected $connection;
+    protected ConnectionInterface $connection;
+    protected FtpWrapper $wrapper;
 
-    /** @var FtpWrapper */
-    protected $wrapper;
-
-    /**
-     * FtpConfig constructor.
-     *
-     * @param ConnectionInterface $connection
-     */
     public function __construct(ConnectionInterface $connection)
     {
         $this->connection = $connection;
         $this->wrapper    = new FtpWrapper($connection);
     }
 
-    /**
-     * @return ConnectionInterface
-     */
     public function getConnection() : ConnectionInterface
     {
         return $this->connection;
     }
 
     /**
-     * @param ConnectionInterface $connection
-     *
      * @since 1.5.3
-     *
-     * @return void
      */
     public function setConnection(ConnectionInterface $connection) : void
     {
         $this->connection = $connection;
     }
 
-    /**
-     * @param FtpWrapper $wrapper
-     *
-     * @return void
-     */
     public function setWrapper(FtpWrapper $wrapper) : void
     {
         $this->wrapper = $wrapper;
     }
 
     /**
-     * @return FtpWrapper
-     *
      * @since 1.5.3
      */
     public function getWrapper() : FtpWrapper
@@ -82,8 +60,6 @@ class FtpConfig
 
     /**
      * Turn the passive mode on or off.
-     *
-     * @param bool $value
      *
      * @return bool Returns true in success, if not an exception throws.
      *
@@ -110,8 +86,8 @@ class FtpConfig
      */
     public function setTimeout(int $value) : bool
     {
-        if (!is_int($value) || $value < 0) {
-            throw new ConfigException("[{$value}] Timeout option value must be of type integer and greater than 0.");
+        if ($value < 0) {
+            throw new ConfigException("[{$value}] Timeout option value must be greater than 0.");
         }
 
         if (!$this->wrapper->set_option(FtpWrapper::TIMEOUT_SEC, $value)) {
@@ -123,9 +99,7 @@ class FtpConfig
     }
 
     /**
-     * Specifies if the IP address returned via the PASV command will be used to open the data channel.
-     *
-     * @param bool $value
+     * Specifies if the IP address returned via the 'PASV' command will be used to open the data channel.
      *
      * @return bool Returns true in success, if not an exception throws.
      *
@@ -133,10 +107,6 @@ class FtpConfig
      */
     public function usePassiveAddress(bool $value) : bool
     {
-        if (!is_bool($value)) {
-            throw new ConfigException("[{$value}] usePassiveAddress option value must be of type boolean.");
-        }
-
         if (!$this->wrapper->set_option(FtpWrapper::USEPASVADDRESS, $value)) {
             throw new ConfigException($this->wrapper->getErrorMessage()
                 ?: "Unable to set usePassiveAddress runtime option.");
@@ -148,18 +118,12 @@ class FtpConfig
     /**
      * Sets the autoSeek option on/off.
      *
-     * @param bool $value
-     *
      * @return bool Returns true in success, if not an exception throws.
      *
      * @throws ConfigException
      */
     public function setAutoSeek(bool $value) : bool
     {
-        if (!is_bool($value)) {
-            throw new ConfigException("[{$value}] AutoSeek option value must be of type boolean.");
-        }
-
         if (!$this->wrapper->set_option(FtpWrapper::AUTOSEEK, $value)) {
             throw new ConfigException($this->wrapper->getErrorMessage()
                 ?: "Unable to set AutoSeek runtime option.");
@@ -170,8 +134,6 @@ class FtpConfig
 
     /**
      * Gets the timeout option value.
-     *
-     * @return int
      *
      * @throws ConfigException
      */
@@ -187,8 +149,6 @@ class FtpConfig
 
     /**
      * Checks if the autoSeek option enabled or not.
-     *
-     * @return bool
      */
     public function isAutoSeek() : bool
     {
@@ -196,10 +156,8 @@ class FtpConfig
     }
 
     /**
-     * Checks if the passive address returned in the PASV response
+     * Checks if the passive address returned to the 'PASV' response
      * is used by the control channel or not.
-     *
-     * @return bool
      */
     public function isUsePassiveAddress() : bool
     {

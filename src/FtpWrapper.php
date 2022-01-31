@@ -34,33 +34,19 @@ class FtpWrapper
     public const FINISHED       = FTP_FINISHED;
     public const MOREDATA       = FTP_MOREDATA;
 
-    /** @var ConnectionInterface */
-    protected $connection;
+    protected ConnectionInterface $connection;
+    protected string $errorMessage;
 
-    /** @var string */
-    protected $errorMessage;
-
-    /**
-     * FtpWrapper constructor.
-     *
-     * @param ConnectionInterface $connection
-     */
     public function __construct(ConnectionInterface $connection)
     {
         $this->connection = $connection;
     }
 
-    /**
-     * @return ConnectionInterface
-     */
     public function getConnection() : ConnectionInterface
     {
         return $this->connection;
     }
 
-    /**
-     * @param ConnectionInterface $connection
-     */
     public function setConnection(ConnectionInterface $connection) : void
     {
         $this->connection = $connection;
@@ -79,14 +65,11 @@ class FtpWrapper
     /**
      * Delegates the 'FtpWrapper::***()' calls to the alternative FTP native functions.
      *
-     * @param string     $func
-     * @param array|null $args
-     *
      * @return mixed
      *
      * @throws WrapperException
      */
-    public function __call(string $func, $args = null)
+    public function __call(string $func, array $args = [])
     {
         $function = "ftp_$func";
 

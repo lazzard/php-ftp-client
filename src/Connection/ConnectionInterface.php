@@ -21,15 +21,11 @@ interface ConnectionInterface
 {
     /**
      * Opens the FTP connection.
-     *
-     * @return bool
      */
     public function open() : bool;
 
     /**
      * Closes the FTP connection.
-     *
-     * @return bool
      */
     public function close() : bool;
 
@@ -38,33 +34,15 @@ interface ConnectionInterface
      */
     public function getStream();
 
-    /**
-     * @return string
-     */
     public function getHost() : string;
 
-    /**
-     * @return int
-     */
     public function getPort() : int;
 
-    /**
-     * @return int
-     */
     public function getTimeout() : int;
 
-    /**
-     * @return string
-     */
     public function getUsername() : string;
 
-    /**
-     * @return string
-     */
     public function getPassword() : string;
 
-    /**
-     * @return bool
-     */
     public function isConnected() : bool;
 }

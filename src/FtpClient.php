@@ -31,20 +31,10 @@ class FtpClient
     public const FILE_TYPE     = 2;
     public const DIR_TYPE      = 1;
 
-    /** @var ConnectionInterface */
-    protected $connection;
+    protected ConnectionInterface $connection;
+    protected FtpCommand $command;
+    protected FtpWrapper $wrapper;
 
-    /** @var FtpCommand */
-    protected $command;
-
-    /** @var FtpWrapper */
-    protected $wrapper;
-
-    /**
-     * FtpClient constructor.
-     *
-     * @param ConnectionInterface $connection
-     */
     public function __construct(ConnectionInterface $connection)
     {
         $this->connection = $connection;
@@ -52,41 +42,24 @@ class FtpClient
         $this->wrapper    = new FtpWrapper($connection);
     }
 
-    /**
-     * @return ConnectionInterface
-     */
     public function getConnection() : ConnectionInterface
     {
         return $this->connection;
     }
 
     /**
-     * @param ConnectionInterface $connection
-     *
      * @since 1.5.3
-     *
-     * @return void
      */
     public function setConnection(ConnectionInterface $connection) : void
     {
         $this->connection = $connection;
     }
 
-    /**
-     * @param FtpCommand $command
-     *
-     * @return void
-     */
     public function setCommand(FtpCommand $command) : void
     {
         $this->command = $command;
     }
 
-    /**
-     * @param FtpWrapper $wrapper
-     *
-     * @return void
-     */
     public function setWrapper(FtpWrapper $wrapper) : void
     {
         $this->wrapper = $wrapper;
@@ -94,8 +67,6 @@ class FtpClient
 
     /**
      * @since 1.5.3
-     *
-     * @return FtpWrapper
      */
     public function getWrapper() : FtpWrapper
     {
@@ -104,8 +75,6 @@ class FtpClient
 
     /**
      * Gets parent directory of the current working directory.
-     *
-     * @return string
      *
      * @throws FtpClientException
      */
@@ -123,9 +92,7 @@ class FtpClient
     }
 
     /**
-     * Gets current working directory
-     * .
-     * @return string
+     * Gets current working directory.
      *
      * @throws FtpClientException
      */
@@ -141,8 +108,6 @@ class FtpClient
 
     /**
      * Back to the parent directory.
-     *
-     * @return bool
      *
      * @throws FtpClientException
      */
@@ -318,8 +283,6 @@ class FtpClient
     /**
      * Gets operating system type of the FTP server.
      *
-     * @return string
-     *
      * @throws FtpClientException
      */
     public function getSystem() : string
@@ -336,8 +299,6 @@ class FtpClient
      * Gets the default transfer type on FTP server.
      *
      * @see FtpCommand::raw()
-     *
-     * @return string
      *
      * @throws FtpClientException
      */
@@ -393,7 +354,7 @@ class FtpClient
     /**
      * Deletes a directory on the FTP server.
      *
-     * Note! This method will removes everything within the giving directory.
+     * Note! This method will remove everything within the giving directory.
      *
      * @param string $directory The remote directory path.
      *
@@ -440,9 +401,8 @@ class FtpClient
 
     /**
      * Determines if the giving feature is supported by the remote server or not.
-     * Note! the characters case are not important.
      *
-     * @param string $feature
+     * Note! the character's case are not important.
      *
      * @return bool Returns true if the feature is supported, false otherwise.
      *
@@ -488,7 +448,7 @@ class FtpClient
      *
      * @param string $directory The remote directory path.
      *
-     * @return int Return the size in bytes.
+     * @return int Returns the size in bytes.
      *
      * @throws FtpClientException
      */
@@ -523,24 +483,18 @@ class FtpClient
                 ?: "Failed to get files list for the remote ($directory) directory.");
         }
 
-        switch ($filter) {
-            case self::DIR_TYPE:
-                $files = array_filter($files, function ($file) {
-                    return $this->isDir($file);
-                });
-                break;
-
-            case self::FILE_TYPE:
-                $files = array_filter($files, function ($file) {
-                    return !$this->isDir($file);
-                });
-                break;
+        if ($filter === self::DIR_TYPE) {
+            $files = array_filter($files, fn($file) => $this->isDir($file));
         }
 
-        // some FTP servers may implement NSLT command slight
-        // different, they can returns a list of full paths
+        if ($filter === self::FILE_TYPE) {
+            $files = array_filter($files, fn($file) => !$this->isDir($file));
+        }
+
+        // some FTP servers may implement 'NSLT' command
+        // differently, they can return a list of full paths
         // contained in the provided directory, which is not
-        // the expected result from the NLST command.
+        // the expected result from the 'NLST' command.
         $files = array_map(function ($file) {
             if (strpos($file, '/') !== -1) {
                 return basename($file);
@@ -548,9 +502,7 @@ class FtpClient
         }, $files);
 
         if ($ignoreDots) {
-            $files = array_filter($files, function ($file) {
-                return !in_array($file, ['.', '..']);
-            });
+            $files = array_filter($files, fn($file) => !in_array($file, ['.', '..']));
         }
 
         // array_values reset the array indexes
@@ -670,12 +622,10 @@ class FtpClient
     /**
      * Sends a request to FTP server to allocate a space for the next file transfer.
      *
-     * Note! this function can success even the FTP server doesn't requires
-     * the allocating spaces for the file transfers.
+     * Note! this function can success even if the server doesn't require allocating file space
+     * for the file transfers.
      *
-     * @param int An integer represent the size in bytes
-     *
-     * @return bool
+     * @param int An integer represent the size in bytes.
      *
      * @throws FtpClientException
      */
@@ -842,12 +792,6 @@ class FtpClient
     /**
      * Creates an FTP file.
      *
-     * @param string     $filename
-     * @param mixed|null $content
-     * @param int        $mode
-     *
-     * @return bool
-     *
      * @throws FtpClientException
      */
     public function createFile(string $filename, $content = null, int $mode = FtpWrapper::BINARY) : bool
@@ -905,8 +849,6 @@ class FtpClient
      * @param string          $remoteFile The remote file to upload data into.
      * @param bool            $resume     [optional] Specifies whether to resume the upload operation.
      * @param int             $mode       [optional] Specifies the transfer mode.
-     *
-     * @return bool
      *
      * @throws FtpClientException
      */
@@ -969,7 +911,7 @@ class FtpClient
 
         $localFileSize  = filesize($localFile);
         $startTime      = microtime(true);
-        $sizeTmp        = null;
+        $sizeTmp        = 0;
         $elapsedTimeTmp = null;
         while ($download === FtpWrapper::MOREDATA) {
             $download    = $this->wrapper->nb_continue();
@@ -1013,8 +955,6 @@ class FtpClient
      * 'group' => 'e',
      * 'other' => 'w-r'
      * ]
-     *
-     * @return bool
      *
      * @throws FtpClientException
      */
@@ -1064,8 +1004,6 @@ class FtpClient
      * @param string $source            The path of the source file/directory.
      * @param string $destinationFolder The remote destination folder.
      *
-     * @return bool
-     *
      * @throws FtpClientException
      */
     public function copyFromLocal(string $source, string $destinationFolder) : bool
@@ -1103,8 +1041,6 @@ class FtpClient
      * @param string $remoteSource      The remote path of the source file/directory.
      * @param string $destinationFolder The local destination folder.
      *
-     * @return bool
-     *
      * @throws FtpClientException
      */
     public function copyToLocal(string $remoteSource, string $destinationFolder) : bool
@@ -1140,9 +1076,6 @@ class FtpClient
 
     /**
      * Copies a remote file/dir to another directory.
-     *
-     * @param string $remoteSource
-     * @param string $remoteDirectory
      *
      * @return bool Returns true in success and false otherwise, an exception may
      *              throws also.
@@ -1189,9 +1122,6 @@ class FtpClient
      *
      * @param string $pattern   The regex pattern.
      * @param string $directory The remote directory.
-     * @param bool   $recursive
-     *
-     * @return array
      *
      * @throws FtpClientException
      */
@@ -1222,15 +1152,9 @@ class FtpClient
      * specification, therefore this method may not work on some
      * FTP servers depending on each server implementation.
      *
-     * @param string $remoteFile
-     * @param string $content
-     * @param int    $mode
-     *
-     * @return bool
-     *
      * @throws FtpClientException
      */
-    public function appendFile($remoteFile, $content, $mode = FtpWrapper::BINARY): bool
+    public function appendFile(string $remoteFile, string $content, int $mode = FtpWrapper::BINARY): bool
     {
         $file = tmpfile();
         $path = stream_get_meta_data($file)['uri'];
@@ -1247,11 +1171,6 @@ class FtpClient
 
     /**
      * Gets the transfer operation average speed.
-     *
-     * @param int   $size
-     * @param float $elapsedTime
-     *
-     * @return float
      */
     protected function transferSpeed(int $size, float $elapsedTime): float
     {
@@ -1260,11 +1179,6 @@ class FtpClient
 
     /**
      * Gets the transfer operation progress percentage.
-     *
-     * @param float $size
-     * @param float $totalSize
-     *
-     * @return int
      */
     protected function transferPercentage(float $size, float $totalSize) : int
     {
@@ -1273,11 +1187,6 @@ class FtpClient
 
     /**
      * Gets the amount of bytes transferred in a transfer operation.
-     *
-     * @param float $size
-     * @param float $previousSize
-     *
-     * @return int
      */
     protected function transferredBytes(float $size, float $previousSize) : int
     {
@@ -1287,10 +1196,6 @@ class FtpClient
     /**
      * Gets the file type (type, dir, link) from teh giving chmod string
      * Ex : ('drwxr-xr-x' => 'dir').
-     *
-     * @param string $chmod
-     *
-     * @return string
      */
     protected function chmodToFileType(string $chmod) : string
     {
@@ -1313,10 +1218,6 @@ class FtpClient
      * Converts the giving chmod string to a numeric representation.
      * Ex : "w-r-e" => 7
      * Ex : "r-e"   => 3
-     *
-     * @param string $chmod
-     *
-     * @return int
      */
     protected function chmodToNumeric(string $chmod) : int
     {
@@ -1333,10 +1234,6 @@ class FtpClient
 
     /**
      * Gives the valid parent directory of an FTP path.
-     *
-     * @param string $dirname
-     *
-     * @return string
      */
     protected function dirname(string $dirname) : string
     {

@@ -23,48 +23,28 @@ use Lazzard\FtpClient\FtpWrapper;
  */
 class FtpCommand
 {
-    /** @var ConnectionInterface */
-    protected $connection;
+    protected ConnectionInterface $connection;
+    protected FtpWrapper $wrapper;
 
-    /** @var FtpWrapper */
-    protected $wrapper;
-
-    /**
-     * FtpCommand constructor.
-     *
-     * @param ConnectionInterface $connection
-     */
     public function __construct(ConnectionInterface $connection)
     {
         $this->connection = $connection;
         $this->wrapper    = new FtpWrapper($connection);
     }
 
-    /**
-     * @return ConnectionInterface
-     */
     public function getConnection() : ConnectionInterface
     {
         return $this->connection;
     }
 
     /**
-     * @param ConnectionInterface $connection
-     *
      * @since 1.5.3
-     *
-     * @return void
      */
     public function setConnection(ConnectionInterface $connection) : void
     {
         $this->connection = $connection;
     }
 
-    /**
-     * @param FtpWrapper $wrapper
-     *
-     * @return void
-     */
     public function setWrapper(FtpWrapper $wrapper) : void
     {
         $this->wrapper = $wrapper;
@@ -72,8 +52,6 @@ class FtpCommand
 
     /**
      * @since 1.5.3
-     *
-     * @return FtpWrapper
      */
     public function getWrapper() : FtpWrapper
     {
@@ -127,10 +105,6 @@ class FtpCommand
      *
      * Note! Not all FTP servers support this command.
      *
-     * @param string $command
-     *
-     * @return bool
-     *
      * @throws CommandException
      */
     public function exec(string $command) : bool
@@ -165,11 +139,6 @@ class FtpCommand
         return array_map('ltrim', $response['body']);
     }
 
-    /**
-     * @param array $response
-     *
-     * @return array
-     */
     protected function parseRawResponse(array $response) : array
     {
         $code = $message = $body = $endMessage = null;
