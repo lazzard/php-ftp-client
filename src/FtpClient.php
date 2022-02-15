@@ -1050,6 +1050,11 @@ class FtpClient
 
         if ($this->isFile($remoteSource)) {
             $localPath = "$destinationFolder/$sourceBase";
+            if (!is_dir($destinationFolder)) {
+                throw new FtpClientException(sprintf('The destination folder: %s is not found',
+                    $destinationFolder
+                ));
+            }
             return $this->download($remoteSource, $localPath, false);
         }
 
@@ -1062,6 +1067,10 @@ class FtpClient
 
             $files = $this->listDirDetails($remoteSource, true);
             foreach ($files as $file) {
+                if (substr($file['path'], 0, 2) !== './') {
+                    $file['path'] = './' . $file['path'];
+                }
+
                 if (preg_match('/' . preg_quote($remoteSource, '/') . '\/(.*)/', $file['path'], $matches)) {
                     $source = dirname($matches[1]);
                     $this->copyToLocal($file['path'], "$destinationFolder/$source");
