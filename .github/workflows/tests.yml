@@ -1,0 +1,50 @@
+name: tests
+
+on: [ push, pull_request ]
+
+jobs:
+  run:
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      matrix:
+        operating-system: [ ubuntu-latest ]
+        php-versions: [ '7.4', '8.0' ]
+    name: PHP ${{ matrix.php-versions }} Test on ${{ matrix.operating-system }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extensions: mbstring, intl, zip, ftp
+          coverage: none
+
+      - name: Check PHP Version
+        run: php -v
+
+      - name: Check Composer Version
+        run: composer -V
+
+      - name: Check PHP Extensions
+        run: php -m
+
+      - name: Install dependencies for PHP
+        run: composer update --prefer-dist --no-progress
+
+      - name: Setup SSL key with openssl
+        run: openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout ./vsftpd.key -out ./vsftpd.crt -subj "/C=AU/ST=Test/L=Test/O=Test com. /OU=Open Source World/CN=lazzard"
+
+      - name: Building fake FTP server container
+        run: cd tests/integration && docker build -t lazzard/vsftpd .
+
+      - name: Setup fake FTP server
+        run: docker run --name vsftpd -d -e LOG_STDOUT=true -e FTP_USER=username -e FTP_PASS=password -e ANONYMOUS_ACCESS=true -p 20-21:20-21 -p 21100-21110:21100-21110 -v $PWD/vsftpd.key:/etc/ssl/private/vsftpd.key -v $PWD/vsftpd.crt:/etc/ssl/certs/vsftpd.crt lazzard/vsftpd
+
+      - name: Set the host to be localhost
+        run: sed -i 's/host/172.17.0.2/g' tests/config.php
+
+      - name: Run test suite
+        run: vendor/bin/phpunit

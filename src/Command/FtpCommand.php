@@ -136,7 +136,7 @@ class FtpCommand
             return $response['message'];
         }
 
-        return array_map('ltrim', $response['body']);
+        return array_map('ltrim', $response['body'] ?? []);
     }
 
     protected function parseRawResponse(array $response) : array
