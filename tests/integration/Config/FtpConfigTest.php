@@ -2,27 +2,25 @@
 
 namespace Lazzard\FtpClient\Tests\Integration\Config;
 
-use PHPUnit\Framework\TestCase;
 use Lazzard\FtpClient\Config\FtpConfig;
-use Lazzard\FtpClient\Tests\Integration\ConnectionHelper;
+use Lazzard\FtpClient\Tests\Integration\FtpConnectionFactory;
+use PHPUnit\Framework\TestCase;
 
 class FtpConfigTest extends TestCase
 {
-    public function testConstructor() : void
-    {
-        $this->assertInstanceOf(FtpConfig::class, new FtpConfig(ConnectionHelper::getConnection()));
-    }
 
     public function testSetPassive() : void
     {
-        $config = new FtpConfig(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $config = new FtpConfig($factory->create());
 
         $this->assertTrue($config->setPassive(true));
     }
 
     public function testSetAutoSeek() : void
     {
-        $config = new FtpConfig(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $config = new FtpConfig($factory->create());
 
         $this->assertTrue($config->setAutoSeek(false));
         $this->assertFalse($config->isAutoSeek());
@@ -30,7 +28,8 @@ class FtpConfigTest extends TestCase
 
     public function testSetTimeout() : void
     {
-        $config = new FtpConfig(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $config = new FtpConfig($factory->create());
 
         $this->assertTrue($config->setTimeout(64));
         $this->assertSame(64, $config->getTimeout());
@@ -38,7 +37,8 @@ class FtpConfigTest extends TestCase
 
     public function testGetTimeout() : void
     {
-        $config = new FtpConfig(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $config = new FtpConfig($factory->create());
 
         $config->setTimeout(32);
         $this->assertSame(32, $config->getTimeout());
@@ -46,7 +46,8 @@ class FtpConfigTest extends TestCase
 
     public function testIsAutoSeek() : void
     {
-        $config = new FtpConfig(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $config = new FtpConfig($factory->create());
 
         $config->setAutoSeek(true);
         $this->assertTrue($config->isAutoSeek());

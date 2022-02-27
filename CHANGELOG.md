@@ -1,5 +1,10 @@
 # Change Log
 
+## 1.6.1 (2022-02-27)
+
+* Integrated the GitHub actions to run the integration tests automatically ([#31](https://github.com/lazzard/php-ftp-client/pull/31) - [#32](https://github.com/lazzard/php-ftp-client/pull/32)).
+* `FtpClient::copyToLocal` now throws an exception if the source remote path is file type and the local destionation directory is not found.
+
 ## 1.6.0 (2022-01-31)
 
 * Upgraded the code base to PHP `^7.4`.
@@ -38,8 +43,8 @@
 
 * `FtpClient::fileSize` fixed for servers that not support `SIZE` feature.
 * `FtpClient::listDir` fixed compatibility issue with some FTP servers.
-* `Connection::isConnected` fixed bug : if the connection is not established yet the method was returned 
-a NULL value instead of false.
+* `Connection::isConnected` fixed bug : if the connection is not established yet the method was returned
+  a NULL value instead of false.
 * `FtpCommand::raw` improved and added the `end-message` to the returned array.
 * `FtpClient::isDir` performance optimized.
 * `FtpClient::listDirDetails` improved (No Breaking Change).
@@ -69,7 +74,7 @@ a NULL value instead of false.
 * `FtpClient::copyToLocal` method added.
 * `FtpClient::find` method added.
 
-### Renamed 
+### Renamed
 
 * `FtpClient::setCurrentDir` renamed to `FtpClient::changeDir`.
 * `FtpClient::createDirectory` renamed to `FtpClient::createDir`.
@@ -119,7 +124,7 @@ a NULL value instead of false.
 ## v1.2.0 (2021-01-12)
 
 * Upgraded to PHP 5.6.0 version.
-* Supported the `usePassiveAddress` runtime option. 
+* Supported the `usePassiveAddress` runtime option.
 * Added more options for unit testing (`PASSIVE`, `INITIAL_DIR`).
 * Removed `USESSL` option for unit testing.
 
@@ -132,7 +137,7 @@ a NULL value instead of false.
 * Removed `FtpClient::isEmptyDirectory` & `FtpClient::isEmptyFile` use `FtpClient::isEmpty` instead for both files and directories.
 
 ### Behavior changed
-    
+
 * `FtpClient::removeFile` & `FtpClient::removeDirectory` methods now doesn't throw an exception if the given file doesn't exist, but instead returns false.
 * `FtpClient::createFile` now doesn't throw an exception if the file name already exists on the server, instead, the remote file will be overwritten.
 * `FtpClient::createDirectory` now returns true if the giving directory already exists instead of throwing an exception.
