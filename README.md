@@ -1,7 +1,8 @@
 [![Downloads](https://img.shields.io/packagist/dt/lazzard/php-ftp-client?style=flat-square)](https://packagist.org/packages/lazzard/php-ftp-client)
 [![Packagist Version](https://img.shields.io/packagist/v/lazzard/php-ftp-client?style=flat-square)](https://packagist.org/packages/lazzard/php-ftp-client)
-[![Minimum PHP version](https://img.shields.io/packagist/php-v/lazzard/php-ftp-client?style=flat-square)](https://packagist.org/packages/lazzard/php-ftp-client)
-![License](https://img.shields.io/packagist/l/lazzard/php-ftp-client?style=flat-square)
+[![tests](https://img.shields.io/github/workflow/status/lazzard/php-ftp-client/tests?label=tests&style=flat-square)](https://github.com/lazzard/php-ftp-client/actions/workflows/tests.yml)
+[![Minimum PHP version](https://img.shields.io/packagist/php-v/lazzard/php-ftp-client?style=flat-square&color=blue)](https://packagist.org/packages/lazzard/php-ftp-client)
+![License](https://img.shields.io/packagist/l/lazzard/php-ftp-client?style=flat-square&color=red)
 
 # Lazzard/FtpClient
 
@@ -24,7 +25,6 @@ require __DIR__ . '/vendor/autoload.php';
 use Lazzard\FtpClient\Connection\FtpSSLConnection;
 use Lazzard\FtpClient\Config\FtpConfig;
 use Lazzard\FtpClient\FtpClient;
-use Lazzard\FtpClient\Exception\FtpClientException;
 
 try {
     if (!extension_loaded('ftp')) {
@@ -38,12 +38,12 @@ try {
     $config->setPassive(true);
 
     $client = new FtpClient($connection);
-    
+
     print_r($client->getFeatures());
-    
+
     $connection->close();
-    
-} catch (\Throwable $ex) {
+
+} catch (Throwable $ex) {
     print_r($ex->getMessage());
 }
 ```
@@ -266,7 +266,7 @@ $client->keepAlive();
 |  1.0.x  |  EOL   | [v1.0.2][7]  |   >= 5.5    |
 |  1.4.x  |  EOL   | [v1.4.2][9]  |   >= 5.6    |
 |  1.5.x  |  EOL   | [v1.5.3][9]  |   ^7.2 \| 8.0.* |
-|  1.6.x  | Latest | [v1.6.0][10] |   ^7.4 \| 8.0.* |
+|  1.6.x  | Latest | [v1.6.1][10] |   ^7.4 \| 8.0.* |
 
 [7]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.0.2
 
@@ -274,7 +274,7 @@ $client->keepAlive();
 
 [9]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.5.3
 
-[10]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.6.0
+[10]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.6.1
 
 ## Contribution
 
@@ -283,7 +283,7 @@ you facing while using the library will be very appreciated, Thank you!
 
 ## They support this project
 
-<img width="150" src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png?_gl=1*1evhn6q*_ga*MzA3MTk5NzQ3LjE2MzU3OTk3MDA.*_ga_V0XZL7QHEB*MTYzNTg5MzE3NS4yLjEuMTYzNTg5MzkzNC4xNg..&_ga=2.162913596.1450626373.1635893177-307199747.1635799700"/>
+<img width="150px" src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_square.png"/>
 
 ## License
 
