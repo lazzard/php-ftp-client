@@ -89,7 +89,7 @@ class FtpWrapper
      */
     public function __call(string $func, $args = null)
     {
-        $function = static::FTP_FUNCTIONS_PREFIX.$func;
+        $function = self::FTP_FUNCTIONS_PREFIX.$func;
 
         if (!function_exists($function)) {
             throw new WrapperException("$function() doesn't exists.");
