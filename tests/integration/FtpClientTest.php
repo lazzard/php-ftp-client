@@ -2,8 +2,8 @@
 
 namespace Lazzard\FtpClient\Tests\Integration;
 
-use PHPUnit\Framework\TestCase;
 use Lazzard\FtpClient\FtpClient;
+use PHPUnit\Framework\TestCase;
 
 class FtpClientTest extends TestCase
 {
@@ -25,21 +25,18 @@ class FtpClientTest extends TestCase
         }
     }
 
-    public function testConstructor() : void
-    {
-        $this->assertInstanceOf(FtpClient::class, new FtpClient(ConnectionHelper::getConnection()));
-    }
-
     public function testGetParent() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $this->assertIsString($client->getParent());
     }
 
     public function testCreateFileWithoutContent() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $this->assertTrue($client->createFile(self::$testFile));
 
@@ -48,7 +45,8 @@ class FtpClientTest extends TestCase
 
     public function testCreateFileWithContent() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $this->assertTrue($client->createFile(self::$testFile, 'some content'));
 
@@ -57,7 +55,8 @@ class FtpClientTest extends TestCase
 
     public function testCreateDir() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $this->assertTrue($client->createDir(self::$testDir));
 
@@ -66,7 +65,8 @@ class FtpClientTest extends TestCase
 
     public function testCreateDirRecursiveCreation() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $this->assertTrue($client->createDir(self::$testDir . '/' . basename(self::$testDir)));
 
@@ -75,7 +75,8 @@ class FtpClientTest extends TestCase
 
     public function testFileSize() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $client->createFile(self::$testFile, 'some content');
 
@@ -86,7 +87,8 @@ class FtpClientTest extends TestCase
 
     public function testDirSizeWithEmptyDirectory() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $client->createDir(self::$testDir);
 
@@ -97,7 +99,8 @@ class FtpClientTest extends TestCase
 
     public function testDirSizeWithNonEmptyDirectory() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $client->createDir(self::$testDir);
         $client->createFile(self::$testDir . "/" . basename(self::$testFile), 'content');
@@ -111,7 +114,8 @@ class FtpClientTest extends TestCase
     {
         $localFile = tempnam(sys_get_temp_dir(), 'testDownload');
 
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $client->createFile(self::$testFile, 'some content');
 
@@ -127,7 +131,8 @@ class FtpClientTest extends TestCase
     {
         $localFile = tempnam(sys_get_temp_dir(), 'testAsyncDownload');
 
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $client->createFile(self::$testFile, 'some content');
 
@@ -143,7 +148,8 @@ class FtpClientTest extends TestCase
 
     public function testMove() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $client->createFile(self::$testFile);
 
@@ -157,7 +163,8 @@ class FtpClientTest extends TestCase
 
     public function testSetPermissionsWithArrayParameter() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $client->createFile(self::$testFile);
 
@@ -172,7 +179,8 @@ class FtpClientTest extends TestCase
 
     public function testSetPermissionsWithNumericParameter() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $client->createFile(self::$testFile);
 
@@ -183,7 +191,8 @@ class FtpClientTest extends TestCase
 
     public function testIsEmptyWithEmptyFile() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $client->createFile(self::$testFile);
 
@@ -194,7 +203,8 @@ class FtpClientTest extends TestCase
 
     public function testIsEmptyWithNonEmptyFile() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $client->createFile(self::$testFile, "some content");
 
@@ -205,7 +215,8 @@ class FtpClientTest extends TestCase
 
     public function testIsEmptyWithEmptyDirectory() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $client->createDir(self::$testDir);
 
@@ -216,7 +227,8 @@ class FtpClientTest extends TestCase
 
     public function testIsEmptyWithNonEmptyDirectory() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $client->createDir(self::$testDir);
         $client->createFile(self::$testDir . "/" . basename(self::$testFile), 'content');
@@ -228,7 +240,8 @@ class FtpClientTest extends TestCase
 
     public function testIsFileWithFile() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $client->createFile(self::$testFile);
 
@@ -239,7 +252,8 @@ class FtpClientTest extends TestCase
 
     public function testIsFileWithDirectory() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $client->createDir(self::$testDir);
 
@@ -250,7 +264,8 @@ class FtpClientTest extends TestCase
 
     public function testIsDirWithDirectory() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $client->createDir(self::$testDir);
 
@@ -261,7 +276,8 @@ class FtpClientTest extends TestCase
 
     public function testIsDirWithFile() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $client->createFile(self::$testFile);
 
@@ -272,7 +288,8 @@ class FtpClientTest extends TestCase
 
     public function testGetFileContent() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $client->createFile(self::$testFile, "some content");
 
@@ -284,7 +301,8 @@ class FtpClientTest extends TestCase
 
     public function testLastMTimeWithoutFormat() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $client->createFile(self::$testFile);
 
@@ -295,7 +313,8 @@ class FtpClientTest extends TestCase
 
     public function testLastMTimeWithFormat() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $client->createFile(self::$testFile);
 
@@ -306,7 +325,8 @@ class FtpClientTest extends TestCase
 
     public function testRemoveFile() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $client->createFile(self::$testFile);
 
@@ -315,7 +335,8 @@ class FtpClientTest extends TestCase
 
     public function testRemoveDirectory() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $client->createDir(self::$testDir);
 
@@ -326,7 +347,8 @@ class FtpClientTest extends TestCase
     {
         $localFile = tempnam(sys_get_temp_dir(), 'testUpload');
 
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $this->assertTrue($client->upload($localFile, self::$testFile));
         $this->assertTrue($client->isExists(self::$testFile));
@@ -340,7 +362,8 @@ class FtpClientTest extends TestCase
     {
         $localFile = tempnam(sys_get_temp_dir(), 'testUpload');
 
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $this->assertTrue($client->asyncUpload($localFile, self::$testFile, function () {
             //
@@ -354,7 +377,8 @@ class FtpClientTest extends TestCase
 
     public function testRenameWithFile() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $client->createFile(self::$testFile);
 
@@ -367,7 +391,8 @@ class FtpClientTest extends TestCase
 
     public function testRenameWithDirectory() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $client->createDir(self::$testDir);
 
@@ -380,21 +405,24 @@ class FtpClientTest extends TestCase
 
     public function testKeepConnectionAlive() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $this->assertTrue($client->keepAlive());
     }
 
     public function testGetFeatures() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $this->assertIsArray($client->getFeatures());
     }
 
     public function testBack() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $original = $client->getCurrentDir();
 
@@ -405,7 +433,8 @@ class FtpClientTest extends TestCase
 
     public function testGetCurrentDir() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $client->createDir(self::$testDir);
 
@@ -414,28 +443,32 @@ class FtpClientTest extends TestCase
 
     public function testIsFeatureSupported() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $this->assertFalse($client->isFeatureSupported("my feature"));
     }
 
     public function testAllocateSpace() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $this->assertTrue($client->allocateSpace(256));
     }
 
     public function testGetSystem() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $this->assertIsString($client->getSystem());
     }
 
     public function testGetCount() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $client->createDir(self::$testDir);
         $client->createFile(self::$testDir . "/" . basename(self::$testFile));
@@ -447,7 +480,8 @@ class FtpClientTest extends TestCase
 
     public function testGetCountRecursive() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $client->createDir(self::$testDir);
         $client->createFile(self::$testDir . "/" . basename(self::$testFile));
@@ -459,7 +493,8 @@ class FtpClientTest extends TestCase
 
     public function testListDir() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $client->createDir(self::$testDir);
         $client->createFile(self::$testDir . '/' . basename(self::$testFile));
@@ -471,14 +506,16 @@ class FtpClientTest extends TestCase
 
     public function testChangeDir() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $this->assertTrue($client->changeDir('.'));
     }
 
     public function testListDirectoryDetails() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $client->createDir(self::$testDir);
         $client->createFile(self::$testDir . '/' . basename(self::$testFile));
@@ -496,7 +533,8 @@ class FtpClientTest extends TestCase
 
         tempnam($localDir, 'testCopyFromLocalWithDirectory');
 
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $this->assertTrue($client->copyFromLocal($localDir, self::$testDir));
         $this->assertTrue($client->isDir(self::$testDir . "/" . basename($localDir)));
@@ -510,7 +548,8 @@ class FtpClientTest extends TestCase
     {
         $localFile = tempnam(sys_get_temp_dir(), 'testCopyFromLocalWithFile');
 
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $client->createDir(self::$testDir);
 
@@ -524,7 +563,8 @@ class FtpClientTest extends TestCase
 
     public function testCopyToLocalWithFile() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $client->createFile(self::$testFile);
 
@@ -538,7 +578,8 @@ class FtpClientTest extends TestCase
 
     public function testCopyToLocalWithDirectory() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $client->createDir(self::$testDir);
         $client->createFile(self::$testDir . "/" . basename(self::$testFile), 'content');
@@ -556,7 +597,8 @@ class FtpClientTest extends TestCase
 
     public function testFind() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $client->createFile(self::$testFile);
 
@@ -569,7 +611,8 @@ class FtpClientTest extends TestCase
     {
         $this->markTestIncomplete('The find method with recursive approach seems to be problematic.');
 
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $deepDir = self::$testDir . '/' . basename(self::$testDir);
 
@@ -583,7 +626,8 @@ class FtpClientTest extends TestCase
 
     public function testCopyWithFile() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $client->createDir(self::$testDir);
         $client->createFile(self::$testFile);
@@ -597,7 +641,8 @@ class FtpClientTest extends TestCase
 
     public function testCopyWithDirectory() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $testDir2 = self::$testDir . "_2";
 
@@ -614,7 +659,8 @@ class FtpClientTest extends TestCase
 
     public function testAppendFile() : void
     {
-        $client = new FtpClient(ConnectionHelper::getConnection());
+        $factory = new FtpConnectionFactory();
+        $client = new FtpClient($factory->create());
 
         $testFile = self::$testFile;
 

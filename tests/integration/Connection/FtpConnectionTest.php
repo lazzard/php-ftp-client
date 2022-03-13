@@ -2,18 +2,12 @@
 
 namespace Lazzard\FtpClient\Tests\Integration\Connection;
 
-use PHPUnit\Framework\TestCase;
-use Lazzard\FtpClient\Config\FtpConfig;
-use Lazzard\FtpClient\Connection\ConnectionInterface;
 use Lazzard\FtpClient\Connection\FtpConnection;
 use Lazzard\FtpClient\Exception\ConnectionException;
+use PHPUnit\Framework\TestCase;
 
 class FtpConnectionTest extends TestCase
 {
-    public function testConstructor() : void
-    {
-        $this->assertInstanceOf(ConnectionInterface::class, new FtpConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT));
-    }
 
     public function testGetStreamWithOpenedConnection() : void
     {

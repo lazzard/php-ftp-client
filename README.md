@@ -277,7 +277,7 @@ $client->keepAlive();
 
 [10]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.6.1
 
-[10]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.7.0
+[11]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.7.0
 
 ## Contribution
 
