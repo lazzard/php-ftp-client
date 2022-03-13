@@ -24,7 +24,7 @@ abstract class Connection implements ConnectionInterface
 {
     protected FtpWrapper $wrapper;
 
-    /** @var resource */
+    /** @var resource|\FTP\Connection */
     protected $stream;
 
     protected string $host;
@@ -76,8 +76,8 @@ abstract class Connection implements ConnectionInterface
      */
     public function getStream()
     {
-        if (!is_resource($this->stream)) {
-            throw new ConnectionException("Invalid FTP stream resource, try to reopen the FTP connection.");
+        if (!is_resource($this->stream) && !$this->stream instanceof \FTP\Connection) {
+            throw new ConnectionException("Invalid FTP connection, try to reopen the FTP connection.");
         }
 
         return $this->stream;

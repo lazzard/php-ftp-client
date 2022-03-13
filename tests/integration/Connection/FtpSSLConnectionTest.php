@@ -23,7 +23,7 @@ class FtpSSLConnectionTest extends TestCase
 
         $connection->open();
 
-        $this->assertSame('resource', gettype($connection->getStream()));
+        $this->assertTrue(is_resource($connection->getStream()) || $connection->getStream() instanceof \FTP\Connection);
 
         $connection->close();
     }
