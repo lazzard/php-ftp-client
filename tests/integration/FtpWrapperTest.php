@@ -22,7 +22,9 @@ class FtpWrapperTest extends TestCase
         $factory = new FtpConnectionFactory();
         $wrapper = new FtpWrapper($factory->create());
 
-        $this->assertIsResource($wrapper->connect(HOST));
+        $connection = $wrapper->connect(HOST);
+
+        $this->assertTrue(is_resource($connection) || $connection instanceof \FTP\Connection);
     }
 
     public function test__callWithNonExistFtpFunction() : void

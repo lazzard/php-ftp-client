@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.7.0 (2022-03-14)
+
+* Added support of PHP version '8.1'.
+
 ## 1.6.1 (2022-02-27)
 
 * Integrated the GitHub actions to run the integration tests automatically ([#31](https://github.com/lazzard/php-ftp-client/pull/31) - [#32](https://github.com/lazzard/php-ftp-client/pull/32)).

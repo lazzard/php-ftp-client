@@ -74,7 +74,7 @@ $client->asyncUpload('path/to/local/file', 'path/to/remote/file', function ($sta
 }, 1, FtpWrapper::BINARY);
 ```
 
-*Find more about asynchrounous stuff [here](docs/FtpClient.md#asynchronous-transfer-operations).*
+*Find more about asynchronous stuff [here](docs/FtpClient.md#asynchronous-transfer-operations).*
 
 #### listing
 
@@ -265,8 +265,9 @@ $client->keepAlive();
 |:-------:|:------:|:------------:|:-----------:|
 |  1.0.x  |  EOL   | [v1.0.2][7]  |   >= 5.5    |
 |  1.4.x  |  EOL   | [v1.4.2][9]  |   >= 5.6    |
-|  1.5.x  |  EOL   | [v1.5.3][9]  |   ^7.2 \| 8.0.* |
-|  1.6.x  | Latest | [v1.6.1][10] |   ^7.4 \| 8.0.* |
+|  1.5.x  |  EOL   | [v1.5.3][9]  |   ^7.2 \|| 8.0.* |
+|  1.6.x  | Latest | [v1.6.1][10] |   ^7.4 \|| 8.0.* |
+|  1.7.x  | Latest | [v1.7.0][11] |   ^7.4 \|| ^8.0  |
 
 [7]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.0.2
 
@@ -275,6 +276,8 @@ $client->keepAlive();
 [9]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.5.3
 
 [10]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.6.1
+
+[11]: https://github.com/lazzard/php-ftp-client/releases/tag/v1.7.0
 
 ## Contribution
 
