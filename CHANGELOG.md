@@ -2,7 +2,7 @@
 
 ## 1.7.0 (2022-03-14)
 
-* Added support of PHP version '8.1'.
+* Added support of PHP version '8.1' ([#34](https://github.com/lazzard/php-ftp-client/pull/34)).
 
 ## 1.6.1 (2022-02-27)
 
