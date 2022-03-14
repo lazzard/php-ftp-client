@@ -1,36 +1,36 @@
 {
-  "name": "lazzard/php-ftp-client",
-  "description": "This library provides helper classes and methods to manage your FTP files in an OOP way.",
-  "type": "library",
-  "license": "MIT",
-  "keywords": [
-    "php",
-    "ftp-library",
-    "ftp-client",
-    "php-ftp-client"
-  ],
-  "authors": [
-    {
-      "name": "El Amrani Chakir",
-      "email": "elamrani.sv.laza@gmail.com",
-      "homepage": "https://github.com/AmraniCh"
+    "name": "lazzard/php-ftp-client",
+    "description": "This library provides helper classes and methods to manage your FTP files in an OOP way.",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+        "php",
+        "ftp-library",
+        "ftp-client",
+        "php-ftp-client"
+    ],
+    "authors": [
+        {
+            "name": "El Amrani Chakir",
+            "email": "elamrani.sv.laza@gmail.com",
+            "homepage": "https://github.com/AmraniCh"
+        }
+    ],
+    "require": {
+        "php": "^7.4 || ^8.0",
+        "ext-ftp": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Lazzard\\FtpClient\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Lazzard\\FtpClient\\Tests\\Integration\\": "tests/integration"
+        }
     }
-  ],
-  "require": {
-    "php": "^7.4 || ^8.0",
-    "ext-ftp": "*"
-  },
-  "require-dev": {
-    "phpunit/phpunit": "^9.0"
-  },
-  "autoload": {
-    "psr-4": {
-      "Lazzard\\FtpClient\\": "src/"
-    }
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "Lazzard\\FtpClient\\Tests\\Integration\\": "tests/integration"
-    }
-  }
 }
