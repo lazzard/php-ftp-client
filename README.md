@@ -2,14 +2,14 @@
 [![Packagist Version](https://img.shields.io/packagist/v/lazzard/php-ftp-client?style=flat-square)](https://packagist.org/packages/lazzard/php-ftp-client)
 [![tests](https://img.shields.io/github/workflow/status/lazzard/php-ftp-client/tests?label=tests&style=flat-square)](https://github.com/lazzard/php-ftp-client/actions/workflows/tests.yml)
 [![Minimum PHP version](https://img.shields.io/packagist/php-v/lazzard/php-ftp-client?style=flat-square&color=blue)](https://packagist.org/packages/lazzard/php-ftp-client)
-![License](https://img.shields.io/packagist/l/lazzard/php-ftp-client?style=flat-square&color=red)
+![License](https://img.shields.io/packagist/l/lazzard/php-ftp-client?style=flat-square)
 
 # Lazzard/FtpClient
 
 This library provides helper classes and methods to manage your FTP files in an OOP way.
 
-*Note: This library aimed to be a full FTP/FTPS client solution for the old **(^5.5)** and newer PHP releases **(^8.0)**
-that support FTP extension.*
+*This library aimed to be a full FTP/FTPS client solution for the old **(^5.5)** and newer PHP releases **(^8.0)**
+that support FTP extension. [(see the versions guide below)](#version-guidance)*
 
 ## Quick Start
 
@@ -288,6 +288,3 @@ you facing while using the library will be very appreciated, Thank you!
 
 <img width="150px" src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_square.png"/>
 
-## License
-
-MIT License. please see the [LICENSE FILE](LICENSE) for more information. 
