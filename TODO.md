@@ -4,11 +4,8 @@
 
 ## The next PHP Upgrades
 
-- [ ] ^7.4 | ^8.0.
-
-## The next PHPUnit Upgrade
+## The next PHPUnit Upgrades
 
 ## API methods
 
-- [ ] Adding the `FtpClient::getTransferMode($file)` method to find the appropriate transfer mode (not based on file extension) for the giving **local** file.
-- [ ] Implement a method that allows to download all the files within the giving remote directory.
+- [ ] Adding a method that find the proper transfer mode for the giving **local** file (not based on file extension).
