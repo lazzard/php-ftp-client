@@ -1,11 +1,13 @@
-# TODO LIST
+> This document describes some desired features, API methods, and PHP/PHPUnit version upgrades for feature releases of this library.
 
-> This document describes some desired features, API methods, and PHP/PHPUnit upgrades for the feature releases of this library.
+## PHP Upgrades
 
-## The next PHP Upgrades
-
-## The next PHPUnit Upgrades
+## PHPUnit Upgrades
 
 ## API methods
 
 - [ ] Adding a method that find the proper transfer mode for the giving **local** file (not based on file extension).
+
+## API classes
+
+- [ ] Add `FileInfo` class which represents an FTP file/directory.
