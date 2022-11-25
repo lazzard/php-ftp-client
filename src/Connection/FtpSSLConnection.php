@@ -49,11 +49,13 @@ class FtpSSLConnection extends Connection
     {
         parent::connect();
 
-        if (!$this->stream = $this->wrapper->ssl_connect($this->getHost(), $this->getPort(), $this->getTimeout())) {
+        $stream = $this->wrapper->ssl_connect($this->getHost(), $this->getPort(), $this->getTimeout());
+        if (!$stream) {
             throw new ConnectionException($this->wrapper->getErrorMessage()
                 ?: 'SSL connection failed to the FTP server.');
         }
 
+        $this->setStream($stream);
         $this->wrapper->setConnection($this);
     }
 }

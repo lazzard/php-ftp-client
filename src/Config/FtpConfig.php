@@ -25,6 +25,7 @@ class FtpConfig
 {
     protected ConnectionInterface $connection;
     protected FtpWrapper $wrapper;
+    protected bool $passive = false;
 
     public function __construct(ConnectionInterface $connection)
     {
@@ -71,6 +72,8 @@ class FtpConfig
             throw new ConfigException($this->wrapper->getErrorMessage()
                 ?: "Unable to switch FTP mode.");
         }
+
+        $this->passive = $value;
 
         return true;
     }
@@ -130,6 +133,18 @@ class FtpConfig
         }
 
         return true;
+    }
+
+    /**
+     * Gets the passive mode value.
+     *
+     * @return bool Returns true in enabling passive mode, if not a false returns,
+     *
+     * @throws ConfigException
+     */
+    public function isPassive() : bool
+    {
+        return $this->passive;
     }
 
     /**

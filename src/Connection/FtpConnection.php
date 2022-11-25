@@ -28,11 +28,13 @@ class FtpConnection extends Connection
     {
         parent::connect();
 
-        if (!($this->stream = $this->wrapper->connect($this->getHost(), $this->getPort(), $this->getTimeout()))) {
+        $stream = $this->wrapper->connect($this->getHost(), $this->getPort(), $this->getTimeout());
+        if (!$stream) {
             throw new ConnectionException($this->wrapper->getErrorMessage()
                 ?: 'FTP connection failed to remote server.');
         }
 
+        $this->setStream($stream);
         $this->wrapper->setConnection($this);
     }
 }

@@ -25,7 +25,7 @@ abstract class Connection implements ConnectionInterface
     protected FtpWrapper $wrapper;
 
     /** @var resource|\FTP\Connection */
-    protected $stream;
+    private $stream;
 
     protected string $host;
     protected int $port;
@@ -81,6 +81,11 @@ abstract class Connection implements ConnectionInterface
         }
 
         return $this->stream;
+    }
+
+    protected function setStream($stream)
+    {
+        $this->stream = $stream;
     }
 
     public function getHost() : string
