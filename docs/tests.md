@@ -2,8 +2,8 @@
 
 ## Requirements
 
-* phpUnit ^5
-* php >= 5.6
+* phpUnit ^9
+* php >= 7.4
 
 ## Install
 
