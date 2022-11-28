@@ -3,6 +3,7 @@
 namespace Lazzard\FtpClient\Tests\Integration\Config;
 
 use Lazzard\FtpClient\Config\FtpConfig;
+use Lazzard\FtpClient\Connection\FooFtpConnection;
 use Lazzard\FtpClient\Tests\Integration\FtpConnectionFactory;
 use PHPUnit\Framework\TestCase;
 
@@ -44,6 +45,32 @@ class FtpConfigTest extends TestCase
         $this->assertTrue($config->isPassive());
     }
 
+    public function testGetPassiveWhereFTPResourceSteamChanged(): void
+    {
+        $connection = new FooFtpConnection(HOST, USERNAME, PASSWORD, PORT, TIMEOUT);
+
+        $stream = ftp_connect(HOST, PORT, TIMEOUT);
+
+        $isLoggedIn = ftp_login($stream, USERNAME, PASSWORD);
+        if (!$isLoggedIn) {
+            $this->fail("Could not login.");
+        }
+
+        $connection->setStream($stream);
+
+        $config = new FtpConfig($connection);
+
+        // asserts
+        $this->assertFalse($config->isPassive());
+        $config->setPassive(true);
+        $this->assertTrue($config->isPassive());
+        $isSetPassiveSuccess = ftp_pasv($stream, false);
+        if (!$isSetPassiveSuccess) {
+            $this->fail("Set passive mode failed.");
+        }
+        $this->assertFalse($config->isPassive());
+    }
+    
     public function testGetTimeout() : void
     {
         $factory = new FtpConnectionFactory();
