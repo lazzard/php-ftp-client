@@ -35,6 +35,15 @@ class FtpConfigTest extends TestCase
         $this->assertSame(64, $config->getTimeout());
     }
 
+    public function testGetPassive(): void
+    {
+        $factory = new FtpConnectionFactory();
+        $config = new FtpConfig($factory->create());
+        $config->setPassive(true);
+
+        $this->assertTrue($config->isPassive());
+    }
+
     public function testGetTimeout() : void
     {
         $factory = new FtpConnectionFactory();
